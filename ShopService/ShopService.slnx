@@ -1,0 +1,10 @@
+<Solution>
+  <Project Path="../Shared/Shared.csproj" />
+  <Project Path="ShopService.Application/ShopService.Application.csproj" Id="2689a4b6-8851-4657-8df6-7e14ea20ef3c" />
+  <Project Path="docker-compose.dcproj">
+    <Build />
+  </Project>
+  <Project Path="ShopService.Core/ShopService.Core.csproj" />
+  <Project Path="ShopService.Database/ShopService.Database.csproj" />
+  <Project Path="ShopService/ShopService.csproj" />
+</Solution>

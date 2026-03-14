@@ -1,0 +1,13 @@
+services:
+  shopservice:
+    image: ${DOCKER_REGISTRY-}shopservice
+    build:
+      context: .
+      dockerfile: ShopService/Dockerfile
+    networks:
+      - diplom-infr_app_network
+
+networks:
+  diplom-infr_app_network:
+    driver: bridge
+    external: true

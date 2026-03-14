@@ -1,0 +1,13 @@
+services:
+  administrativeservice:
+    image: ${DOCKER_REGISTRY-}administrativeservice
+    build:
+      context: AdministrativeService
+      dockerfile: Dockerfile
+    networks:
+      - diplom-infr_app_network
+
+networks:
+  diplom-infr_app_network:
+    driver: bridge
+    external: true

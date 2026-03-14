@@ -1,0 +1,10 @@
+<Solution>
+  <Project Path="../Shared/Shared.csproj" />
+  <Project Path="AdministrativeService.Application/AdministrativeService.Application.csproj" />
+  <Project Path="AdministrativeService.Core/AdministrativeService.Core.csproj" />
+  <Project Path="AdministrativeService.Database/AdministrativeService.Database.csproj" />
+  <Project Path="AdministrativeService/AdministrativeService.csproj" />
+  <Project Path="docker-compose.dcproj">
+    <Build />
+  </Project>
+</Solution>
