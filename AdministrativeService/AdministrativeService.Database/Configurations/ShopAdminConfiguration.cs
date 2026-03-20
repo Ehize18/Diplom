@@ -24,6 +24,12 @@ namespace AdministrativeService.Database.Configurations
 			builder.Property(x => x.Feature)
 				.HasColumnType("integer")
 				.HasConversion(x => (int)x, y => (AdminFeature)y);
+
+			builder.Navigation(x => x.User)
+				.AutoInclude();
+
+			builder.Navigation(x => x.Shop)
+				.AutoInclude();
 		}
 	}
 }

@@ -1,3 +1,21 @@
 import { Routes } from '@angular/router';
+import { HomeComponent } from './components/home-component/home-component';
 
-export const routes: Routes = [];
+export const routes: Routes = [
+    { path: '', component: HomeComponent },
+    { 
+        path: 'shop', 
+        loadComponent:() => import('./components/shop/shop-layout-component/shop-layout-component').then(v => v.ShopLayoutComponent),
+        children: [
+            {
+                path: '',
+                loadComponent:() => import('./components/shop/shop-component/shop-component').then(v => v.ShopComponent)
+            },
+            {
+                path: 'catalog',
+                loadComponent:() => import('./components/catalog/catalog-component/catalog-component').then(v => v.CatalogComponent)
+            }
+        ]
+    },
+    { path: '**', redirectTo: '' }
+];

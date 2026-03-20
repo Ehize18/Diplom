@@ -1,1 +1,194 @@
 /* You can add global styles to this file, and also import other style files */
+li {
+    list-style: none;
+}
+
+ul {
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    margin: 0;
+    height: 100%;
+
+    font-size: 16px;
+
+    color: var(--primary-font-color);
+
+    --primary-bg-color: #fafafa;
+    --secandary-bg-color: #e0e0e0;
+
+    --primary-font-color: #000;
+    --secondary-font-color: rgba(0, 0, 0, 0.42);
+
+    --primary-accent-color: #93e2ff;
+    --secondary-accent-color: #cae9ff;
+
+    --primary-separator-color: #1b4965;
+    --secondary-separator-color: #8aa1af;
+
+    --box-shadow-color: rgba(0, 0, 0, 0.15);
+}
+
+html {
+    font-family: "Roboto", sans-serif;
+    height: 100%;
+    overflow: hidden;
+}
+
+a {
+    height: fit-content;
+    cursor: pointer;
+    color: var(--primary-font-color);
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+.main-panel-collection {
+    display: flex;
+    flex-direction: column;
+    gap: 30px
+}
+
+p {
+    margin: 0;
+}
+
+.panel-list-stretch {
+    align-items: stretch;
+}
+
+.panel-list-stretch .panel {
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.panel-list {
+    display: flex;
+    flex-direction: row;
+    gap: 30px;
+}
+
+.panel-list.panel-list-vertical {
+    width: 100%;
+    flex-direction: column;
+}
+
+.panel-list.panel-list-left {
+    width: 386px;
+    min-width: 386px;
+}
+
+.panel {
+    background-color: var(--primary-bg-color);
+    padding: 18px;
+}
+
+.panel img {
+    width: 48px;
+    height: 48px;
+    display: block;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+}
+
+.panel-main-header {
+    display: flex;
+    flex-direction: row;
+    gap: 18px;
+    align-items: center;
+}
+
+.panel-main-header-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 5px
+}
+
+.input-wrapper {
+    background-color: var(--secandary-bg-color);
+    padding: 5px;
+    border-radius: 6px;
+}
+
+.input-wrapper input {
+    font-size: 16px;
+    background-color: transparent;
+    border: none;
+}
+
+.input-wrapper input:focus {
+    outline: none;
+}
+
+.input-with-caption {
+    display: flex;
+    flex-direction: column;
+    gap: 4px
+}
+
+.big-input {
+    height: 100px;
+}
+
+.big-input textarea {
+    font-size: 16px;
+    background-color: transparent;
+    border: none;
+    width: 100%;
+    height: 100%;
+    resize: none;
+}
+
+.big-input textarea:focus {
+    outline: none;
+}
+
+.checkbox-with-caption {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.checkbox-wrapper {
+    display: flex;
+    background-color: var(--secandary-bg-color);
+}
+
+.checkbox-wrapper input {
+    margin: 0;
+    height: 20px;
+    width: 20px;
+    opacity: 0;
+}
+
+.checkbox-wrapper input:checked {
+    opacity: 1;
+}
+
+.panel-title {
+    display: flex;
+    gap: 10px
+}
+
+.panel-content-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 18px
+}
+
+.img24 {
+    width: 24px !important;
+    height: 24px !important;
+}
+
+.accent-font {
+    font-size: 20px;
+    font-weight: 500;
+}

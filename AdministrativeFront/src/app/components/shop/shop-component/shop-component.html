@@ -1,0 +1,21 @@
+<div class="main-panel-collection">
+    <div class="panel-list">
+        <app-statistic-panel [type]="statisticType.Clients"></app-statistic-panel>
+        <app-statistic-panel [type]="statisticType.Orders"></app-statistic-panel>
+        <app-statistic-panel [type]="statisticType.Categories"></app-statistic-panel>
+        <app-statistic-panel [type]="statisticType.Goods"></app-statistic-panel>
+        <app-statistic-panel [type]="statisticType.Chats"></app-statistic-panel>
+    </div>
+    <div class="panel-list">
+        <div class="panel-list panel-list-vertical">
+            <app-integration-panel [type]="integrationType.Telegram"></app-integration-panel>
+            <app-integration-panel [type]="integrationType.Max"></app-integration-panel>
+        </div>
+        <app-integration-panel [type]="integrationType.VK"></app-integration-panel>
+        <div class="panel-list panel-list-vertical">
+            <app-methods-panel [type]="methodType.Payment" ></app-methods-panel>
+            <app-methods-panel [type]="methodType.Delivery" ></app-methods-panel>
+        </div>
+    </div>
+    <app-last-events-panel></app-last-events-panel>
+</div>

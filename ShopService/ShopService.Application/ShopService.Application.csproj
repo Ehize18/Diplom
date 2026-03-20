@@ -7,9 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Shared\Shared.csproj" />
-    <ProjectReference Include="..\ShopService\ShopService.Core\ShopService.Core.csproj" />
-    <ProjectReference Include="..\ShopService\ShopService.Database\ShopService.Database.csproj" />
+    <ProjectReference Include="..\..\Shared\Shared.csproj" />
+    <ProjectReference Include="..\ShopService.Core\ShopService.Core.csproj" />
+    <ProjectReference Include="..\ShopService.Database\ShopService.Database.csproj" />
   </ItemGroup>
 
 </Project>

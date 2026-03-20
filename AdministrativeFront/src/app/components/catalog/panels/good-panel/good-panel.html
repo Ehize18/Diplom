@@ -1,0 +1,49 @@
+<div class="panel">
+    <div class="panel-main-header">
+        <div class="accent-font">Товары в категории</div>
+        <div class="input-wrapper">
+            <input type="text" placeholder="Поиск">
+        </div>
+    </div>
+    <div class="table-wrap">
+        <table class="good-table">
+            <thead>
+                <th>Иконка</th>
+                <th>Название</th>
+                <th>Категория</th>
+                <th>Цена</th>
+                <th>Остаток на складе</th>
+                <th>Продано</th>
+            </thead>
+            <tbody>
+                @for (good of goodList(); track good.id) {
+                    <tr>
+                        <td>
+                            <img [src]="good.iconUrl">
+                        </td>
+                        <td>
+                            {{ good.title }}
+                        </td>
+                        <td>
+                            {{ good.category }}
+                        </td>
+                        <td>
+                            {{ good.price }}
+                        </td>
+                        <td>
+                            {{ good.amount }}
+                        </td>
+                        <td>
+                            {{ good.orderCount }}
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="panel-main-header-buttons">
+        <app-button caption="Добавить" [onClickCallback]="addGood.bind(this)"></app-button>
+        <app-button caption="Импорт"></app-button>
+        <app-button caption="Экспорт"></app-button>
+    </div>
+</div>

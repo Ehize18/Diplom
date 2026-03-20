@@ -1,0 +1,35 @@
+<div class="panel">
+    <div class="input-with-caption">
+        <p>
+            Название категории
+        </p>
+        <div class="input-wrapper">
+            <input type="text" [(ngModel)]="title">
+        </div>
+    </div>
+    <div class="input-with-caption">
+        <p>
+            Описание категории
+        </p>
+        <div class="input-wrapper big-input">
+            <textarea type="text" [(ngModel)]="title"></textarea>
+        </div>
+    </div>
+    <div class="input-with-caption">
+        <p>
+            Родительская категория
+        </p>
+        <div class="input-wrapper">
+            <input type="text" [(ngModel)]="parentCategoryTitle">
+        </div>
+    </div>
+    <div class="checkbox-with-caption">
+        <p>
+            Активно
+        </p>
+        <div class="checkbox-wrapper">
+            <input type="checkbox" [(ngModel)]="isActive">
+        </div>
+    </div>
+    <app-button caption="Сохранить" [onClickCallback]="onSaveButtonClick.bind(this)"></app-button>
+</div>

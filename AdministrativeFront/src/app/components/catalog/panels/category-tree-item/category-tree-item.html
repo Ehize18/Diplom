@@ -1,0 +1,32 @@
+
+
+<div class="category-tree-item-wrap">
+    <div class="category-tree-item under"
+        [class.selected]="isSelected()">
+        <div class="category-tree-item-expand-wrap">
+            @if (item()?.childs!.length > 0) {
+                <div class="category-tree-item-expand clickable"
+                    (click)="onExpandClick()">
+                    <img src="placeholder.svg" width="10px" height="10px">
+                </div>
+            }
+        </div>
+        <div class="category-tree-item-caption clickable"
+            (click)="onItemClick()">
+            {{ item()?.title }}
+        </div>
+    </div>
+    <div class="category-tree-item-childs">
+        <div>
+            @if (item()?.isExpanded) {
+                @for (child of item()?.childs; track child.id) {
+                    <app-category-tree-item
+                        [item]="child"
+                        [selectedItem]="selectedItem()"
+                        (itemSelected)="itemSelected.emit($event)"></app-category-tree-item>
+                }
+            }
+        </div>
+    </div>
+</div>
+

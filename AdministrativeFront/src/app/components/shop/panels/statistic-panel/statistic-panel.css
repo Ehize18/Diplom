@@ -1,0 +1,8 @@
+.statistic-content {
+    display: flex;
+    gap: 18px
+}
+
+:host {
+    width: 100%;
+}

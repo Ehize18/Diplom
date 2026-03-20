@@ -1,0 +1,89 @@
+<div class="shop-container">
+  <aside class="sidebar">
+    <img class="sidebar-logo" src="placeholder.svg">
+    <nav class="sidebar-nav">
+      <ul class="sidebar-nav-ul">
+        <li class="sidebar-nav-element">
+          <a 
+            (click)="onNavItemClick('/shop')"
+            [class.active]="isNavItemActive('/shop')">
+            Главная
+        </a>
+        </li>
+        <li class="sidebar-nav-element">
+          <a
+          (click)="onNavItemClick('/shop/catalog')"
+          [class.active]="isNavItemActive('/shop/catalog')">
+          Каталог
+        </a>
+        </li>
+        <li class="sidebar-nav-element">
+          <a routerLink="/shop/goods">Товары</a>
+        </li>
+        <li class="sidebar-nav-element">
+          <a>Заказы</a>
+        </li>
+        <li class="sidebar-nav-element">
+          <a>Клиенты</a>
+        </li>
+        <li class="sidebar-nav-element">
+          <a>Чаты</a>
+        </li>
+        <li class="sidebar-nav-element">
+          <a>Настройки магазина</a>
+        </li>
+      </ul>
+    </nav>
+  </aside>
+
+  <div class="main-content">
+    <header class="shop-header">
+      <div class="shop-header-left">
+        <span class="shop-name accent-font">{{ currentShop()?.title || "Добавить" }}
+          <div class="shops-dropdown-container" [class.showed]="isShopsDropdownOpen">
+          @if (isShopsDropdownOpen) {
+            <ul>
+              @for (shop of userShops(); track shop.id) {
+                <li>
+                  <a (click)="onChangeCurrentShopClick(shop)">
+                    {{ shop.title }}
+                  </a>
+                </li>
+              }
+            </ul>
+            <div class="add-shop clickable"
+              (click)="onAddShopButtonClick()"
+            >Добавить</div>
+          }
+        </div>
+        </span>
+        <div class="dropdown-arrow clickable" (click)="onShopsDropdownClick()">▼</div>
+        
+      </div>
+      <div class="shop-header-right">
+        <div class="user-dropdown">
+          <span class="user-name accent-font" (click)="toggleDropdown()">{{ userName }}</span>
+          <div class="dropdown-arrow" (click)="toggleDropdown()">▼</div>
+          @if (isDropdownOpen) {
+            <div class="dropdown-menu">
+                <div class="dropdown-item" (click)="onSettingsClick()">Настройки</div>
+            </div>
+          }
+        </div>
+      </div>
+    </header>
+
+    <main class="shop-main">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>
+<div class="add-shop-form-wrap"
+  [class.showed]="isAddShopFormVisible()">
+  <div class="add-shop-form-container">
+    <input name="title" [(ngModel)]="newShop.title">
+    <a (click)="onSubmitAddShop()">
+      Создать
+    </a>
+  </div>
+</div>

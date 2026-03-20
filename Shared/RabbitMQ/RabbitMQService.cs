@@ -62,6 +62,11 @@
 				_consumer.ConsumeAsync(queue, handler, cancellationToken);
 		}
 
+		public async Task RemoveConsumer(string consumerTag)
+		{
+			await _consumer.StopConsumingByTagAsync(consumerTag);
+		}
+
 		public void Dispose()
 		{
 			if (_consumer != null)

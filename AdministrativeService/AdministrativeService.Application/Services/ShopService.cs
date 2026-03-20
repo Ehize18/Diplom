@@ -1,5 +1,7 @@
 ﻿using System.Collections.Concurrent;
+using AdministrativeService.Application.DTO.Shop;
 using AdministrativeService.Core.Entities;
+using AdministrativeService.Core.Enums;
 using AdministrativeService.Database.Interfaces;
 using Shared.RabbitMQ;
 using Shared.RabbitMQ.Contracts;
@@ -18,13 +20,21 @@ namespace AdministrativeService.Application.Services
 			_shopRepository = shopRepository;
 		}
 
-		public async Task<Shop?> CreateShopAsync(string title, CancellationToken cancellationToken = default)
+		public async Task<Shop?> CreateShopAsync(CreateShopDTO createShopDTO, CancellationToken cancellationToken = default)
 		{
 			var shop = new Shop
 			{
-				Title = title
+				Title = createShopDTO.Title,
+				Admins = new List<ShopAdmin>
+				{
+					new ShopAdmin
+					{
+						UserId = createShopDTO.User.Id,
+						Feature = AdminFeature.CanAll
+					}
+				}
 			};
-
+			_shopRepository.SetUser(createShopDTO.User);
 			_shopRepository.Create(shop);
 			await _shopRepository.SaveChangesAsync(cancellationToken);
 
@@ -39,27 +49,59 @@ namespace AdministrativeService.Application.Services
 				ShopId = shop.Id,
 			};
 
-			await _rabbit.PublishMessage(migrateRequest, "ShopExchange", "MigrateRequest", cancellationToken);
+			var tasksToWait = new List<Task>();
 
-			MigrateDbResponse? response = default;
+			var getShopTask = GetShopById(shop.Id);
 
-			while (true)
-			{
-				if (_migrateResponses.TryGetValue(shop.Id, out response))
-				{
-					break;
-				}
-			}
+			tasksToWait.Add(getShopTask);
+
+			tasksToWait.Add(_rabbit.PublishMessage(migrateRequest, "ShopExchange", "MigrateRequest", cancellationToken));
+
+			var migrateTask = GetMigrateDbResponse(shop.Id);
+
+			tasksToWait.Add(migrateTask);
+
+			await Task.WhenAll(tasksToWait);
+
+			var response = migrateTask.Result;
+
+			await _rabbit.RemoveConsumer(consumer);
 
 			if (response != null)
 			{
 				if (response.IsSuccess)
 				{
-					return shop;
+					return getShopTask.Result;
 				}
 			}
 
 			return null;
+		}
+
+		private async Task<MigrateDbResponse> GetMigrateDbResponse(Guid shopId)
+		{
+			return await Task.Run(() =>
+			{
+				while (true)
+				{
+					if (_migrateResponses.TryRemove(shopId, out var response))
+					{
+						return response;
+					}
+				}
+			});
+		}
+
+		public async Task<List<Shop>> GetUserShopsAsync(Guid userId)
+		{
+			var shops = await _shopRepository.GetAsync(shop => shop.Admins.Any(x => x.UserId == userId));
+
+			return shops;
+		}
+
+		public async Task<Shop?> GetShopById(Guid shopId)
+		{
+			return await _shopRepository.GetByIdAsync(shopId);
 		}
 	}
 }

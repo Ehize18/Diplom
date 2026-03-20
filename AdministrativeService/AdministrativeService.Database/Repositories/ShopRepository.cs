@@ -1,4 +1,6 @@
-﻿using AdministrativeService.Core.Entities;
+﻿using System.Linq.Expressions;
+using AdministrativeService.Core.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace AdministrativeService.Database.Repositories
 {

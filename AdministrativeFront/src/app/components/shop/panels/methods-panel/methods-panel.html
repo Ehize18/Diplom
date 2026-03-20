@@ -1,0 +1,18 @@
+<div class="panel">
+    <div class="panel-content-wrap">
+        <div class="panel-header">
+            <div class="panel-title">
+                <img class="img24" [src]="getImageSrc()">
+                <p class="accent-font">{{ getTitle() }}</p>
+            </div>
+            <app-button caption="Добавить" [onClickCallback]="getOnAddClickCallback()"></app-button>
+        </div>
+        <div class="methods-list">
+            @for (method of methods(); track method.id) {
+                <div class="method-item clickable">
+                    {{ method.title }}
+                </div>
+            }
+        </div>
+    </div>
+</div>

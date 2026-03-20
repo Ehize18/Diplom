@@ -39,13 +39,13 @@ namespace AdministrativeService.Database
 					if (entry.State == EntityState.Modified)
 					{
 						entity.UpdatedAt = now;
-						entity.UpdatedBy = DbUser;
+						entity.UpdatedById = DbUser.Id;
 					}
 
 					if (entry.State == EntityState.Added)
 					{
 						entity.CreatedAt = now;
-						entity.CreatedBy = DbUser;
+						entity.CreatedById = DbUser.Id;
 					}
 				}
 			}

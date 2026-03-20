@@ -16,6 +16,16 @@ namespace AdministrativeService.Database.Repositories
 		/// </summary>
 		protected readonly AdminDbContext _context;
 
+		public void SetUser(User user)
+		{
+			_context.SetUser(user);
+		}
+
+		public async Task<bool> SetUser(Guid id)
+		{
+			return await _context.SetUser(id);
+		}
+
 		/// <summary>
 		/// Constructor.
 		/// </summary>

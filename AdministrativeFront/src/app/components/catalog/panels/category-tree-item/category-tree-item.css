@@ -1,0 +1,33 @@
+.category-tree-item {
+    display: flex;
+    align-items: center;
+}
+
+.category-tree-item-caption {
+    padding: 5px 0;
+    width: 100%;
+}
+
+.category-tree-item-childs {
+    padding-left: 10px;
+}
+
+.category-tree-item-expand-wrap {
+    width: 10px;
+    height: 10px;
+    padding-left: 6px;
+    padding-right: 2px;
+}
+
+.under {
+    border-bottom: 1px solid var(--secondary-separator-color);
+}
+
+.category-tree-item-expand img {
+    width: 10px;
+    height: 10px;
+}
+
+.selected {
+    background-color: var(--secondary-accent-color);
+}

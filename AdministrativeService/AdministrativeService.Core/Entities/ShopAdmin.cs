@@ -10,22 +10,22 @@ namespace AdministrativeService.Core.Entities
 		/// <summary>
 		/// User.
 		/// </summary>
-		public required User User { get; set; }
+		public User User { get; set; }
 
 		/// <summary>
 		/// User id.
 		/// </summary>
-		public required Guid UserId { get; set; }
+		public Guid UserId { get; set; }
 
 		/// <summary>
 		/// Shop.
 		/// </summary>
-		public required Shop Shop { get; set; }
+		public Shop Shop { get; set; }
 
 		/// <summary>
 		/// Shop id.
 		/// </summary>
-		public required Guid ShopId { get; set; }
+		public Guid ShopId { get; set; }
 
 		/// <summary>
 		/// Flags what admin can do.

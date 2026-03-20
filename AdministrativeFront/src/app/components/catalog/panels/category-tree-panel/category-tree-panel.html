@@ -1,0 +1,8 @@
+<div class="panel category-tree-panel">
+    @for (treeItem of tree(); track treeItem.id) {
+        <app-category-tree-item
+        [item]="treeItem"
+        [selectedItem]="selectedItem"
+        (itemSelected)="onItemSelected($event)"></app-category-tree-item>
+    }
+</div>

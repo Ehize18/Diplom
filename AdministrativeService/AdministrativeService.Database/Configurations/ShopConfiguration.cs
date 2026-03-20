@@ -22,6 +22,9 @@ namespace AdministrativeService.Database.Configurations
 			builder.HasMany(x => x.Admins)
 				.WithOne(x => x.Shop)
 				.HasForeignKey(x => x.ShopId);
+
+			builder.Navigation(x => x.Admins)
+				.AutoInclude();
 		}
 	}
 }

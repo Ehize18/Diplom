@@ -27,6 +27,7 @@ namespace AdministrativeService
 				app.MapOpenApi();
 				app.UseSwagger();
 				app.UseSwaggerUI();
+				app.UseCors("DevPolicy");
 			}
 
 			//app.UseHttpsRedirection();

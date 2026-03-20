@@ -8,7 +8,8 @@ namespace AdministrativeService.Core
 		{
 			Id = new Guid("765795f6-ef64-4d68-a517-cfe5208a3e01"),
 			Username = "SYSTEM",
-			CreatedById = new Guid("765795f6-ef64-4d68-a517-cfe5208a3e01")
+			CreatedById = new Guid("765795f6-ef64-4d68-a517-cfe5208a3e01"),
+			CreatedAt = DateTime.SpecifyKind(new DateTime(2000, 1, 1), DateTimeKind.Utc)
 		};
 	}
 }

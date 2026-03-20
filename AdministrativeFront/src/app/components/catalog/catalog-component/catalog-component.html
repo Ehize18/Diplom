@@ -1,0 +1,36 @@
+
+
+<div class="main-panel-collection">
+    <div class="panel panel-main-header">
+        <div class="panel-main-header-caption accent-font">
+            Категории
+        </div>
+        <div class="panel-main-header-buttons">
+            <app-button caption="Добавить"></app-button>
+            <app-button caption="Импорт"></app-button>
+            <app-button caption="Экспорт"></app-button>
+        </div>
+        <div class="input-wrapper">
+            <input type="text" placeholder="Поиск">
+        </div>
+    </div>
+    <div class="panels-wrap">
+        <div class="panel-list panel-list-full"> 
+            <div class="panel-list panel-list-vertical panel-list-left">
+                <app-category-tree-panel
+                    (itemSelected)="onSelectedCategoryChange($event)"></app-category-tree-panel>
+                <app-category-panel
+                    [selectedCategory]="selectedCategory"></app-category-panel>
+            </div>
+            <div class="panel-list panel-list-vertical panel-list-right">
+                <div class="panel-list panel-list-stretch">
+                    <app-category-statistic-panel [type]="statisticType.GoodCount"></app-category-statistic-panel>
+                    <app-category-statistic-panel [type]="statisticType.GoodCountFull"></app-category-statistic-panel>
+                    <app-category-statistic-panel [type]="statisticType.OrderCount"></app-category-statistic-panel>
+                    <app-category-statistic-panel [type]="statisticType.OrderCountFull"></app-category-statistic-panel>
+                </div>
+                <app-good-panel></app-good-panel>
+            </div>
+        </div>
+    </div>
+</div>
