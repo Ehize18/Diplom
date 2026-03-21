@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ShopService.Core;
 using ShopService.Core.Entities;
 using ShopService.Database.Configurations;
 
@@ -9,26 +10,29 @@ namespace ShopService.Database
 	/// </summary>
 	public class ShopDbContext : DbContext
 	{
+		public User DbUser { get; private set; } = Consts.SystemUser;
+
 		private readonly string? _connectionString;
 
-		DbSet<User> User { get; set; }
+		public DbSet<User> User { get; set; }
 
-		DbSet<Order> Order { get; set; }
+		public DbSet<Order> Order { get; set; }
 
-		DbSet<Good> Good { get; set; }
+		public DbSet<Good> Good { get; set; }
 
-		DbSet<GoodCategory> GoodCategory { get; set; }
+		public DbSet<GoodCategory> GoodCategory { get; set; }
 
-		DbSet<GoodProperty> GoodProperty { get; set; }
+		public DbSet<GoodProperty> GoodProperty { get; set; }
 
-		DbSet<GoodPropertyCategory> GoodPropertyCategory { get; set; }
+		public DbSet<GoodPropertyCategory> GoodPropertyCategory { get; set; }
 
-		DbSet<Basket> Basket { get; set; }
+		public DbSet<Basket> Basket { get; set; }
 
-		DbSet<GoodInBasket> GoodInBasket { get; set; }
+		public DbSet<GoodInBasket> GoodInBasket { get; set; }
 
-		public ShopDbContext(DbContextOptions options) : base(options)
+		public ShopDbContext(ConnectionStringProvider connectionStringProvider, DbContextOptions options) : base(options)
 		{
+			_connectionString = connectionStringProvider.ConnectionString;
 		}
 
 		public ShopDbContext(string connectionString)
@@ -62,6 +66,48 @@ namespace ShopService.Database
 			modelBuilder.ApplyConfiguration(new GoodPropertyCategoryConfiguration());
 			modelBuilder.ApplyConfiguration(new BasketConfiguration());
 			modelBuilder.ApplyConfiguration(new GoodInBasketConfiguration());
+		}
+
+		public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+		{
+			var now = DateTime.UtcNow;
+
+			foreach (var entry in ChangeTracker.Entries())
+			{
+				if (entry.Entity is BaseEntity entity)
+				{
+					if (entry.State == EntityState.Modified)
+					{
+						entity.UpdatedAt = now;
+						entity.UpdatedById = DbUser.Id;
+					}
+
+					if (entry.State == EntityState.Added)
+					{
+						entity.CreatedAt = now;
+						entity.CreatedById = DbUser.Id;
+					}
+				}
+			}
+
+			return base.SaveChangesAsync(cancellationToken);
+		}
+
+		public void SetUser(User user)
+		{
+			DbUser = user;
+		}
+
+		public async Task<bool> SetUser(Guid userId, CancellationToken cancellationToken = default)
+		{
+			var user = await User.FirstOrDefaultAsync(x => x.Id == userId, cancellationToken);
+
+			if (user == null)
+			{
+				return false;
+			}
+			DbUser = user;
+			return true;
 		}
 	}
 }

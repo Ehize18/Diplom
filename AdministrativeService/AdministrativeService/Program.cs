@@ -1,4 +1,5 @@
 
+using System.Text.Json;
 using AdministrativeService.Database;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,7 +13,11 @@ namespace AdministrativeService
 
 			// Add services to the container.
 
-			builder.Services.AddControllers();
+			builder.Services.AddControllers()
+				.AddJsonOptions(options =>
+				{
+					options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+				});
 			// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 			builder.Services.AddOpenApi();
 			builder.Services.AddSwaggerGen();

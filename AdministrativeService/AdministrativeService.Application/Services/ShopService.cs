@@ -1,22 +1,19 @@
-﻿using System.Collections.Concurrent;
-using AdministrativeService.Application.DTO.Shop;
+﻿using AdministrativeService.Application.DTO.Shop;
 using AdministrativeService.Core.Entities;
 using AdministrativeService.Core.Enums;
 using AdministrativeService.Database.Interfaces;
-using Shared.RabbitMQ;
 using Shared.RabbitMQ.Contracts;
 
 namespace AdministrativeService.Application.Services
 {
 	public class ShopService
 	{
-		private readonly RabbitMQService _rabbit;
+		private readonly MessageService _messageService;
 		private readonly IBaseRepository<Shop> _shopRepository;
-		private readonly ConcurrentDictionary<Guid, MigrateDbResponse> _migrateResponses = new();
 
-		public ShopService(RabbitMQService rabbitMQService, IBaseRepository<Shop> shopRepository)
+		public ShopService(MessageService messageService, IBaseRepository<Shop> shopRepository)
 		{
-			_rabbit = rabbitMQService;
+			_messageService = messageService;
 			_shopRepository = shopRepository;
 		}
 
@@ -38,13 +35,7 @@ namespace AdministrativeService.Application.Services
 			_shopRepository.Create(shop);
 			await _shopRepository.SaveChangesAsync(cancellationToken);
 
-			var consumer = await _rabbit.AddConsumer<MigrateDbResponse>("MigrateResponse", response =>
-			{
-				_migrateResponses.TryAdd(response.ShopId, response);
-				return Task.CompletedTask;
-			});
-
-			var migrateRequest = new MigrateDbRequest
+			var createShopRequest = new CreateShop
 			{
 				ShopId = shop.Id,
 			};
@@ -55,17 +46,22 @@ namespace AdministrativeService.Application.Services
 
 			tasksToWait.Add(getShopTask);
 
-			tasksToWait.Add(_rabbit.PublishMessage(migrateRequest, "ShopExchange", "MigrateRequest", cancellationToken));
+			var messageId = Guid.NewGuid();
 
-			var migrateTask = GetMigrateDbResponse(shop.Id);
+			var properties = _messageService.CreateProperties();
 
-			tasksToWait.Add(migrateTask);
+			properties.CorrelationId = messageId.ToString();
+			properties.Persistent = true;
 
+			var answerTask = _messageService.GetAnswerAsync<ShopCreated>(messageId, cancellationToken);
+
+			tasksToWait.Add(answerTask);
+
+			tasksToWait.Add(_messageService.PublishCreateShopMessage(properties, createShopRequest, cancellationToken));
+			
 			await Task.WhenAll(tasksToWait);
 
-			var response = migrateTask.Result;
-
-			await _rabbit.RemoveConsumer(consumer);
+			var response = answerTask.Result;
 
 			if (response != null)
 			{
@@ -76,20 +72,6 @@ namespace AdministrativeService.Application.Services
 			}
 
 			return null;
-		}
-
-		private async Task<MigrateDbResponse> GetMigrateDbResponse(Guid shopId)
-		{
-			return await Task.Run(() =>
-			{
-				while (true)
-				{
-					if (_migrateResponses.TryRemove(shopId, out var response))
-					{
-						return response;
-					}
-				}
-			});
 		}
 
 		public async Task<List<Shop>> GetUserShopsAsync(Guid userId)

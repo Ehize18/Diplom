@@ -12,14 +12,15 @@ namespace Shared.RabbitMQ
 		{
 		}
 
-		public async Task<bool> Publish(object message, string exchange, string routingKey, CancellationToken cancellationToken = default)
+		public async Task<bool> Publish<TProperties>(TProperties properties, string exchange, string routingKey, object message,
+			CancellationToken cancellationToken = default) where TProperties : IReadOnlyBasicProperties, IAmqpHeader
 		{
 			Logger.LogInformation($"Start publish message to {exchange} with {routingKey}");
 			string serializedMessage;
 			byte[] messageBytes;
 			try
 			{
-				serializedMessage = JsonSerializer.Serialize(message);
+				serializedMessage = JsonSerializer.Serialize(message, JsonSerializerOptions);
 				messageBytes = Encoding.UTF8.GetBytes(serializedMessage);
 			}
 			catch (Exception ex)
@@ -31,7 +32,7 @@ namespace Shared.RabbitMQ
 			try
 			{
 				Logger.LogInformation($"Publishing message to {exchange} with {routingKey}");
-				await Channel.BasicPublishAsync(exchange, routingKey, messageBytes, cancellationToken);
+				await Channel.BasicPublishAsync(exchange, routingKey, true, properties,  messageBytes, cancellationToken);
 			}
 			catch (Exception ex)
 			{

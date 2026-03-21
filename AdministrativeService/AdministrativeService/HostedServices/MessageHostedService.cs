@@ -1,14 +1,12 @@
-﻿using Shared.RabbitMQ;
-using Shared.RabbitMQ.Contracts;
-using ShopService.Application.Services;
+﻿using AdministrativeService.Application.Services;
 
-namespace ShopService.HostedServices
+namespace AdministrativeService.HostedServices
 {
-	public class RabbitHostedService : IHostedService
+	public class MessageHostedService : IHostedService
 	{
 		private readonly MessageService _messageService;
 
-		public RabbitHostedService(MessageService messageService)
+		public MessageHostedService(MessageService messageService, IConfiguration configuration)
 		{
 			_messageService = messageService;
 		}

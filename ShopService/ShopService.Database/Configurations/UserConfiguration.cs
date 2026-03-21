@@ -19,6 +19,11 @@ namespace ShopService.Database.Configurations
 				.HasColumnType("text")
 				.IsRequired(false);
 
+			builder.Property(x => x.IsAdmin)
+				.HasColumnType("boolean")
+				.HasDefaultValue(false)
+				.IsRequired(true);
+
 			builder.Property(x => x.TelegramId)
 				.IsRequired(false);
 

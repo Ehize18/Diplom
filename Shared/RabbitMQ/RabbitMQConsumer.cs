@@ -18,7 +18,7 @@ namespace Shared.RabbitMQ
 
 		public async Task<string> ConsumeAsync<T>(
 			string queue,
-			Func<T, Task> handler,
+			Func<object, BasicDeliverEventArgs, T, Task> handler,
 			CancellationToken cancellationToken = default)
 		{
 			Logger.LogInformation($"Start consuming messages from queue {queue}");
@@ -33,10 +33,10 @@ namespace Shared.RabbitMQ
 
 				try
 				{
-					var deserializedMessage = JsonSerializer.Deserialize<T>(message);
+					var deserializedMessage = JsonSerializer.Deserialize<T>(message, JsonSerializerOptions);
 					if (deserializedMessage is not null)
 					{
-						await handler(deserializedMessage);
+						await handler(model, ea, deserializedMessage);
 						await Channel.BasicAckAsync(ea.DeliveryTag, multiple: false, cancellationToken);
 						Logger.LogInformation($"Message from queue {queue} processed successfully");
 					}

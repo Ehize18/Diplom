@@ -1,5 +1,8 @@
 import { Component, OnInit, output, signal } from '@angular/core';
 import { CategoryTreeItem, TreeItem } from '../category-tree-item/category-tree-item';
+import { ShopService } from '../../../../services/shop-service';
+import { CatalogService } from '../../../../services/catalog-service';
+import { Category } from '../../../../contracts/catalog';
 
 @Component({
   selector: 'app-category-tree-panel',
@@ -7,27 +10,36 @@ import { CategoryTreeItem, TreeItem } from '../category-tree-item/category-tree-
   templateUrl: './category-tree-panel.html',
   styleUrl: './category-tree-panel.css',
 })
-export class CategoryTreePanel implements OnInit {
+export class CategoryTreePanel {
   tree = signal<TreeItem[]>([]);
   selectedItem: TreeItem | undefined;
-  itemSelected = output<TreeItem>();
+  itemSelected = output<TreeItem | undefined>();
 
-  ngOnInit(): void {
-    this.tree.update((tree) => {
-
-      const f1 = new TreeItem('1', 'Шуруповёрты')
-      const f2 = new TreeItem('2', 'Телефоны');
-      const f3 = new TreeItem('3', 'Андроиды', f2)
-
-      f2.childs.push(f3);
-
-      tree.push(f1, f2);
-
-      return tree;
+  constructor(
+    private shopService: ShopService,
+    private catalogService: CatalogService
+  ) {
+    shopService.getCurrentShopObservable().subscribe((currentShop) => {
+      if (currentShop) {
+        catalogService.getCategories(currentShop.id).subscribe((value) => {
+          if (value && value.isSuccess) {
+            this.loadCategories(value.results);
+          }
+        });
+      }
     });
   }
 
-  onItemSelected(item: TreeItem): void {
+  private loadCategories(categories: Category[]): void {
+    const treeItems: TreeItem[] = [];
+    categories.forEach((category) => {
+      treeItems.push(new TreeItem(category.id, category.title));
+    })
+    this.tree.set(treeItems);
+    this.onItemSelected(undefined);
+  }
+
+  onItemSelected(item: TreeItem | undefined): void {
     this.selectedItem = item;
     this.itemSelected.emit(item);
   }

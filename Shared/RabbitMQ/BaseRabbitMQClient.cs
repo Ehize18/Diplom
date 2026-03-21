@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Text.Json;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 
@@ -11,6 +12,8 @@ namespace Shared.RabbitMQ
 		private IConnection? _connection;
 
 		private IChannel? _channel;
+
+		protected JsonSerializerOptions JsonSerializerOptions { get; set; }
 
 		protected IConnection Connection
 		{
@@ -56,6 +59,10 @@ namespace Shared.RabbitMQ
 				UserName = RabbitMQOptions.UserName,
 				Password = RabbitMQOptions.Password
 			};
+			JsonSerializerOptions = new JsonSerializerOptions()
+			{
+				PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+			};
 		}
 
 		public async Task ExchangeDeclareAsync(string exchange, string type = ExchangeType.Direct,
@@ -99,6 +106,12 @@ namespace Shared.RabbitMQ
 					}
 				});
 			}
+		}
+
+		public BasicProperties CreateProperties()
+		{
+			var properties = new BasicProperties();
+			return properties;
 		}
 
 		public virtual void Dispose()

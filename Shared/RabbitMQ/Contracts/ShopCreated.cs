@@ -1,6 +1,6 @@
 ﻿namespace Shared.RabbitMQ.Contracts
 {
-	public class MigrateDbResponse
+	public class ShopCreated
 	{
 		public required Guid ShopId { get; set; }
 		public required bool IsSuccess { get; set; }

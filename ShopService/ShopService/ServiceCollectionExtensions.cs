@@ -1,7 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Shared.RabbitMQ;
 using ShopService.Application.Services;
+using ShopService.Core;
+using ShopService.Core.Entities;
 using ShopService.Database;
+using ShopService.Database.Interfaces;
+using ShopService.Database.Repositories;
 using ShopService.HostedServices;
 
 namespace ShopService
@@ -13,7 +17,8 @@ namespace ShopService
 			services
 				.AddHttpContextAccessor()
 				.AddRabbitMQ(configuration)
-				.AddDatabase(configuration);
+				.AddDatabase(configuration)
+				.AddServices();
 			return services;
 		}
 
@@ -22,34 +27,30 @@ namespace ShopService
 			services.Configure<RabbitMQOptions>(configuration.GetSection(nameof(RabbitMQOptions)));
 			services.AddSingleton<RabbitMQConsumer>();
 			services.AddSingleton<RabbitMQPublisher>();
-			services.AddSingleton<RabbitMQService>();
+			services.AddSingleton<MessageService>();
 			services.AddHostedService<RabbitHostedService>();
 			return services;
 		}
 
 		private static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
 		{
-			services.AddDbContextPool<ShopDbContext>((serviceCollection, options) =>
+			services.AddScoped<ConnectionStringProvider>(_ =>
 			{
-				var httpContextAccessor = serviceCollection.GetRequiredService<IHttpContextAccessor>();
-				var httpContext = httpContextAccessor.HttpContext;
-
-				var shopId = httpContext?.Request.Headers["ShopId"].ToString();
-
-				if (!string.IsNullOrWhiteSpace(shopId))
-				{
-					var connectionStringTemplate = configuration.GetValue<string>("DBConnectionStringTemplate")!;
-					var connectionString = string.Format(connectionStringTemplate, shopId);
-					options.UseNpgsql(connectionString);
-				}
-				else
-				{
-					//options.UseNpgsql("Server=db;Port=5432;Database=test;User Id=postgres;password=123", );
-					options.UseNpgsql(options => options.MigrationsAssembly("ShopService.Database"));
-				}
+				var connectionStringTemplate = configuration.GetValue<string>("DBConnectionStringTemplate")!;
+				return new ConnectionStringProvider(connectionStringTemplate);
 			});
 
+			services.AddDbContext<ShopDbContext>();
+
 			services.AddTransient<DbMigrator>();
+			services.AddScoped<IBaseRepository<GoodCategory>, CategoryRepository>();
+
+			return services;
+		}
+
+		private static IServiceCollection AddServices(this IServiceCollection services)
+		{
+			services.AddScoped<CategoryService>();
 
 			return services;
 		}

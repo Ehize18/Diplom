@@ -32,8 +32,8 @@ namespace AdministrativeService
 			services.Configure<RabbitMQOptions>(configuration.GetSection(nameof(RabbitMQOptions)));
 			services.AddSingleton<RabbitMQConsumer>();
 			services.AddSingleton<RabbitMQPublisher>();
-			services.AddSingleton<RabbitMQService>();
-			services.AddHostedService<RabbitHostedService>();
+			services.AddSingleton<MessageService>();
+			services.AddHostedService<MessageHostedService>();
 			return services;
 		}
 
@@ -54,6 +54,7 @@ namespace AdministrativeService
 		private static IServiceCollection AddServices(this IServiceCollection services)
 		{
 			services.AddScoped<ShopService>();
+			services.AddScoped<ShopContentService>();
 			services.AddScoped<IAuthService, AuthService>();
 
 			return services;

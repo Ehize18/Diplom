@@ -1,4 +1,5 @@
 import { Component, input, output } from '@angular/core';
+import { Category } from '../../../../contracts/catalog';
 
 export class TreeItem {
   id: string;

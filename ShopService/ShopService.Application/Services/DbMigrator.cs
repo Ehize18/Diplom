@@ -6,43 +6,45 @@ namespace ShopService.Application.Services
 {
 	public class DbMigrator
 	{
-		public async Task<MigrateDbResponse> Migrate(Guid shopId, string connectionStringTemplate)
+		private readonly ShopDbContext _context;
+		public DbMigrator(ShopDbContext context)
 		{
-			var connectionString = string.Format(connectionStringTemplate, shopId);
-			using (var dbContext = new ShopDbContext(connectionString))
+			_context = context;
+		}
+
+		public async Task<ShopCreated> Migrate(Guid shopId)
+		{
+			try
 			{
-				try
+				if ((await _context.Database.GetPendingMigrationsAsync()).Any())
 				{
-					if ((await dbContext.Database.GetPendingMigrationsAsync()).Any())
+					await _context.Database.MigrateAsync();
+					return new ShopCreated
 					{
-						await dbContext.Database.MigrateAsync();
-						return new MigrateDbResponse
-						{
-							AlreadyMigrated = false,
-							IsSuccess = true,
-							ShopId = shopId
-						};
-					}
-					else
-					{
-						return new MigrateDbResponse
-						{
-							IsSuccess = true,
-							AlreadyMigrated = true,
-							ShopId = shopId
-						};
-					}
-				}
-				catch (Exception ex)
-				{
-					return new MigrateDbResponse
-					{
-						IsSuccess = false,
-						ShopId = shopId,
-						AlreadyMigrated = false
+						AlreadyMigrated = false,
+						IsSuccess = true,
+						ShopId = shopId
 					};
 				}
-			};
+				else
+				{
+					return new ShopCreated
+					{
+						IsSuccess = true,
+						AlreadyMigrated = true,
+						ShopId = shopId
+					};
+				}
+			}
+			catch (Exception ex)
+			{
+				return new ShopCreated
+				{
+					IsSuccess = false,
+					ShopId = shopId,
+					AlreadyMigrated = false
+				};
+			}
 		}
 	}
 }

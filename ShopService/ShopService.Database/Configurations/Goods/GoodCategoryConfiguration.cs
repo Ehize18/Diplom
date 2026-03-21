@@ -19,6 +19,11 @@ namespace ShopService.Database.Configurations
 				.HasColumnType("text")
 				.IsRequired(false);
 
+			builder.Property(x => x.IsActive)
+				.HasColumnType("boolean")
+				.HasDefaultValue(false)
+				.IsRequired();
+
 			builder.HasOne(x => x.ParentCategory)
 				.WithMany(x => x.ChildCategories)
 				.HasForeignKey(x => x.ParentCategoryId)
