@@ -2,9 +2,11 @@
 
 namespace AdministrativeService.Contracts.Content
 {
-	public record CreateCategoryRequest(
+	public record CreateGoodRequest(
 		[Required][MaxLength(50)] string Title,
 		string? Description,
-		Guid? ParentCategoryId = null,
-		bool IsActive = false);
+		Guid CategoryId,
+		int Count = 0,
+		decimal Price = 0,
+		decimal OldPrice = 0);
 }

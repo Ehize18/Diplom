@@ -19,7 +19,7 @@
                 @for (good of goodList(); track good.id) {
                     <tr>
                         <td>
-                            <img [src]="good.iconUrl">
+                            <img src="placeholder.svg">
                         </td>
                         <td>
                             {{ good.title }}
@@ -31,10 +31,10 @@
                             {{ good.price }}
                         </td>
                         <td>
-                            {{ good.amount }}
+                            {{ good.count }}
                         </td>
                         <td>
-                            {{ good.orderCount }}
+                            {{ good.count }}
                         </td>
                     </tr>
                 }
@@ -42,8 +42,13 @@
         </table>
     </div>
     <div class="panel-main-header-buttons">
-        <app-button caption="Добавить" [onClickCallback]="addGood.bind(this)"></app-button>
+        <app-button caption="Добавить" [onClickCallback]="showModal.bind(this)"></app-button>
         <app-button caption="Импорт"></app-button>
         <app-button caption="Экспорт"></app-button>
     </div>
+</div>
+<div class="popup-add-good">
+    @if (isModalOpened()) {
+        <app-popup [config]="getPopupConfig()"></app-popup>
+    }
 </div>

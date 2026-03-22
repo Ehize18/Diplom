@@ -19,6 +19,7 @@
 			public const string CATEGORY_UPDATE = "category.update";
 			public const string CATEGORY_UPDATED = "category.updated";
 			public const string GOOD_UPDATE = "good.update";
+			public const string GOOD_UPDATED = "good.updated";
 		}
 
 		public static class DataBus

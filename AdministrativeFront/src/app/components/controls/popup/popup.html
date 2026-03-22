@@ -1,0 +1,51 @@
+<div class="popup-wrap">
+    <div class="popup-content">
+        <div class="popup-controls">
+            @for (control of config.controls; track control.tag) {
+                @switch (control.type) {
+                    @case (controlType.Input) {
+                        <div class="input-with-caption">
+                            <p>{{ control.caption }}</p>
+                            <div class="input-wrapper">
+                                <input type="text" [(ngModel)]="controlValues[control.tag]">
+                            </div>
+                        </div>
+                    }
+                    @case (controlType.Textarea) {
+                        <div class="input-with-caption">
+                            <p>{{ control.caption }}</p>
+                            <div class="input-wrapper big-input">
+                                <textarea type="text" [(ngModel)]="controlValues[control.tag]"></textarea>
+                            </div>
+                        </div>
+                    }
+                    @case (controlType.Lookup) {
+                        <app-lookup
+                            caption={{control.caption}}
+                            id={{`${config.id}-${control.tag}`}}
+                            [values]="control.lookupData",
+                            [defaultValue]="control.value",
+                            (itemSelected)="onLookupSelected($event, control.tag)"
+                            >
+                        </app-lookup>
+                    }
+                    @case (controlType.Boolean) {
+                        <div class="checkbox-with-caption">
+                        <p>
+                            {{ control.caption }}
+                        </p>
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" [(ngModel)]="controlValues[control.tag]">
+                        </div>
+                    </div>
+                    }
+                }
+            }
+        </div>
+        <div class="popup-buttons">
+            @for (button of config.buttons; track button.tag) {
+                <app-button [caption]="button.caption" [onClickCallback]="onButtonClick.bind(this, button.tag)"></app-button>
+            }
+        </div>
+    </div>
+</div>

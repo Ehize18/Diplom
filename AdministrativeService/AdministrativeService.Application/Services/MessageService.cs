@@ -11,7 +11,8 @@ namespace AdministrativeService.Application.Services
 		protected override string[] Queues => new[] 
 		{
 			Bus.AdminEvents.SHOP_CREATED, Bus.AdminEvents.SHOP_UPDATED,
-			Bus.ShopEvents.CATEGORY_UPDATED, Bus.DataBus.DATA_GET_RESPONSE
+			Bus.ShopEvents.CATEGORY_UPDATED, Bus.ShopEvents.GOOD_UPDATED,
+			Bus.DataBus.DATA_GET_RESPONSE
 		};
 
 		protected override Dictionary<string, Dictionary<string, string>> QueueBinds => new Dictionary<string, Dictionary<string, string>>
@@ -29,6 +30,7 @@ namespace AdministrativeService.Application.Services
 				new Dictionary<string, string>
 				{
 					{ Bus.ShopEvents.CATEGORY_UPDATED, Bus.ShopEvents.CATEGORY_UPDATED },
+					{ Bus.ShopEvents.GOOD_UPDATED, Bus.ShopEvents.GOOD_UPDATED },
 				}
 			},
 			{
@@ -51,6 +53,7 @@ namespace AdministrativeService.Application.Services
 			await AddReadConsumer<ShopCreated>(Bus.AdminEvents.SHOP_CREATED, cancellationToken);
 			await AddReadConsumer<CategoryUpdated>(Bus.ShopEvents.CATEGORY_UPDATED, cancellationToken);
 			await AddReadConsumer<DataGetResponse>(Bus.DataBus.DATA_GET_RESPONSE, cancellationToken);
+			await AddReadConsumer<GoodUpdated>(Bus.ShopEvents.GOOD_UPDATED, cancellationToken);
 		}
 
 		public async Task<bool> PublishCreateShopMessage<TProperties>(TProperties properties, CreateShop body, CancellationToken cancellationToken = default)
@@ -63,6 +66,12 @@ namespace AdministrativeService.Application.Services
 			where TProperties : IReadOnlyBasicProperties, IAmqpHeader
 		{
 			return await PublishMessage(properties, body, Bus.ShopEvents.EXCHANGE, Bus.ShopEvents.CATEGORY_UPDATE, cancellationToken);
+		}
+
+		public async Task<bool> PublishUpdateGoodMessage<TProperties>(TProperties properties, UpdateGood body, CancellationToken cancellationToken = default)
+			where TProperties : IReadOnlyBasicProperties, IAmqpHeader
+		{
+			return await PublishMessage(properties, body, Bus.ShopEvents.EXCHANGE, Bus.ShopEvents.GOOD_UPDATE, cancellationToken);
 		}
 
 		public async Task<bool> PublishDataGetMessage<TProperties>(TProperties properties, DataGet body, CancellationToken cancellationToken = default)

@@ -1,23 +1,31 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, signal, WritableSignal } from '@angular/core';
 import { Category } from '../../../../contracts/catalog';
 
 export class TreeItem {
   id: string;
   title: string;
-  childs: TreeItem[];
+  description: string | null;
+  childs: WritableSignal<TreeItem[]>;
   parent: TreeItem | undefined;
+  parentId: string | null;
   isExpanded = false;
   isActive = true;
+  category: Category
 
-  constructor(id: string, title: string, parent?: TreeItem, childs?: TreeItem[]) {
-    this.id = id;
-    this.title = title;
-    this.parent = parent;
-    if (childs) {
-      this.childs = childs;
-    }
-    else {
-      this.childs = [];
+  constructor(category: Category) {
+    this.id = category.id;
+    this.title = category.title;
+    this.description = category.description;
+    this.isActive = category.isActive;
+    this.parentId = category.parentCategoryId;
+    this.childs = signal<TreeItem[]>([]);
+    this.category = category;
+  }
+
+  expand(): void {
+    this.isExpanded = true;
+    if (this.parent) {
+      this.parent.expand();
     }
   }
 }
@@ -31,11 +39,16 @@ export class TreeItem {
 export class CategoryTreeItem {
   item = input<TreeItem>();
   selectedItem = input<TreeItem>();
-  itemSelected = output<TreeItem>();
+  itemSelected = output<TreeItem | undefined>();
 
   onItemClick(): void {
     if (this.item()) {
-      this.itemSelected.emit(this.item()!);
+      if (this.item()?.id === this.selectedItem()?.id) {
+        this.itemSelected.emit(undefined);
+      }
+      else {
+        this.itemSelected.emit(this.item()!);
+      }
     }
   }
 

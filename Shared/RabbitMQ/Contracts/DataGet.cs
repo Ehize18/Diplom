@@ -20,7 +20,8 @@
 
 	public enum DataGetEntity
 	{
-		Category
+		Category,
+		Good
 	}
 
 	public enum FilterType

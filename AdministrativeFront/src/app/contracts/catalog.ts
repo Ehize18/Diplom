@@ -18,3 +18,12 @@ export interface Category extends Base {
     isActive: boolean;
     parentCategoryId: string | null;
 }
+
+export interface Good extends Base {
+    title: string;
+    description: string | null,
+    categoryId: string,
+    price: number,
+    oldPrice: number
+    count: number
+}

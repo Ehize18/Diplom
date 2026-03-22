@@ -24,6 +24,8 @@ namespace ShopService.Database.Configurations
 				.HasDefaultValue(false)
 				.IsRequired();
 
+			builder.Ignore(x => x.ChildsCount);
+
 			builder.HasOne(x => x.ParentCategory)
 				.WithMany(x => x.ChildCategories)
 				.HasForeignKey(x => x.ParentCategoryId)

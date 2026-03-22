@@ -1,4 +1,6 @@
-﻿namespace ShopService.Core.Entities
+﻿using System.Text.Json.Serialization;
+
+namespace ShopService.Core.Entities
 {
 	/// <summary>
 	/// Good in shop.
@@ -33,6 +35,7 @@
 		/// <summary>
 		/// Good category.
 		/// </summary>
+		[JsonIgnore]
 		public GoodCategory? Category { get; set; }
 
 		/// <summary>

@@ -6,7 +6,7 @@
             Категории
         </div>
         <div class="panel-main-header-buttons">
-            <app-button caption="Добавить"></app-button>
+            <app-button caption="Добавить" [onClickCallback]="shopModal.bind(this)"></app-button>
             <app-button caption="Импорт"></app-button>
             <app-button caption="Экспорт"></app-button>
         </div>
@@ -18,19 +18,44 @@
         <div class="panel-list panel-list-full"> 
             <div class="panel-list panel-list-vertical panel-list-left">
                 <app-category-tree-panel
-                    (itemSelected)="onSelectedCategoryChange($event)"></app-category-tree-panel>
+                    (itemSelected)="onSelectedCategoryChange($event)"
+                    (itemsLoaded)="onCategoriesLoaded($event)"
+                    [categorySaved]="savedCategory()"></app-category-tree-panel>
                 <app-category-panel
-                    [selectedCategory]="selectedCategory"></app-category-panel>
+                    [selectedCategory]="selectedCategory"
+                    [loadedCategoriesInput]="loadedCategories"
+                    (categorySaved)="categorySaved($event)"></app-category-panel>
             </div>
             <div class="panel-list panel-list-vertical panel-list-right">
                 <div class="panel-list panel-list-stretch">
-                    <app-category-statistic-panel [type]="statisticType.GoodCount"></app-category-statistic-panel>
-                    <app-category-statistic-panel [type]="statisticType.GoodCountFull"></app-category-statistic-panel>
-                    <app-category-statistic-panel [type]="statisticType.OrderCount"></app-category-statistic-panel>
-                    <app-category-statistic-panel [type]="statisticType.OrderCountFull"></app-category-statistic-panel>
+                    <app-category-statistic-panel
+                        [type]="statisticType.GoodCount"
+                        [statistic]="goodsInCategory">
+                    </app-category-statistic-panel>
+                    <app-category-statistic-panel
+                        [type]="statisticType.GoodCountFull"
+                        [statistic]="goodsTotal">
+                    </app-category-statistic-panel>
+                    <app-category-statistic-panel
+                        [type]="statisticType.OrderCount"
+                        [statistic]="ordersInCategory">
+                    </app-category-statistic-panel>
+                    <app-category-statistic-panel
+                        [type]="statisticType.OrderCountFull"
+                        [statistic]="ordersTotal">
+                    </app-category-statistic-panel>
                 </div>
-                <app-good-panel></app-good-panel>
+                <app-good-panel
+                    [categories]="loadedCategories"
+                    [selectedCategory]="selectedCategory"
+                    (goodsLoaded)="onGoodsLoaded($event)">
+                </app-good-panel>
             </div>
         </div>
     </div>
+</div>
+<div class="popup-add-category">
+    @if (isModalOpened()) {
+        <app-popup [config]="getPopupConfig()"></app-popup>
+    }
 </div>

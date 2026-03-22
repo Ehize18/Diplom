@@ -2,6 +2,7 @@
 using Shared.RabbitMQ;
 using Shared.RabbitMQ.Contracts;
 using ShopService.Core;
+using ShopService.Core.Entities;
 
 namespace ShopService.Application.Services
 {
@@ -20,7 +21,8 @@ namespace ShopService.Application.Services
 		protected override string[] Queues => new[]
 		{
 			Bus.AdminEvents.SHOP_CREATE, Bus.AdminEvents.SHOP_UPDATE,
-			Bus.ShopEvents.CATEGORY_UPDATE, Bus.DataBus.DATA_GET
+			Bus.ShopEvents.CATEGORY_UPDATE, Bus.ShopEvents.GOOD_UPDATE,
+			Bus.DataBus.DATA_GET
 		};
 
 		protected override Dictionary<string, Dictionary<string, string>> QueueBinds => new Dictionary<string, Dictionary<string, string>>
@@ -37,7 +39,8 @@ namespace ShopService.Application.Services
 				Bus.ShopEvents.EXCHANGE,
 				new Dictionary<string, string>
 				{
-					{ Bus.ShopEvents.CATEGORY_UPDATE, Bus.ShopEvents.CATEGORY_UPDATE }
+					{ Bus.ShopEvents.CATEGORY_UPDATE, Bus.ShopEvents.CATEGORY_UPDATE },
+					{ Bus.ShopEvents.GOOD_UPDATE, Bus.ShopEvents.GOOD_UPDATE },
 				}
 			},
 			{
@@ -55,6 +58,7 @@ namespace ShopService.Application.Services
 		{
 			await InitShopCreateConsumer(cancellationToken);
 			await InitCategoryUpdateConsumer(cancellationToken);
+			await InitGoodUpdateConsumer(cancellationToken);
 			await InitDataGetConsumer(cancellationToken);
 		}
 
@@ -88,7 +92,19 @@ namespace ShopService.Application.Services
 					var connectionStringProvider = scope.ServiceProvider.GetRequiredService<ConnectionStringProvider>();
 					connectionStringProvider.ShopId = message.ShopId;
 					var categoryService = scope.ServiceProvider.GetRequiredService<CategoryService>();
-					var category = await categoryService.CreateCategoryAsync(message);
+					GoodCategory? category = null;
+					switch (message.UpdateType)
+					{
+						case UpdateType.Create:
+							category = await categoryService.CreateCategoryAsync(message);
+							break;
+						case UpdateType.Update:
+							category = await categoryService.UpdateCategoryAsync(message);
+							break;
+						default:
+							break;
+					}
+					
 					CategoryUpdated categoryUpdated;
 					if (category != null)
 					{
@@ -114,6 +130,53 @@ namespace ShopService.Application.Services
 			}, cancellationToken);
 		}
 
+		private async Task InitGoodUpdateConsumer(CancellationToken cancellationToken = default)
+		{
+			await AddConsumer<UpdateGood>(Bus.ShopEvents.GOOD_UPDATE, async (model, ea, message) =>
+			{
+				using (var scope = _serviceProvider.CreateScope())
+				{
+					var connectionStringProvider = scope.ServiceProvider.GetRequiredService<ConnectionStringProvider>();
+					connectionStringProvider.ShopId = message.ShopId;
+					var categoryService = scope.ServiceProvider.GetRequiredService<GoodService>();
+					Good? good = null;
+					switch (message.UpdateType)
+					{
+						case UpdateType.Create:
+							good = await categoryService.CreateGoodAsync(message);
+							break;
+						case UpdateType.Update:
+							good = await categoryService.UpdateGoodAsync(message);
+							break;
+						default:
+							break;
+					}
+
+					GoodUpdated goodUpdated;
+					if (good != null)
+					{
+						goodUpdated = new GoodUpdated
+						{
+							GoodId = good.Id,
+							IsSuccess = true
+						};
+					}
+					else
+					{
+						goodUpdated = new GoodUpdated
+						{
+							GoodId = Guid.Empty,
+							IsSuccess = false
+						};
+					}
+
+					var properties = CreateProperties();
+					properties.CorrelationId = ea.BasicProperties.CorrelationId;
+					await PublishMessage(properties, goodUpdated, Bus.ShopEvents.EXCHANGE, Bus.ShopEvents.GOOD_UPDATED);
+				}
+			}, cancellationToken);
+		}
+
 		private async Task InitDataGetConsumer(CancellationToken cancellationToken = default)
 		{
 			await AddConsumer<DataGet>(Bus.DataBus.DATA_GET, async (model, ea, message) =>
@@ -122,32 +185,13 @@ namespace ShopService.Application.Services
 				{
 					var connectionStringProvider = scope.ServiceProvider.GetRequiredService<ConnectionStringProvider>();
 					connectionStringProvider.ShopId = message.ShopId;
-					var response = await GetDataResponse(message, scope);
+					var dataService = scope.ServiceProvider.GetRequiredService<DataService>();
+					var response = await dataService.GetData(message, scope);
 					var properties = CreateProperties();
 					properties.CorrelationId = ea.BasicProperties.CorrelationId;
 					await PublishMessage(properties, response, Bus.DataBus.EXCHANGE, Bus.DataBus.DATA_GET_RESPONSE);
 				}
 			}, cancellationToken);
-		}
-
-		private async Task<DataGetResponse> GetDataResponse(DataGet request, IServiceScope scope)
-		{
-			DataGetResponse response = new DataGetResponse
-			{
-				IsSuccess = false,
-				Error = "unexpected_error"
-			};
-			switch (request.Entity)
-			{
-				case DataGetEntity.Category:
-					var categoryService = scope.ServiceProvider.GetRequiredService<CategoryService>();
-					response = await categoryService.HandleDataGetRequest(request);
-					break;
-				default:
-					break;
-
-			}
-			return response;
 		}
 	}
 }

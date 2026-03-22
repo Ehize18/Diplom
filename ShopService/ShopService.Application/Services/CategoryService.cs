@@ -1,5 +1,4 @@
-﻿using System.Linq.Expressions;
-using Shared.RabbitMQ.Contracts;
+﻿using Shared.RabbitMQ.Contracts;
 using ShopService.Core.Entities;
 using ShopService.Database.Interfaces;
 
@@ -31,7 +30,7 @@ namespace ShopService.Application.Services
 					ParentCategoryId = update.ParentCategoryId,
 					IsActive = update.IsActive != null ? update.IsActive.Value : false,
 				};
-
+				await _categoryRepository.SetUser(update.UpdatedById);
 				var result = _categoryRepository.Create(category);
 				await _categoryRepository.SaveChangesAsync(cancellationToken);
 				return result;
@@ -43,59 +42,36 @@ namespace ShopService.Application.Services
 			return null;
 		}
 
-		public async Task<DataGetResponse> HandleDataGetRequest(DataGet request)
+		public async Task<GoodCategory?> UpdateCategoryAsync(UpdateCategory update, CancellationToken cancellationToken = default)
 		{
-			var filterExp = BuildFilterExpression(request.Filter);
-			try
-			{
-				var categories = await _categoryRepository.GetAsync(filterExp, request.OrderBy, request.IsAscending, request.Page, request.PageSize);
-				return new DataGetResponse
-				{
-					Results = categories.ToArray(),
-					IsSuccess = true,
-					Error = string.Empty
-				};
-			}
-			catch (Exception ex)
-			{
-				return new DataGetResponse
-				{
-					IsSuccess = false,
-					Error = ex.Message
-				};
-			}
-		}
-
-		private Expression<Func<GoodCategory, bool>>? BuildFilterExpression(Filter? filter)
-		{
-			if (filter == null)
+			var isAdmin = await _categoryRepository.CheckOrCreateAdmin(update.UpdatedById);
+			if (!isAdmin)
 			{
 				return null;
 			}
-			var parameter = Expression.Parameter(typeof(GoodCategory), "x");
-			var property = Expression.Property(parameter, filter.LeftExpression);
-			Expression constant = Expression.Constant(filter.RightExpression);
 
-			if (property.Type != constant.Type)
+			try
 			{
-				constant = Expression.Convert(constant, property.Type);
-			}
-
-			Expression body;
-
-			switch (filter.FilterType)
-			{
-				case FilterType.Equal:
-					body = Expression.Equal(property, constant);
-					break;
-				case FilterType.Like:
-					body = Expression.Call(property, nameof(string.Contains), Type.EmptyTypes, constant);
-					break;
-				default:
+				await _categoryRepository.SetUser(update.UpdatedById);
+				var category = await _categoryRepository.GetByIdAsync((Guid)update.CategoryId!);
+				if (category == null)
+				{
 					return null;
+				}
+				category.Title = update.CategoryTitle;
+				category.Description = update.CategoryDescription;
+				category.ParentCategoryId = update.ParentCategoryId;
+				category.IsActive = (bool)update.IsActive;
+				_categoryRepository.Update(category);
+				await _categoryRepository.SaveChangesAsync(cancellationToken);
+				return category;
+			}
+			catch (Exception ex)
+			{
+
 			}
 
-			return Expression.Lambda<Func<GoodCategory, bool>>(body, parameter);
+			return null;
 		}
 	}
 }

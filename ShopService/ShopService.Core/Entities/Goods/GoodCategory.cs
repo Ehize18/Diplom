@@ -1,4 +1,6 @@
-﻿namespace ShopService.Core.Entities
+﻿using System.Text.Json.Serialization;
+
+namespace ShopService.Core.Entities
 {
 	/// <summary>
 	/// Good's category.
@@ -20,6 +22,7 @@
 		/// <summary>
 		/// Parent category.
 		/// </summary>
+		[JsonIgnore]
 		public GoodCategory? ParentCategory { get; set; }
 
 		/// <summary>
@@ -30,6 +33,9 @@
 		/// <summary>
 		/// Child categories.
 		/// </summary>
+		[JsonIgnore]
 		public List<GoodCategory> ChildCategories { get; set; } = new List<GoodCategory>();
+
+		public int ChildsCount { get; set; }
 	}
 }

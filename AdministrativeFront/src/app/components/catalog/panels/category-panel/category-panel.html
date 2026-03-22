@@ -12,17 +12,16 @@
             Описание категории
         </p>
         <div class="input-wrapper big-input">
-            <textarea type="text" [(ngModel)]="title"></textarea>
+            <textarea type="text" [(ngModel)]="description"></textarea>
         </div>
     </div>
-    <div class="input-with-caption">
-        <p>
-            Родительская категория
-        </p>
-        <div class="input-wrapper">
-            <input type="text" [(ngModel)]="parentCategoryTitle">
-        </div>
-    </div>
+    <app-lookup
+        caption="Родительская категория"
+        id="parent-category"
+        [values]="getLookupData()"
+        [defaultValue]="getDefaultLookupData()"
+        (itemSelected)="parentCategoryChanged($event)">
+    </app-lookup>
     <div class="checkbox-with-caption">
         <p>
             Активно

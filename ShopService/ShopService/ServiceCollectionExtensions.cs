@@ -44,6 +44,7 @@ namespace ShopService
 
 			services.AddTransient<DbMigrator>();
 			services.AddScoped<IBaseRepository<GoodCategory>, CategoryRepository>();
+			services.AddScoped<IBaseRepository<Good>, GoodRepository>();
 
 			return services;
 		}
@@ -51,6 +52,8 @@ namespace ShopService
 		private static IServiceCollection AddServices(this IServiceCollection services)
 		{
 			services.AddScoped<CategoryService>();
+			services.AddScoped<GoodService>();
+			services.AddScoped<DataService>();
 
 			return services;
 		}

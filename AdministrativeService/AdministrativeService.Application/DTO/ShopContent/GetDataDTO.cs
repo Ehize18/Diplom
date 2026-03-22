@@ -2,7 +2,7 @@
 
 namespace AdministrativeService.Application.DTO.ShopContent
 {
-	public class GetCategoriesDTO
+	public class GetDataDTO
 	{
 		public required Guid ShopId { get; set; }
 		public required DataGetEntity Entity { get; set; }

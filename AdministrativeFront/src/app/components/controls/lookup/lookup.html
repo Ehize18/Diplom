@@ -1,0 +1,21 @@
+<div class="input-with-caption">
+    <p>
+        {{ caption }}
+    </p>
+    <div class="input-wrapper">
+        <input id={{id}} list="" [(ngModel)]="selectedItemCaption"
+            autocomplete="off" role="combobox" name={{`${id}-list`}}
+            (ngModelChange)="onValueChange($event)"
+            (focus)="onFocus($event)">
+        <datalist id={{`${id}-list`}} class="datalist" role="listbox"
+        [style.display]="getListStyle()">
+            @for (item of getListValues(); track item.id) {
+                <option 
+                    [value]="item.id"
+                    (click)="onOptionClick(item)">
+                    {{item.caption}}
+                </option>
+            }
+        </datalist>
+    </div>
+</div>

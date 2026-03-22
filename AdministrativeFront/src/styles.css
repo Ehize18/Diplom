@@ -115,6 +115,7 @@ p {
     background-color: var(--secandary-bg-color);
     padding: 5px;
     border-radius: 6px;
+    position: relative;
 }
 
 .input-wrapper input {
@@ -148,6 +149,19 @@ p {
 
 .big-input textarea:focus {
     outline: none;
+}
+
+.datalist {
+    background-color: var(--secandary-bg-color);
+    position: absolute;
+    padding: 5px;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    border-top: 1px solid var(--secondary-font-color);
+    left: 0;
+    right: 0;
+    max-height: 84px;
+    overflow: auto;
 }
 
 .checkbox-with-caption {

@@ -1,4 +1,4 @@
-import { Component, input, signal } from '@angular/core';
+import { Component, effect, input, signal } from '@angular/core';
 
 export enum CategoryStaticsticType {
   GoodCount,
@@ -15,7 +15,7 @@ export enum CategoryStaticsticType {
 })
 export class CategoryStatisticPanel {
   type = input<CategoryStaticsticType>();
-  statistic = signal(0);
+  statistic = input(0);
 
   getImageSrc(): string {
     switch (this.type()) {

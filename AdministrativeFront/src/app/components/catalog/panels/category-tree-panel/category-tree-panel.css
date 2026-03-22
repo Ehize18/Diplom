@@ -1,3 +1,5 @@
 .category-tree-panel {
     height: 300px;
+    box-sizing: border-box;
+    overflow: auto;
 }
