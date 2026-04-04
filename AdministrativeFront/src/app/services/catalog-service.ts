@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
-import { Category, GetDataResponse, Good } from '../contracts/catalog';
+import { Category, GetDataResponse, Good, Property } from '../contracts/catalog';
 
 @Injectable({
   providedIn: 'root',
@@ -21,8 +21,18 @@ export class CatalogService {
     return this.httpClient.post<any>(`${this._baseUrl}/${shopId}/category`, category, this.HTTP_OPTIONS);
   }
 
-  public createGood(shopId: string, good: Good): Observable<any> {
-    return this.httpClient.post<any>(`${this._baseUrl}/${shopId}/good`, good, this.HTTP_OPTIONS);
+  public createGood(shopId: string, good: Good, image?: File): Observable<any> {
+    const formData = new FormData();
+    formData.append("Title", good.title);
+    formData.append("Description", good.description || '');
+    formData.append("CategoryId", good.categoryId);
+    formData.append("Count", good.count.toString());
+    formData.append("Price", good.price.toString());
+    
+    if (image) {
+      formData.append("image", image, image.name);
+    }
+    return this.httpClient.post<any>(`${this._baseUrl}/${shopId}/good`, formData, this.HTTP_OPTIONS);
   }
 
   public getData<T>(shopId: string, dataType: string, params?: Record<string, string | number | boolean | readonly (string | number | boolean)[]>) {
@@ -67,7 +77,48 @@ export class CatalogService {
     return this.getData<Good>(shopId, 'Good', params);
   }
 
-  public updateCategory(shopId: string, category: Category): Observable<string> {
-    return this.httpClient.put<string>(`${this._baseUrl}/${shopId}/category/${category.id}`, category, this.HTTP_OPTIONS);
+  public getProperties(shopId: string) {
+    const params = {
+      'orderBy': 'Title',
+      'isAscending': false
+    };
+    return this.getData<Property>(shopId, 'Property', params);
+  }
+
+  public createProperty(shopId: string, title: string) {
+    const body = {
+      'title': title
+    };
+    return this.httpClient.post<string>(`${this._baseUrl}/${shopId}/property`, body, this.HTTP_OPTIONS);
+  }
+
+  public createPropertyValue(shopId: string, propertyId: string, title: string) {
+    const body = {
+      'title': title
+    };
+    return this.httpClient.post<string>(`${this._baseUrl}/${shopId}/property/${propertyId}`, body, this.HTTP_OPTIONS);
+  }
+
+  public updateCategory(shopId: string, category: Category, image?: File): Observable<string> {
+    const formData = new FormData();
+    formData.append("Title", category.title);
+    formData.append("Description", category.description || '');
+    if (category.isActive) {
+      formData.append("IsActive", 'true');
+    }
+    else {
+      formData.append("IsActive", 'false');
+    }
+    if (category.parentCategoryId) {
+      formData.append("ParentCategoryId", category.parentCategoryId);
+    }
+    if (category.imageId) {
+      formData.append("ImageId", category.imageId);
+    }
+    if (image) {
+      formData.append("image", image, image.name);
+    }
+    
+    return this.httpClient.put<string>(`${this._baseUrl}/${shopId}/category/${category.id}`, formData, this.HTTP_OPTIONS);
   }
 }

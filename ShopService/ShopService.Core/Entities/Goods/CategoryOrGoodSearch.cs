@@ -1,0 +1,10 @@
+﻿namespace ShopService.Core.Entities
+{
+	public class CategoryOrGoodSearch
+	{
+		public Guid Id { get; set; }
+		public string Title { get; set; } = string.Empty;
+		public string Description = string.Empty;
+		public int SourceType { get; set; }
+	}
+}

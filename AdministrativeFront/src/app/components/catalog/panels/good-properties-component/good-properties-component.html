@@ -1,0 +1,14 @@
+<div class="properties-panel-wrap">
+    <div class="properties-panel-img">
+        <img src="placeholder.svg">
+    </div>
+    <div class="properties-panel-content">
+        <div class="properties-panel-title accent-font">
+            Свойства товаров
+        </div>
+        <app-button class="properties-button" caption="Настроить" [onClickCallback]="showPopup.bind(this)"></app-button>
+    </div>
+</div>
+@if (isPopupShowed()) {
+    <app-good-properties-popup [callbackFn]="closePopup.bind(this)"></app-good-properties-popup>
+}

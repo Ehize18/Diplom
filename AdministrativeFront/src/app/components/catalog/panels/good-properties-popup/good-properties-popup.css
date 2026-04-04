@@ -1,0 +1,64 @@
+.popup-content {
+    padding: 30px;
+    background-color: var(--primary-bg-color);
+    height: fit-content;
+    width: 30vw;
+    display: flex;
+    flex-direction: column;
+    gap: 18px
+}
+
+.popup-wrap {
+    background-color: rgba(0,0,0, 0.2);
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+}
+
+.popup-main {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+.properties-list, .property-values {
+    max-height: 50vh;
+    overflow: auto;
+}
+
+.close-button {
+    margin-left: auto;
+    display: block;
+    width: fit-content;
+}
+
+.property-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.properties, .property-values {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.selected {
+    background-color: azure;
+}
+
+.edit-mode {
+    font-size: 16px;
+    border: none;
+    outline: none;
+    width: 100%;
+    padding: 0;
+    background-color: transparent;
+}

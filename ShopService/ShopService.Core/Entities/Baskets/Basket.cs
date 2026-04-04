@@ -15,5 +15,9 @@
 		/// </summary>
 		public List<GoodInBasket> Goods { get; set; } = new List<GoodInBasket>();
 
+		public User? User { get; set; }
+
+		public Guid UserId { get; set; }
+
 	}
 }

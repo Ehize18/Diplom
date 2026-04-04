@@ -1,0 +1,14 @@
+.main-content-wrap {
+    padding: 80px 20px;
+    height: 100%;
+    max-height: 100%;
+    box-sizing: border-box;
+    overflow: auto;
+    scrollbar-width: none;
+}
+
+:host {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}

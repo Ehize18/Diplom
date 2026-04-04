@@ -1,0 +1,72 @@
+<div class="popup-wrap">
+    <div class="popup-content">
+        <div class="popup-main">
+            <div class="properties">
+                <div class="property-header">
+                    <div class="properties-caption accent-font">
+                        Свойства
+                    </div>
+                    <app-button caption="Добавить" [onClickCallback]="addNewProperty.bind(this)"></app-button>
+                </div>
+                <div class="input-with-caption">
+                    <div class="input-wrapper">
+                        <input type="text" [(ngModel)]="newPropertyTitle">
+                    </div>
+                </div>
+                <div class="properties-list">
+                    @for (property of properties(); track property.id) {
+                        <div class="property" 
+                            [class.selected]="selectedProperty()?.id === property.id"
+                            (click)="onPropertyClick(property)">
+                            {{ property.title }}
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="property-values">
+                <div class="property-header">
+                    <div class="properties-caption accent-font">
+                        Значения
+                    </div>
+                    <app-button caption="Добавить" [onClickCallback]="addNewPropertyValue.bind(this)"></app-button>
+                </div>
+                <div class="input-with-caption">
+                    <div class="input-wrapper">
+                        <input type="text" [(ngModel)]="newPropertyValueTitle">
+                    </div>
+                </div>
+                <div class="property-value-list">
+                    @if (selectedProperty()) {
+                        @for (value of selectedProperty()!.values(); track value.id) {
+                            <div class="property-value-wrap"
+                                [class.selected]="selectedPropertyValue()?.id === value.id">
+                                @if (value.isEdit()) {
+                                    <input
+                                        type="text"
+                                        [(ngModel)]="value.editTitle"
+                                        (blur)="value.onBlur()"
+                                        (keydown)="value.onKeydown($event)"
+                                        #editInput
+                                        id="PropertyValueEdit"
+                                        class="edit-mode"
+                                        appAutofocus
+                                    >
+                                }
+                                @else {
+                                    <div class="property-value"
+                                        (click)="onValueClick(value)"
+                                        (dblclick)="value.enableEdit()">
+                                        {{ value.title }}
+                                    </div>
+                                }
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="popup-footer">
+            <app-button class="close-button" caption="Закрыть" [onClickCallback]="onCloseClick.bind(this)"></app-button>
+        </div>
+    </div>
+</div>

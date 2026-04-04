@@ -81,6 +81,19 @@ namespace AdministrativeService.Application.Services
 			return shops;
 		}
 
+		public async Task<Shop?> UpdateShop(User user, Guid shopId, long? vkGroupId, CancellationToken cancellationToken = default)
+		{
+			var shops = await _shopRepository.GetAsync(x => x.Id == shopId && x.Admins.Any(x => x.UserId == user.Id && x.Feature == AdminFeature.CanAll));
+			var shop = shops.FirstOrDefault();
+			if (shop != null)
+			{
+				shop.VkGroupId = vkGroupId;
+				shop = _shopRepository.Update(shop);
+				await _shopRepository.SaveChangesAsync(cancellationToken);
+			}
+			return shop;
+		}
+
 		public async Task<Shop?> GetShopById(Guid shopId)
 		{
 			return await _shopRepository.GetByIdAsync(shopId);

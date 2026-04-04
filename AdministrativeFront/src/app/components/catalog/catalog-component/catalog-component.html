@@ -37,13 +37,10 @@
                         [statistic]="goodsTotal">
                     </app-category-statistic-panel>
                     <app-category-statistic-panel
-                        [type]="statisticType.OrderCount"
-                        [statistic]="ordersInCategory">
-                    </app-category-statistic-panel>
-                    <app-category-statistic-panel
                         [type]="statisticType.OrderCountFull"
                         [statistic]="ordersTotal">
                     </app-category-statistic-panel>
+                    <app-good-properties-component></app-good-properties-component>
                 </div>
                 <app-good-panel
                     [categories]="loadedCategories"

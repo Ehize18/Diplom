@@ -6,9 +6,9 @@ namespace ShopService.Application.Services
 {
 	public class GoodService
 	{
-		private readonly IBaseRepository<Good> _goodRepository;
+		private readonly IGoodRepository _goodRepository;
 
-		public GoodService(IBaseRepository<Good> goodRepository)
+		public GoodService(IGoodRepository goodRepository)
 		{
 			_goodRepository = goodRepository;
 		}
@@ -28,6 +28,7 @@ namespace ShopService.Application.Services
 					Title = update.GoodTitle!,
 					Description = update.GoodDescription != null ? update.GoodDescription : string.Empty,
 					CategoryId = update.CategoryId,
+					ImageId = update.ImageId,
 					Count = update.Count,
 					Price = update.Price,
 					OldPrice = update.OldPrice
@@ -66,6 +67,7 @@ namespace ShopService.Application.Services
 				good.Count = update.Count;
 				good.Price = update.Price;
 				good.OldPrice = update.OldPrice;
+				good.ImageId = update.ImageId;
 				_goodRepository.Update(good);
 				await _goodRepository.SaveChangesAsync(cancellationToken);
 				return good;
@@ -76,6 +78,16 @@ namespace ShopService.Application.Services
 			}
 
 			return null;
+		}
+
+		public async Task<IEnumerable<Good?>> GetGoodsByCategory(Guid categoryId, bool isActual, CancellationToken cancellationToken = default)
+		{
+			return await _goodRepository.GetGoodsByCategory(categoryId, isActual, cancellationToken);
+		}
+
+		public async Task<Good?> GetGoodById(Guid id, CancellationToken cancellationToken = default)
+		{
+			return await _goodRepository.GetByIdAsync(id);
 		}
 	}
 }

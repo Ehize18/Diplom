@@ -4,6 +4,7 @@ using AdministrativeService.Contracts.Content;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shared.RabbitMQ.Contracts;
+using Shared.S3;
 
 namespace AdministrativeService.Controllers
 {
@@ -13,10 +14,12 @@ namespace AdministrativeService.Controllers
 	public class ShopContentController : ControllerWithUser
 	{
 		private readonly ShopContentService _shopContentService;
+		private readonly IMinioService _minioService;
 
-		public ShopContentController(ShopContentService shopContentService)
+		public ShopContentController(ShopContentService shopContentService, IMinioService minioService)
 		{
 			_shopContentService = shopContentService;
+			_minioService = minioService;
 		}
 
 		[HttpPost("category")]
@@ -40,14 +43,24 @@ namespace AdministrativeService.Controllers
 		}
 
 		[HttpPut("category/{categoryId:guid}")]
-		public async Task<ActionResult> PutCategory(UpdateCategoryRequest request, Guid shopId, Guid categoryId, CancellationToken cancellationToken = default)
+		public async Task<ActionResult> PutCategory([FromForm]UpdateCategoryRequest request, IFormFile? image, Guid shopId, Guid categoryId, CancellationToken cancellationToken = default)
 		{
+			Guid? imageId = request.ImageId;
+			var tasksToWait = new List<Task>();
+			if (image != null)
+			{
+				imageId = Guid.NewGuid();
+				tasksToWait.Add(UploadImage((Guid)imageId, shopId, image, cancellationToken));
+			}
 			Guid? parentCategoryId = null;
 			if (Guid.TryParse(request.ParentCategoryId, out var parentCategoryIdParsed))
 			{
-				parentCategoryId = parentCategoryIdParsed;
+				if (parentCategoryIdParsed != Guid.Empty)
+				{
+					parentCategoryId = parentCategoryIdParsed;
+				}
 			}
-			var (id, error) = await _shopContentService.PatchCategory(new()
+			var patchTask = _shopContentService.PatchCategory(new()
 			{
 				ShopId = shopId,
 				CategoryId = categoryId,
@@ -55,8 +68,12 @@ namespace AdministrativeService.Controllers
 				Description = request.Description,
 				IsActive = request.IsActive,
 				ParentCategoryId = parentCategoryId,
+				ImageId = imageId,
 				User = CurrentUser
 			});
+			tasksToWait.Add(patchTask);
+			await Task.WhenAll(tasksToWait);
+			var (id, error) = patchTask.Result;
 
 			if (string.IsNullOrWhiteSpace(error))
 			{
@@ -66,9 +83,17 @@ namespace AdministrativeService.Controllers
 		}
 
 		[HttpPost("good")]
-		public async Task<ActionResult> CreateGood(CreateGoodRequest request, Guid shopId, CancellationToken cancellationToken = default)
+		public async Task<ActionResult> CreateGood([FromForm]CreateGoodRequest request, IFormFile? image, Guid shopId, CancellationToken cancellationToken = default)
 		{
-			var (id, error) = await _shopContentService.CreateGood(new()
+			Guid? imageId = null;
+			var tasksToWait = new List<Task>();
+			if (image != null)
+			{
+				imageId = Guid.NewGuid();
+				tasksToWait.Add(UploadImage((Guid)imageId, shopId, image, cancellationToken));
+			}
+
+			var createGoodTask = _shopContentService.CreateGood(new()
 			{
 				ShopId = shopId,
 				Title = request.Title,
@@ -77,8 +102,13 @@ namespace AdministrativeService.Controllers
 				Count = request.Count,
 				Price = request.Price,
 				OldPrice = request.OldPrice,
+				ImageId = imageId,
 				User = CurrentUser
 			});
+
+			await Task.WhenAll(tasksToWait);
+
+			var (id, error) = createGoodTask.Result;
 
 			if (string.IsNullOrWhiteSpace(error))
 			{
@@ -132,6 +162,115 @@ namespace AdministrativeService.Controllers
 				return Ok(response);
 			}
 			return BadRequest("unknown_type");
+		}
+
+		[HttpPost("property")]
+		public async Task<ActionResult> CreateProperty(CreatePropertyRequest request, Guid shopId, CancellationToken cancellationToken = default)
+		{
+			var (id, error) = await _shopContentService.CreateProperty(new()
+			{
+				ShopId = shopId,
+				Title = request.Title,
+				User = CurrentUser
+			}, cancellationToken);
+
+			if (string.IsNullOrWhiteSpace(error))
+			{
+				return Ok(id);
+			}
+			return BadRequest(error);
+		}
+
+		[HttpPut("property/{propertyId:guid}")]
+		public async Task<ActionResult> UpdateProperty(CreatePropertyRequest request, Guid shopId, Guid propertyId, CancellationToken cancellationToken = default)
+		{
+			var (id, error) = await _shopContentService.UpdateProperty(new()
+			{
+				PropertyId = propertyId,
+				ShopId = shopId,
+				Title = request.Title,
+				User = CurrentUser
+			}, cancellationToken);
+
+			if (string.IsNullOrWhiteSpace(error))
+			{
+				return Ok(id);
+			}
+			return BadRequest(error);
+		}
+
+		[HttpPost("property/{propertyId:guid}")]
+		public async Task<ActionResult> CreatePropertyValue(CreatePropertyRequest request, Guid shopId, Guid propertyId, CancellationToken cancellationToken = default)
+		{
+			var (id, error) = await _shopContentService.CreatePropertyValue(new()
+			{
+				PropertyId = propertyId,
+				ShopId = shopId,
+				Title = request.Title,
+				User = CurrentUser
+			}, cancellationToken);
+
+			if (string.IsNullOrWhiteSpace(error))
+			{
+				return Ok(id);
+			}
+			return BadRequest(error);
+		}
+
+		[HttpPut("property/{propertyId:guid}/{propertyValueId:guid}")]
+		public async Task<ActionResult> UpdateProperty(CreatePropertyRequest request, Guid shopId, Guid propertyId, Guid propertyValueId, CancellationToken cancellationToken = default)
+		{
+			var (id, error) = await _shopContentService.UpdatePropertyValue(new()
+			{
+				PropertyValueId = propertyValueId,
+				ShopId = shopId,
+				Title = request.Title,
+				User = CurrentUser
+			}, cancellationToken);
+
+			if (string.IsNullOrWhiteSpace(error))
+			{
+				return Ok(id);
+			}
+			return BadRequest(error);
+		}
+
+		[HttpPost("image")]
+		public async Task<ActionResult> UploadImage(Guid shopId, IFormFile image, CancellationToken cancellationToken = default)
+		{
+			var imageId = Guid.NewGuid();
+
+			await UploadImage(imageId, shopId, image, cancellationToken);
+
+			return Ok(imageId);
+		}
+
+		private async Task UploadImage(Guid imageId, Guid shopId, IFormFile image, CancellationToken cancellationToken = default)
+		{
+			var policyJson = @"{
+				""Version"": ""2012-10-17"",
+				""Statement"": [{
+					""Effect"": ""Allow"",
+					""Principal"": { ""AWS"": ""*"" },
+					""Action"": [""s3:GetObject""],
+					""Resource"": [""arn:aws:s3:::" + shopId.ToString() + @"/*""]
+				}]
+			}";
+			await _minioService.Init(shopId.ToString(), policyJson, cancellationToken);
+
+			using (var stream = new MemoryStream())
+			{
+				await image.CopyToAsync(stream);
+				stream.Position = 0;
+				await _minioService.PutObject(shopId.ToString(), imageId.ToString(), stream, image.ContentType, cancellationToken);
+			}
+		}
+
+		[HttpDelete("image/{imageId:guid}")]
+		public async Task<ActionResult> DeleteImage(Guid shopId, Guid imageId, CancellationToken cancellationToken = default)
+		{
+			await _minioService.DeleteObject(shopId.ToString(), imageId.ToString(), cancellationToken);
+			return Ok();
 		}
 	}
 }

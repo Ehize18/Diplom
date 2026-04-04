@@ -52,5 +52,7 @@ namespace ShopService.Core.Entities
 		/// Soft delete flag.
 		/// </summary>
 		public bool IsDeleted { get; set; } = false;
+
+		public Guid? ImageId { get; set; }
 	}
 }

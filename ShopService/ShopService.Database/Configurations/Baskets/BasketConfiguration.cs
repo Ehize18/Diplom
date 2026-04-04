@@ -19,6 +19,11 @@ namespace ShopService.Database.Configurations
 				.WithOne(x => x.Basket)
 				.HasForeignKey(x => x.BasketId)
 				.IsRequired();
+
+			builder.HasOne(x => x.User)
+				.WithMany(x => x.Baskets)
+				.HasForeignKey(x => x.UserId)
+				.IsRequired(true);
 		}
 	}
 }

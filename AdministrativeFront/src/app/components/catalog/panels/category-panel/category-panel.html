@@ -7,13 +7,15 @@
             <input type="text" [(ngModel)]="title">
         </div>
     </div>
-    <div class="input-with-caption">
-        <p>
-            Описание категории
-        </p>
-        <div class="input-wrapper big-input">
-            <textarea type="text" [(ngModel)]="description"></textarea>
-        </div>
+    <div class="upload-container">
+        <div class="preview">
+                <img class="preview-image" [src]="imageSrc()">
+            </div>
+        <input
+            type="file"
+            (change)="onImageChanged($event)"
+            accept="image/*"
+            >
     </div>
     <app-lookup
         caption="Родительская категория"

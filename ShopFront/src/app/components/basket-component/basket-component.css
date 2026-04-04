@@ -1,0 +1,43 @@
+.basket-wrap {
+    background-color: var(--card-bg-color);
+    border-radius: 5px;
+}
+
+.basket-content {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px
+}
+
+.basket-item-wrap {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 20px
+}
+
+.basket-item-img img {
+    width: 100px;
+    height: 100px;
+    display: block;
+    border-radius: 5px;
+    object-fit: cover;
+}
+
+.basket-item-controls {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-left: auto;
+}
+
+.basket-item-count input {
+    width: 3em;
+}
+
+.basket-item-delete-button img {
+    width: 48px;
+    height: 40px;
+    display: block;
+}

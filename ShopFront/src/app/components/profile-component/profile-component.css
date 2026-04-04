@@ -1,0 +1,31 @@
+.profile-wrap {
+    background-color: var(--card-bg-color);
+    border-radius: 5px;
+}
+
+.profile-content {
+    padding: 20px
+}
+
+.profile-header-img img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    display: block;
+    border-radius: 5px;
+}
+
+.profile-header {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+@media (min-width: 768px) {
+    .profile-header {
+        flex-direction: row;
+    }
+
+    .profile-header-img {
+        min-width: 300px;
+    }
+}

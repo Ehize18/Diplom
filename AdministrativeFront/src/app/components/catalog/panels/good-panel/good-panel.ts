@@ -7,6 +7,7 @@ import { ShopService } from '../../../../services/shop-service';
 import { CatalogService } from '../../../../services/catalog-service';
 import { Shop } from '../../../../contracts/shop';
 import { TreeItem } from '../category-tree-item/category-tree-item';
+import { environment } from '../../../../../environments/environment';
 
 export class GoodViewModel {
   id: string;
@@ -41,6 +42,7 @@ export class GoodPanel {
   categories = input<Category[]>([]);
   selectedCategory = input<TreeItem | undefined>();
   goodsLoaded = output<GoodViewModel[]>();
+  selectedGood = signal<GoodViewModel | null>(null);
 
   constructor(
     private shopService: ShopService,
@@ -58,6 +60,15 @@ export class GoodPanel {
         this.getGoods(currentShop?.id, this.selectedCategory()?.id)
       }
     });
+  }
+
+  selectGood(good: GoodViewModel): void {
+    if (this.selectedGood()?.id === good.id) {
+      this.selectedGood.set(null);
+    }
+    else {
+      this.selectedGood.set(good);
+    }
   }
 
   getGoods(shopId: string, categoryId?: string): void {
@@ -134,23 +145,38 @@ export class GoodPanel {
         id: '',
         createdById: '',
         updatedById: '',
+        imageId: '',
         createdAt: new Date(),
         updatedAt: new Date()
       };
+
+      let image: File | undefined;
+
+      if (controls.image && controls.image.file) {
+        image = controls.image.file;
+      }
 
       const currentShopId = this.shopService.currentShop!.id;
 
       this.catalogService.createGood(
         currentShopId,
-        good
+        good,
+        image
       ).subscribe(
         (value) => {
-          if (value && this.selectedCategory()?.id === good.categoryId) {
+          if (value) {
             this.getGoods(currentShopId, this.selectedCategory()?.id);
           }
         }
       );
     }
+  }
+
+  getGoodImageSrc(good: GoodViewModel): string {
+    if (good.model.imageId) {
+      return `${environment.imageUrl}/${this.shopService.currentShop?.id}/${good.model.imageId}`
+    }
+    return 'placeholder.svg';
   }
 
   showModal(): void {
@@ -183,10 +209,95 @@ export class GoodPanel {
     return undefined;
   }
 
-  getPopupConfig(): PopupConfig {
+  getCategoryLookupData(categoryId: string | undefined): LookupData | undefined {
+    if (!categoryId) {
+      return undefined;
+    }
+    const category = this.categories().find(c => c.id === categoryId);
+    if (category) {
+      return {
+        id: categoryId,
+        caption: category.title
+      }
+    }
+    return undefined;
+  }
+
+  private getEditPopupConfig(): PopupConfig {
     return {
       id: 'addGoodPopup',
       controls: [
+        {
+          type: ControlType.File,
+          tag: 'image',
+          caption: 'Изображение',
+          value: this.selectedGood()?.model.imageId,
+          lookupData: []
+        },
+        {
+          type: ControlType.Input,
+          tag: 'title',
+          caption: 'Название',
+          value: this.selectedGood()?.model.title,
+          lookupData: []
+        },
+        {
+          type: ControlType.Textarea,
+          tag: 'description',
+          caption: 'Описание',
+          value: this.selectedGood()?.model.description,
+          lookupData: []
+        },
+        {
+          type: ControlType.Lookup,
+          tag: 'category',
+          caption: 'Категория',
+          value: this.getCategoryLookupData(this.selectedGood()?.model.categoryId),
+          lookupData: this.getLookupData()
+        },
+        {
+          type: ControlType.Input,
+          tag: 'price',
+          caption: 'Цена',
+          value: this.selectedGood()?.price,
+          lookupData: []
+        },
+        {
+          type: ControlType.Input,
+          tag: 'count',
+          caption: 'Количество на складе',
+          value: this.selectedGood()?.count,
+          lookupData: []
+        }
+      ],
+      buttons: [
+        {
+          caption: 'Сохранить',
+          tag: 'edit'
+        },
+        {
+          caption: 'Закрыть',
+          tag: 'close'
+        }
+      ],
+      callback: this.onCloseModal.bind(this)
+    }
+  }
+
+  getPopupConfig(): PopupConfig {
+    if (this.selectedGood()) {
+      return this.getEditPopupConfig();
+    }
+    return {
+      id: 'addGoodPopup',
+      controls: [
+        {
+          type: ControlType.File,
+          tag: 'image',
+          caption: 'Изображение',
+          value: '',
+          lookupData: []
+        },
         {
           type: ControlType.Input,
           tag: 'title',

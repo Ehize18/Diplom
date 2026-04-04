@@ -7,6 +7,7 @@ namespace AdministrativeService.Contracts.Shop
 		public Guid Id { get; set; }
 		public required string Title { get; set; }
 		public string? Description { get; set; }
+		public long? VkGroupId { get; set; }
 		public List<ShopAdminResponse> Admins { get; set; } = new List<ShopAdminResponse>();
 
 		[SetsRequiredMembers]
@@ -15,6 +16,7 @@ namespace AdministrativeService.Contracts.Shop
 			Id = shop.Id;
 			Title = shop.Title;
 			Description = shop.Description;
+			VkGroupId = shop.VkGroupId;
 
 			if (shop.Admins != null)
 			{

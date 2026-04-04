@@ -6,5 +6,6 @@ namespace AdministrativeService.Contracts.Content
 		[MaxLength(50)] string? Title,
 		string? Description,
 		bool? IsActive,
-		string? ParentCategoryId = "00000000-0000-0000-0000-000000000000");
+		string? ParentCategoryId = "00000000-0000-0000-0000-000000000000",
+		Guid? ImageId = null);
 }

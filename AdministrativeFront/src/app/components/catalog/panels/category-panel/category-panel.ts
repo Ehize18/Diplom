@@ -6,6 +6,7 @@ import { CatalogService } from '../../../../services/catalog-service';
 import { ShopService } from '../../../../services/shop-service';
 import { Category } from '../../../../contracts/catalog';
 import { Lookup, LookupData } from "../../../controls/lookup/lookup";
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-category-panel',
@@ -24,6 +25,8 @@ export class CategoryPanel {
   parentCategoryTitle: string | undefined;
   parentCategoryId: string | undefined;
   isActive: boolean | undefined;
+  imageSrc = signal<string>('placeholder.svg');
+  newImage: File | undefined;
 
   constructor(
     private shopService: ShopService,
@@ -36,11 +39,31 @@ export class CategoryPanel {
       this.parentCategoryTitle = this.parentCategory?.title;
       this.parentCategoryId = this.parentCategory?.id;
       this.isActive = this.selectedCategory()?.isActive;
+      if (this.selectedCategory()?.category.imageId) {
+        this.setImageSrc(this.selectedCategory()!.category.imageId!);
+      } else {
+        this.imageSrc.set('placeholder.svg');
+      }
+      this.newImage = undefined;
       const loadedCat = this.loadedCategoriesInput();
       if (loadedCat) {
         this.loadedCategories.set(loadedCat);
-      } 
+      }
     });
+  }
+
+  setImageSrc(imageId: string) {
+    this.imageSrc.set(`${environment.imageUrl}/${this.shopService.currentShop?.id}/${imageId}`);
+  }
+
+  onImageChanged(event: any) {
+    const file: File = event.target.files[0];
+    if (file) {
+      this.newImage = file;
+      const reader = new FileReader();
+      reader.onload = (e: any) => this.imageSrc.set(e.target.result);
+      reader.readAsDataURL(file);
+    }
   }
 
   getLookupData(): LookupData[] {
@@ -83,7 +106,7 @@ export class CategoryPanel {
       category.category.description = this.description || null;
       category.category.isActive = this.isActive!;
       category.category.parentCategoryId = this.parentCategory?.id || null;
-      this.catalogService.updateCategory(this.shopService.currentShop?.id!, category.category).subscribe(
+      this.catalogService.updateCategory(this.shopService.currentShop?.id!, category.category, this.newImage).subscribe(
         (value) => {
           if (value) {
             this.categorySaved.emit(this.selectedCategory()?.category!);

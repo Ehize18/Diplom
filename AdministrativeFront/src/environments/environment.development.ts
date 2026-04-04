@@ -1,3 +1,4 @@
 export const environment = {
-    apiUrl: "http://localhost:32770/api"
+    apiUrl: "https://admin.ehize.ru/api",
+    imageUrl: "https://admin.ehize.ru/image"
 };

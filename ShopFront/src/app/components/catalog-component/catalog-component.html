@@ -1,0 +1,36 @@
+<div class="catalog-wrap">
+    <div class="catalog-header">
+        <div class="catalog-button" (click)="onFiltersClick()">
+            Фильтры
+        </div>
+    </div>
+    <div class="good-list">
+        @for (good of goods(); track good.id) {
+            <app-good-component [model]="good"></app-good-component>
+        }
+    </div>
+</div>
+@if (isFiltersPopupVisible()) {
+    <div class="filters-popup">
+        <div class="filters-popup-header">
+            <div class="filters-popup-back" (click)="closeFilter(false)">
+                < Назад
+            </div>
+        </div>
+        <div class="filters-popup-content">
+            <div class="filters-popup-filters-list">
+                <div class="filters-popup-filter">
+                    Категория
+                </div>
+            </div>
+            <div class="filters-popup-value-selector-wrap">
+                <form (ngSubmit)="onFilterSubmit()">
+                    @for (filterValue of showedFilterValues(); track filterValue.id) {
+
+                    }
+                    <button type="submit">Применить</button>
+                </form>
+            </div>
+        </div>
+    </div>
+}

@@ -27,6 +27,21 @@ namespace AdministrativeService.Application.Services
 				categoryUpdated.Error != null ? categoryUpdated.Error : "unexpected_error");
 		}
 
+		private (Guid, string) GetResponse(PropertyUpdated? propertyUpdated)
+		{
+			if (propertyUpdated == null)
+			{
+				return (Guid.Empty, "unexpected_error");
+			}
+			if (propertyUpdated.IsSuccess)
+			{
+				return (propertyUpdated.PropertyId, string.Empty);
+			}
+			return (
+				propertyUpdated.PropertyId != Guid.Empty ? propertyUpdated.PropertyId : Guid.Empty,
+				propertyUpdated.Error != null ? propertyUpdated.Error : "unexpected_error");
+		}
+
 		private (Guid, string) GetResponse(GoodUpdated? goodUpdated)
 		{
 			if (goodUpdated == null)
@@ -40,6 +55,21 @@ namespace AdministrativeService.Application.Services
 			return (
 				goodUpdated.GoodId != Guid.Empty ? goodUpdated.GoodId : Guid.Empty,
 				goodUpdated.Error != null ? goodUpdated.Error : "unexpected_error");
+		}
+
+		private (Guid, string) GetResponse(PropertyValueUpdated? propertyValueUpdated)
+		{
+			if (propertyValueUpdated == null)
+			{
+				return (Guid.Empty, "unexpected_error");
+			}
+			if (propertyValueUpdated.IsSuccess)
+			{
+				return (propertyValueUpdated.PropertyValueId, string.Empty);
+			}
+			return (
+				propertyValueUpdated.PropertyValueId != Guid.Empty ? propertyValueUpdated.PropertyValueId : Guid.Empty,
+				propertyValueUpdated.Error != null ? propertyValueUpdated.Error : "unexpected_error");
 		}
 
 		public async Task<(Guid, string)> CreateCategory(CreateCategoryDTO dto, CancellationToken cancellationToken = default)
@@ -83,7 +113,8 @@ namespace AdministrativeService.Application.Services
 				Price = dto.Price,
 				OldPrice = dto.OldPrice,
 				UpdatedById = dto.User.Id,
-				ShopId = dto.ShopId
+				ShopId = dto.ShopId,
+				ImageId = dto.ImageId
 			};
 
 			var messageId = Guid.NewGuid();
@@ -142,6 +173,7 @@ namespace AdministrativeService.Application.Services
 				CategoryId = dto.CategoryId,
 				CategoryTitle = dto.Title,
 				CategoryDescription = dto.Description,
+				ImageId = dto.ImageId,
 				IsActive = dto.IsActive,
 				ParentCategoryId = dto.ParentCategoryId
 			};
@@ -158,6 +190,69 @@ namespace AdministrativeService.Application.Services
 			await Task.WhenAll(responseTask, requestTask);
 
 			var response = responseTask.Result;
+
+			return GetResponse(response);
+		}
+
+		public async Task<(Guid, string)> CreateProperty(CreatePropertyDTO dto, CancellationToken cancellationToken = default)
+		{
+			var updateProperty = new UpdateProperty
+			{
+				PropertyTitle = dto.Title,
+				UpdateType = UpdateType.Create,
+				ShopId = dto.ShopId,
+				UpdatedById = dto.User.Id
+			};
+
+			var response = await _messageService.UpdateProperty(updateProperty, cancellationToken);
+
+			return GetResponse(response);
+		}
+
+		public async Task<(Guid, string)> UpdateProperty(PatchPropertyDTO dto, CancellationToken cancellationToken = default)
+		{
+			var updateProperty = new UpdateProperty
+			{
+				PropertyId = dto.PropertyId,
+				PropertyTitle = dto.Title,
+				UpdateType = UpdateType.Update,
+				ShopId = dto.ShopId,
+				UpdatedById = dto.User.Id
+			};
+
+			var response = await _messageService.UpdateProperty(updateProperty, cancellationToken);
+
+			return GetResponse(response);
+		}
+
+		public async Task<(Guid, string)> CreatePropertyValue(CreatePropertyValueDTO dto, CancellationToken cancellationToken = default)
+		{
+			var updateProperty = new UpdatePropertyValue
+			{
+				PropertyTitle = dto.Title,
+				UpdateType = UpdateType.Create,
+				PropertyId = dto.PropertyId,
+				ShopId = dto.ShopId,
+				UpdatedById = dto.User.Id
+			};
+
+			var response = await _messageService.UpdatePropertyValue(updateProperty, cancellationToken);
+
+			return GetResponse(response);
+		}
+
+		public async Task<(Guid, string)> UpdatePropertyValue(PatchPropertyValueDTO dto, CancellationToken cancellationToken = default)
+		{
+			var updateProperty = new UpdatePropertyValue
+			{
+				PropertyValueId = dto.PropertyValueId,
+				PropertyTitle = dto.Title,
+				UpdateType = UpdateType.Update,
+				ShopId = dto.ShopId,
+				UpdatedById = dto.User.Id
+			};
+
+			var response = await _messageService.UpdatePropertyValue(updateProperty, cancellationToken);
 
 			return GetResponse(response);
 		}

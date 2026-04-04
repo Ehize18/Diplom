@@ -10,10 +10,11 @@ import { Category } from '../../../contracts/catalog';
 import { LookupData } from '../../controls/lookup/lookup';
 import { ShopService } from '../../../services/shop-service';
 import { CatalogService } from '../../../services/catalog-service';
+import { GoodPropertiesComponent } from '../panels/good-properties-component/good-properties-component';
 
 @Component({
   selector: 'app-catalog-component',
-  imports: [Button, CategoryTreePanel, CategoryPanel, CategoryStatisticPanel, GoodPanel, Popup],
+  imports: [Button, CategoryTreePanel, CategoryPanel, CategoryStatisticPanel, GoodPanel, Popup, GoodPropertiesComponent],
   templateUrl: './catalog-component.html',
   styleUrl: './catalog-component.css',
 })
@@ -75,7 +76,8 @@ export class CatalogComponent {
         createdAt: new Date(),
         updatedAt: new Date(),
         createdById: '',
-        updatedById: ''
+        updatedById: '',
+        imageId: ''
       }
       this.catalogService.createCategory(
         this.shopService.currentShop!.id,

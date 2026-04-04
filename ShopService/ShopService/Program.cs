@@ -1,6 +1,7 @@
 
 using Microsoft.EntityFrameworkCore;
 using ShopService.Database;
+using ShopService.Filters;
 
 namespace ShopService
 {
@@ -16,7 +17,7 @@ namespace ShopService
 			builder.Services.AddControllers();
 			// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 			builder.Services.AddOpenApi();
-			builder.Services.AddSwaggerGen();
+			builder.Services.AddSwaggerGen(opt => opt.OperationFilter<ShopHeaderParameterOperationFilter>());
 
 			builder.Services.ConfigureServices(config);
 
@@ -28,9 +29,8 @@ namespace ShopService
 				app.MapOpenApi();
 				app.UseSwagger();
 				app.UseSwaggerUI();
+				app.UseCors("DevPolicy");
 			}
-
-			app.UseHttpsRedirection();
 
 			app.UseAuthorization();
 

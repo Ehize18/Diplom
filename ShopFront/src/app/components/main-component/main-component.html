@@ -1,0 +1,10 @@
+<div class="main-component-wrap">
+    <div class="category-slider">
+        <app-category-slider-component></app-category-slider-component>
+    </div>
+    <div class="good-list">
+        @for (good of goods(); track good.id) {
+            <app-good-component [model]="good"></app-good-component>
+        }
+    </div>
+</div>

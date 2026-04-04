@@ -34,6 +34,18 @@ namespace AdministrativeService.Controllers
 			return Ok(new ShopResponse(shop));
 		}
 
+		[HttpPost("{shopId:guid}/vk")]
+		public async Task<ActionResult<ShopResponse>> SetVkGroup(Guid shopId, SetVkGroupRequest request, CancellationToken cancellationToken)
+		{
+			var shop = await _shopService.UpdateShop(CurrentUser, shopId, request.VkGroupId, cancellationToken);
+
+			if (shop == null)
+			{
+				return BadRequest();
+			}
+			return Ok(new ShopResponse(shop));
+		}
+
 		[HttpGet]
 		public async Task<ActionResult<List<ShopResponse>>> GetUserShops()
 		{

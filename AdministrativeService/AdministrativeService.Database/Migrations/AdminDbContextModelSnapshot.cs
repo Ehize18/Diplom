@@ -48,6 +48,9 @@ namespace AdministrativeService.Database.Migrations
                     b.Property<Guid?>("UpdatedById")
                         .HasColumnType("uuid");
 
+                    b.Property<long?>("VkGroupId")
+                        .HasColumnType("bigint");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedById");

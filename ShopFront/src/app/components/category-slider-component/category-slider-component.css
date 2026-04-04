@@ -1,0 +1,28 @@
+.categories-slider-wrap {
+    display: flex;
+    flex-direction: row;
+    overflow: auto;
+    scrollbar-width: none;
+    gap: 20px;
+}
+
+.category-wrap {
+    padding: 5px;
+    background-color: var(--card-bg-color);
+    border-radius: 5px;
+}
+
+.category-wrap p {
+    margin: 0;
+}
+
+.category-wrap img {
+    display: block;
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+}
+
+.categories-slider-wrap::--webkit-scrollbar {
+    display: none;
+}

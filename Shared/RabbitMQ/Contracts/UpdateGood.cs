@@ -7,6 +7,7 @@
 		public required string GoodTitle { get; set; }
 		public string? GoodDescription { get; set; }
 		public Guid CategoryId { get; set; }
+		public Guid? ImageId { get; set; }
 		public int Count { get; set; }
 		public decimal Price { get; set; }
 		public decimal OldPrice { get; set; }

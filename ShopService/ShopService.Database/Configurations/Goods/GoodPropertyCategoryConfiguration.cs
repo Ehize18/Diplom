@@ -19,6 +19,9 @@ namespace ShopService.Database.Configurations
 				.WithOne(x => x.Category)
 				.HasForeignKey(x => x.CategoryId)
 				.IsRequired();
+
+			builder.Navigation(x => x.Properties)
+				.AutoInclude();
 		}
 	}
 }

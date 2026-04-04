@@ -1,0 +1,12 @@
+<div class="good-wrap" (click)="onClick()">
+    <div class="good-image-wrap">
+        <img [src]="imageSrc()">
+    </div>
+    <div class="good-caption">{{ title }}</div>
+    <div class="good-prices">
+        <div class="good-price">{{ price }} Р</div>
+        @if (oldPrice && oldPrice !== 0 && oldPrice !== price) {
+            <div class="good-old-price">{{ oldPrice }} Р</div>
+        }
+    </div>
+</div>

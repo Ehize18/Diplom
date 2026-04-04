@@ -33,10 +33,26 @@ services:
       - 5672:5672
     networks:
       - app_network
+  
+  minio:
+    image: minio/minio
+    environment:
+      - MINIO_ROOT_USER=root
+      - MINIO_ROOT_PASSWORD=rootpass123
+      - MINIO_DEFAULT_BUCKETS=bucket
+    networks:
+      - app_network
+    volumes:
+      - miniodata:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    command: ["server", "--console-address", ":9001", "/data"]
 
 volumes:
   pgdata:
   rabbitmq:
+  miniodata:
 
 networks:
   app_network:

@@ -21,10 +21,10 @@
                     }
                     @case (controlType.Lookup) {
                         <app-lookup
-                            caption={{control.caption}}
+                            [caption]="control.caption"
                             id={{`${config.id}-${control.tag}`}}
-                            [values]="control.lookupData",
-                            [defaultValue]="control.value",
+                            [values]="control.lookupData"
+                            [defaultValue]="control.value"
                             (itemSelected)="onLookupSelected($event, control.tag)"
                             >
                         </app-lookup>
@@ -38,6 +38,20 @@
                             <input type="checkbox" [(ngModel)]="controlValues[control.tag]">
                         </div>
                     </div>
+                    }
+                    @case (controlType.File) {
+                        <div class="upload-container">
+                            @if (controlValues[control.tag].previewUrl && controlValues[control.tag].previewUrl()) {
+                                <div class="preview">
+                                    <img class="preview-image" [src]="getFileSrc(control.tag)">
+                                </div>
+                            }
+                            <input
+                                type="file"
+                                (change)="onFileChanged($event, control.tag)"
+                                accept="image/*"
+                                >
+                        </div>
                     }
                 }
             }

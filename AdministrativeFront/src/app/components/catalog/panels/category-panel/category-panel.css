@@ -7,3 +7,19 @@
     flex-direction: column;
     gap: 18px;
 }
+
+.upload-container {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.preview {
+    height: 100px;
+}
+
+.preview-image {
+    display: block;
+    height: 100%;
+    width: auto;
+}

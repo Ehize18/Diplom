@@ -1,0 +1,30 @@
+/* You can add global styles to this file, and also import other style files */
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    overflow: hidden;
+}
+
+html {
+    font-family: "Roboto", sans-serif;
+    overflow: hidden;
+    font-size: 16px;
+}
+
+.accent-font {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+body {
+    --primary-bg-color: #CAE9FF;
+    --card-bg-color: #FAFAFA;
+    --primary-accent-color: #93E2FF;
+    --primary-shadow: 0 -1px 4px rgba(0, 0, 0, 0.25);
+    --secondary-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+    --primary-border-color: #1B4965;
+    font-size: 16px;
+
+    background-color: var(--primary-bg-color);
+}

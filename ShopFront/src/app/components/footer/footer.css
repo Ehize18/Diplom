@@ -1,0 +1,20 @@
+.main-footer {
+    display: flex;
+    justify-content: space-around;
+    width: 100vw;
+}
+
+.main-footer-button {
+    padding: 20px 0;
+    width: auto;
+}
+
+:host {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100vw;
+    display: flex;
+    background-color: var(--card-bg-color);
+    box-shadow: var(--primary-shadow);
+}   

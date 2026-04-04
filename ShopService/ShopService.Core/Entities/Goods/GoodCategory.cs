@@ -36,6 +36,6 @@ namespace ShopService.Core.Entities
 		[JsonIgnore]
 		public List<GoodCategory> ChildCategories { get; set; } = new List<GoodCategory>();
 
-		public int ChildsCount { get; set; }
+		public Guid? ImageId { get; set; }
 	}
 }

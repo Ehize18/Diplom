@@ -1,0 +1,54 @@
+.main-header {
+    display: flex;
+    flex-direction: row;
+    height: 60px;
+    align-items: center;
+}
+
+.main-header-back {
+    padding: 20px;
+}
+
+.main-header-search {
+    position: relative;
+}
+
+.main-header-search input {
+    outline: none;
+    border: none;
+    background-color: var(--card-bg-color);
+    font-size: 20px;
+    border-bottom: 1px solid var(--primary-border-color);
+}
+
+.main-header-searched-data {
+    position: absolute;
+    top: 100%;
+    left: -20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    background-color: var(--card-bg-color);
+    padding: 20px;
+}
+
+.main-header-search-result-wrap {
+    width: 100%;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+:host {
+    display: flex;
+    flex-direction: row;
+    height: fit-content;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    width: 100vw;
+    background-color: var(--card-bg-color);
+    box-shadow: var(--secondary-shadow);
+    z-index: 1000;
+}

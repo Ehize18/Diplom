@@ -1,0 +1,18 @@
+.good-list {
+    display: grid;
+    gap: 20px;
+
+    grid-template-columns: repeat(auto-fill, minmax(45%, 1fr));
+}
+
+@media (min-width: 768px) {
+    .good-list {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+}
+
+.main-component-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}

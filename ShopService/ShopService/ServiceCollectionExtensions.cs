@@ -1,4 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Shared.Jwt;
 using Shared.RabbitMQ;
 using ShopService.Application.Services;
 using ShopService.Core;
@@ -16,9 +19,47 @@ namespace ShopService
 		{
 			services
 				.AddHttpContextAccessor()
+				.AddJwtAuthentication(configuration.GetSection("Jwt"))
 				.AddRabbitMQ(configuration)
 				.AddDatabase(configuration)
-				.AddServices();
+				.AddServices()
+				.AddApplicationCors();
+			return services;
+		}
+
+		private static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration jwtConfig)
+		{
+			var securityKey = new SymmetricSecurityKey(
+					Encoding.UTF8.GetBytes(jwtConfig.GetValue<string>("SecretKey")!));
+
+			services.Configure<JwtOptions>(jwtConfig);
+			services.AddScoped<IJwtProvider, JwtProvider>();
+
+			services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+				.AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+				{
+					options.TokenValidationParameters = new()
+					{
+						ValidateIssuer = false,
+						ValidateAudience = false,
+						ValidateLifetime = true,
+						ValidateIssuerSigningKey = true,
+						IssuerSigningKey = securityKey
+					};
+					options.Events = new JwtBearerEvents()
+					{
+						OnMessageReceived = context =>
+						{
+							var shopIdHeader = context.Request.Headers["X-Shop-Id"];
+							if (Guid.TryParse(shopIdHeader, out var shopId))
+							{
+								context.Token = context.Request.Cookies[shopIdHeader + "Token"];
+							}
+							return Task.CompletedTask;
+						}
+					};
+				});
+
 			return services;
 		}
 
@@ -34,17 +75,37 @@ namespace ShopService
 
 		private static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
 		{
-			services.AddScoped<ConnectionStringProvider>(_ =>
+			services.AddScoped<ConnectionStringProvider>(serviceProvider =>
 			{
 				var connectionStringTemplate = configuration.GetValue<string>("DBConnectionStringTemplate")!;
-				return new ConnectionStringProvider(connectionStringTemplate);
+				var connectionStringProvider = new ConnectionStringProvider(connectionStringTemplate);
+				var httpContextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
+				var httpContext = httpContextAccessor.HttpContext;
+				if (httpContext != null)
+				{
+					if (httpContext.Request.Headers.TryGetValue("X-Shop-Id", out var shopId))
+					{
+						if (Guid.TryParse(shopId, out var shopIdGuid))
+						{
+							connectionStringProvider.ShopId = shopIdGuid;
+						}
+					}
+				}
+
+				return connectionStringProvider;
 			});
 
 			services.AddDbContext<ShopDbContext>();
 
 			services.AddTransient<DbMigrator>();
 			services.AddScoped<IBaseRepository<GoodCategory>, CategoryRepository>();
+			services.AddScoped<IGoodRepository, GoodRepository>();
 			services.AddScoped<IBaseRepository<Good>, GoodRepository>();
+			services.AddScoped<IBaseRepository<User>, UserRepository>();
+			services.AddScoped<IBasketRepository, BasketRepository>();
+			services.AddScoped<ISearchRepository, CategoryOrGoodSearchRepository>();
+			services.AddScoped<IGoodPropertyRepository, GoodPropertyRepository>();
+			services.AddScoped<IBaseRepository<GoodPropertyCategory>, GoodPropertyRepository>();
 
 			return services;
 		}
@@ -54,7 +115,22 @@ namespace ShopService
 			services.AddScoped<CategoryService>();
 			services.AddScoped<GoodService>();
 			services.AddScoped<DataService>();
+			services.AddScoped<UserService>();
+			services.AddScoped<BasketService>();
+			services.AddScoped<PropertyService>();
 
+			return services;
+		}
+
+		static IServiceCollection AddApplicationCors(this IServiceCollection services)
+		{
+			services.AddCors(
+				o => o.AddPolicy("DevPolicy",
+					builder => builder
+						.WithOrigins("http://localhost:4200", "http://localhost:8080", "http://localhost:4300", "http://192.168.1.52:4300", "https://localhost.localdomain", "https://ehize.ru")
+						.AllowAnyHeader()
+						.AllowAnyMethod()
+						.AllowCredentials()));
 			return services;
 		}
 	}

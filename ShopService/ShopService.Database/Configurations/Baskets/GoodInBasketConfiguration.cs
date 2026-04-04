@@ -10,6 +10,9 @@ namespace ShopService.Database.Configurations
 		{
 			base.Configure(builder);
 
+			builder.HasIndex(x => new { x.BasketId, x.GoodId }, "Basket_Index")
+				.IsUnique(true);
+
 			builder.HasOne(x => x.Good)
 				.WithMany()
 				.HasForeignKey(x => x.GoodId)

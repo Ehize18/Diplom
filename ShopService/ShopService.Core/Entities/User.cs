@@ -9,7 +9,9 @@
 
 		public string? PasswordHash { get; set; }
 
-		public int? TelegramId { get; set; }
+		public long? TelegramId { get; set; }
+
+		public long? VkId { get; set; }
 
 		public bool IsAdmin { get; set; } = false;
 

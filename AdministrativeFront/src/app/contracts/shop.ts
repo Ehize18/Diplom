@@ -7,6 +7,7 @@ export interface Shop {
     id: string;
     title: string;
     description: string | undefined;
+    vkGroupId: number | null;
     admins: ShopAdmin[];
 }
 

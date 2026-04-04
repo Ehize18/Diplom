@@ -17,9 +17,9 @@
             </thead>
             <tbody>
                 @for (good of goodList(); track good.id) {
-                    <tr>
+                    <tr [class.selected-good]="selectedGood()?.id === good.id" (click)="selectGood(good)">
                         <td>
-                            <img src="placeholder.svg">
+                            <img [src]="getGoodImageSrc(good)">
                         </td>
                         <td>
                             {{ good.title }}
@@ -42,7 +42,12 @@
         </table>
     </div>
     <div class="panel-main-header-buttons">
-        <app-button caption="Добавить" [onClickCallback]="showModal.bind(this)"></app-button>
+        @if (selectedGood()) {
+            <app-button caption="Изменить" [onClickCallback]="showModal.bind(this)"></app-button>
+        }
+        @else {
+            <app-button caption="Добавить" [onClickCallback]="showModal.bind(this)"></app-button>
+        }
         <app-button caption="Импорт"></app-button>
         <app-button caption="Экспорт"></app-button>
     </div>

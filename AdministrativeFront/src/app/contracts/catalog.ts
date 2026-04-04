@@ -17,13 +17,24 @@ export interface Category extends Base {
     description: string | null;
     isActive: boolean;
     parentCategoryId: string | null;
+    imageId: string | null;
 }
 
 export interface Good extends Base {
     title: string;
     description: string | null,
     categoryId: string,
+    imageId: string | null
     price: number,
     oldPrice: number
     count: number
+}
+
+export interface PropertyValue extends Base {
+    title: string;
+}
+
+export interface Property extends Base {
+    title: string;
+    properties: PropertyValue[]
 }

@@ -20,6 +20,7 @@ namespace ShopService.Database.Migrations
                 .HasAnnotation("ProductVersion", "10.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
+            NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "pg_trgm");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("GoodGoodProperty", b =>
@@ -60,7 +61,7 @@ namespace ShopService.Database.Migrations
                     b.Property<Guid?>("UpdatedById")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("UserId")
+                    b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
@@ -72,6 +73,23 @@ namespace ShopService.Database.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Basket");
+                });
+
+            modelBuilder.Entity("ShopService.Core.Entities.CategoryOrGoodSearch", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("SourceType")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.ToTable((string)null);
+
+                    b.ToView("CategoryGoodSearch", (string)null);
                 });
 
             modelBuilder.Entity("ShopService.Core.Entities.Good", b =>
@@ -96,6 +114,9 @@ namespace ShopService.Database.Migrations
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
+
+                    b.Property<Guid?>("ImageId")
+                        .HasColumnType("uuid");
 
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
@@ -129,9 +150,41 @@ namespace ShopService.Database.Migrations
 
                     b.HasIndex("CreatedById");
 
+                    b.HasIndex("Description");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("Description"), "GIN");
+                    NpgsqlIndexBuilderExtensions.HasOperators(b.HasIndex("Description"), new[] { "gin_trgm_ops" });
+
+                    b.HasIndex("Title");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("Title"), "GIN");
+                    NpgsqlIndexBuilderExtensions.HasOperators(b.HasIndex("Title"), new[] { "gin_trgm_ops" });
+
                     b.HasIndex("UpdatedById");
 
                     b.ToTable("Good");
+                });
+
+            modelBuilder.Entity("ShopService.Core.Entities.GoodCategoriesAll", b =>
+                {
+                    b.Property<Guid>("ActualCategoryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("FilterCategoryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("GoodId")
+                        .HasColumnType("uuid");
+
+                    b.HasIndex("ActualCategoryId");
+
+                    b.HasIndex("FilterCategoryId");
+
+                    b.HasIndex("GoodId");
+
+                    b.ToTable((string)null);
+
+                    b.ToView("GoodCategoriesAllView", (string)null);
                 });
 
             modelBuilder.Entity("ShopService.Core.Entities.GoodCategory", b =>
@@ -148,6 +201,9 @@ namespace ShopService.Database.Migrations
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
+
+                    b.Property<Guid?>("ImageId")
+                        .HasColumnType("uuid");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
@@ -172,7 +228,17 @@ namespace ShopService.Database.Migrations
 
                     b.HasIndex("CreatedById");
 
+                    b.HasIndex("Description");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("Description"), "GIN");
+                    NpgsqlIndexBuilderExtensions.HasOperators(b.HasIndex("Description"), new[] { "gin_trgm_ops" });
+
                     b.HasIndex("ParentCategoryId");
+
+                    b.HasIndex("Title");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("Title"), "GIN");
+                    NpgsqlIndexBuilderExtensions.HasOperators(b.HasIndex("Title"), new[] { "gin_trgm_ops" });
 
                     b.HasIndex("UpdatedById");
 
@@ -213,13 +279,14 @@ namespace ShopService.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BasketId");
-
                     b.HasIndex("CreatedById");
 
                     b.HasIndex("GoodId");
 
                     b.HasIndex("UpdatedById");
+
+                    b.HasIndex(new[] { "BasketId", "GoodId" }, "Basket_Index")
+                        .IsUnique();
 
                     b.ToTable("GoodInBasket");
                 });
@@ -348,8 +415,8 @@ namespace ShopService.Database.Migrations
                     b.Property<string>("PasswordHash")
                         .HasColumnType("text");
 
-                    b.Property<int?>("TelegramId")
-                        .HasColumnType("integer");
+                    b.Property<long?>("TelegramId")
+                        .HasColumnType("bigint");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamptz");
@@ -361,6 +428,9 @@ namespace ShopService.Database.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar");
+
+                    b.Property<long?>("VkId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
@@ -398,13 +468,17 @@ namespace ShopService.Database.Migrations
                         .WithMany()
                         .HasForeignKey("UpdatedById");
 
-                    b.HasOne("ShopService.Core.Entities.User", null)
+                    b.HasOne("ShopService.Core.Entities.User", "User")
                         .WithMany("Baskets")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("CreatedBy");
 
                     b.Navigation("UpdatedBy");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("ShopService.Core.Entities.Good", b =>
@@ -430,6 +504,33 @@ namespace ShopService.Database.Migrations
                     b.Navigation("CreatedBy");
 
                     b.Navigation("UpdatedBy");
+                });
+
+            modelBuilder.Entity("ShopService.Core.Entities.GoodCategoriesAll", b =>
+                {
+                    b.HasOne("ShopService.Core.Entities.GoodCategory", "ActualCategory")
+                        .WithMany()
+                        .HasForeignKey("ActualCategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ShopService.Core.Entities.GoodCategory", "FilterCategory")
+                        .WithMany()
+                        .HasForeignKey("FilterCategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ShopService.Core.Entities.Good", "Good")
+                        .WithMany()
+                        .HasForeignKey("GoodId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ActualCategory");
+
+                    b.Navigation("FilterCategory");
+
+                    b.Navigation("Good");
                 });
 
             modelBuilder.Entity("ShopService.Core.Entities.GoodCategory", b =>

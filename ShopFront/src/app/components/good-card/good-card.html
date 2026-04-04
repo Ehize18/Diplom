@@ -1,0 +1,57 @@
+<div class="card-wrap">
+    @if (model()) {
+        <div class="card-content">
+            <div class="card-header">
+                <div class="card-image-wrap">
+                    <img [src]="imageSrc()">
+                </div>
+                <div class="card-title-wrap">
+                    <p>{{model()?.title}}</p>
+                </div>
+                <div class="card-price-wrap">
+                    <div class="card-price">
+                        <p>{{model()?.price}} Р</p>
+                    </div>
+                    @if (oldPrice()) {
+                        <div class="card-old-price">
+                            <p>{{oldPrice()}} Р</p>
+                        </div>
+                    }
+                    
+                </div>
+            </div>
+            <div class="card-description">
+                <p>Описание товара:</p>
+                <p>{{model()?.description}}</p>
+            </div>
+            <div class="card-properties">
+                @for (property of model()?.properties; track property.id) {
+                    <table>
+                        <tr>
+                            <td>
+                                {{property.name}}
+                            </td>
+                            <td>
+                                {{property.value}}
+                            </td>
+                        </tr>
+                    </table>
+                }
+            </div>
+        </div>
+        @if (inBasket()) {
+            <div class="add-to-basket-button-wrap accent-font" (click)="onAddToBasketClick()">
+                <div>В корзине ({{inBasket()?.count}})</div>
+            </div>
+        }
+        @else {
+            <div class="add-to-basket-button-wrap accent-font" (click)="onAddToBasketClick()">
+                <div>В корзину</div>
+            </div>
+        }
+        
+    }
+    @else {
+        <p>loading</p>
+    }
+</div>

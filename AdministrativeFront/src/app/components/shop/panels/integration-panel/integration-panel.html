@@ -7,8 +7,15 @@
             </div>
         </div>
         <div class="panel-content">
-            {{ getUrl() }}
+            {{ url() }}
         </div>
-        <app-button caption="Настройки"></app-button>
+        <app-button caption="Настройки"
+            [onClickCallback]="onSettingsButtonClick.bind(this)"
+            ></app-button>
     </div>
+</div>
+<div class="integration-popup">
+     @if (isModalOpened()) {
+        <app-popup [config]="getPopupConfig()"></app-popup>
+    }
 </div>

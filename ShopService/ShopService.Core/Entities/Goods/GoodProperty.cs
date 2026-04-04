@@ -1,4 +1,6 @@
-﻿namespace ShopService.Core.Entities
+﻿using System.Text.Json.Serialization;
+
+namespace ShopService.Core.Entities
 {
 	/// <summary>
 	/// Good's property.
@@ -13,6 +15,7 @@
 		/// <summary>
 		/// Property category.
 		/// </summary>
+		[JsonIgnore]
 		public GoodPropertyCategory? Category { get; set; }
 
 		/// <summary>

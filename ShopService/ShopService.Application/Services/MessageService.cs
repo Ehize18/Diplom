@@ -9,11 +9,15 @@ namespace ShopService.Application.Services
 	public class MessageService : RabbitMQService
 	{
 		private readonly IServiceProvider _serviceProvider;
+		private readonly Guid _serviceId;
+
+		private string GetShopByVkResponseQueue => $"{Bus.DataBus.GET_SHOP_BY_VK_RESPONSE}.{this._serviceId}";
 
 		public MessageService(IServiceProvider serviceProvider,
 			RabbitMQConsumer consumer, RabbitMQPublisher publisher) : base(consumer, publisher)
 		{
 			_serviceProvider = serviceProvider;
+			_serviceId = Guid.NewGuid();
 		}
 
 		protected override string[] Exchanges => new[] { Bus.AdminEvents.EXCHANGE, Bus.ShopEvents.EXCHANGE, Bus.DataBus.EXCHANGE };
@@ -22,7 +26,8 @@ namespace ShopService.Application.Services
 		{
 			Bus.AdminEvents.SHOP_CREATE, Bus.AdminEvents.SHOP_UPDATE,
 			Bus.ShopEvents.CATEGORY_UPDATE, Bus.ShopEvents.GOOD_UPDATE,
-			Bus.DataBus.DATA_GET
+			Bus.ShopEvents.PROPERTY_UPDATE, Bus.ShopEvents.PROPERTY_VALUE_UPDATE,
+			Bus.DataBus.DATA_GET, GetShopByVkResponseQueue
 		};
 
 		protected override Dictionary<string, Dictionary<string, string>> QueueBinds => new Dictionary<string, Dictionary<string, string>>
@@ -41,13 +46,16 @@ namespace ShopService.Application.Services
 				{
 					{ Bus.ShopEvents.CATEGORY_UPDATE, Bus.ShopEvents.CATEGORY_UPDATE },
 					{ Bus.ShopEvents.GOOD_UPDATE, Bus.ShopEvents.GOOD_UPDATE },
+					{ Bus.ShopEvents.PROPERTY_UPDATE, Bus.ShopEvents.PROPERTY_UPDATE },
+					{ Bus.ShopEvents.PROPERTY_VALUE_UPDATE, Bus.ShopEvents.PROPERTY_VALUE_UPDATE }
 				}
 			},
 			{
 				Bus.DataBus.EXCHANGE,
 				new Dictionary<string, string>
 				{
-					{ Bus.DataBus.DATA_GET, Bus.DataBus.DATA_GET }
+					{ Bus.DataBus.DATA_GET, Bus.DataBus.DATA_GET },
+					{ GetShopByVkResponseQueue, GetShopByVkResponseQueue }
 				}
 			}
 		};
@@ -60,6 +68,8 @@ namespace ShopService.Application.Services
 			await InitCategoryUpdateConsumer(cancellationToken);
 			await InitGoodUpdateConsumer(cancellationToken);
 			await InitDataGetConsumer(cancellationToken);
+			await InitPropertyUpdateConsumer(cancellationToken);
+			await AddReadConsumer<GetShopByVkResponse>(GetShopByVkResponseQueue, cancellationToken);
 		}
 
 		private async Task InitShopCreateConsumer(CancellationToken cancellationToken = default)
@@ -177,6 +187,97 @@ namespace ShopService.Application.Services
 			}, cancellationToken);
 		}
 
+		private async Task InitPropertyUpdateConsumer(CancellationToken cancellationToken = default)
+		{
+			await AddConsumer<UpdateProperty>(Bus.ShopEvents.PROPERTY_UPDATE, async (model, ea, message) =>
+			{
+				using (var scope = _serviceProvider.CreateScope())
+				{
+					var connectionStringProvider = scope.ServiceProvider.GetRequiredService<ConnectionStringProvider>();
+					connectionStringProvider.ShopId = message.ShopId;
+					var categoryService = scope.ServiceProvider.GetRequiredService<PropertyService>();
+					GoodPropertyCategory? property = null;
+					switch (message.UpdateType)
+					{
+						case UpdateType.Create:
+							property = await categoryService.CreateGoodProperty(message);
+							break;
+						case UpdateType.Update:
+							property = await categoryService.UpdateGoodProperty(message);
+							break;
+						default:
+							break;
+					}
+
+					PropertyUpdated goodUpdated;
+					if (property != null)
+					{
+						goodUpdated = new PropertyUpdated
+						{
+							PropertyId = property.Id,
+							IsSuccess = true
+						};
+					}
+					else
+					{
+						goodUpdated = new PropertyUpdated
+						{
+							PropertyId = Guid.Empty,
+							IsSuccess = false
+						};
+					}
+
+					var properties = CreateProperties();
+					properties.CorrelationId = ea.BasicProperties.CorrelationId;
+					await PublishMessage(properties, goodUpdated, Bus.ShopEvents.EXCHANGE, Bus.ShopEvents.PROPERTY_UPDATED);
+				}
+			}, cancellationToken);
+
+			await AddConsumer<UpdatePropertyValue>(Bus.ShopEvents.PROPERTY_VALUE_UPDATE, async (model, ea, message) =>
+			{
+				using (var scope = _serviceProvider.CreateScope())
+				{
+					var connectionStringProvider = scope.ServiceProvider.GetRequiredService<ConnectionStringProvider>();
+					connectionStringProvider.ShopId = message.ShopId;
+					var categoryService = scope.ServiceProvider.GetRequiredService<PropertyService>();
+					GoodProperty? propertyValue = null;
+					switch (message.UpdateType)
+					{
+						case UpdateType.Create:
+							propertyValue = await categoryService.CreateGoodPropertyValue(message);
+							break;
+						case UpdateType.Update:
+							propertyValue = await categoryService.UpdateGoodPropertyValue(message);
+							break;
+						default:
+							break;
+					}
+
+					PropertyValueUpdated goodUpdated;
+					if (propertyValue != null)
+					{
+						goodUpdated = new PropertyValueUpdated
+						{
+							PropertyValueId = propertyValue.Id,
+							IsSuccess = true
+						};
+					}
+					else
+					{
+						goodUpdated = new PropertyValueUpdated
+						{
+							PropertyValueId = Guid.Empty,
+							IsSuccess = false
+						};
+					}
+
+					var properties = CreateProperties();
+					properties.CorrelationId = ea.BasicProperties.CorrelationId;
+					await PublishMessage(properties, goodUpdated, Bus.ShopEvents.EXCHANGE, Bus.ShopEvents.PROPERTY_VALUE_UPDATED);
+				}
+			}, cancellationToken);
+		}
+
 		private async Task InitDataGetConsumer(CancellationToken cancellationToken = default)
 		{
 			await AddConsumer<DataGet>(Bus.DataBus.DATA_GET, async (model, ea, message) =>
@@ -192,6 +293,18 @@ namespace ShopService.Application.Services
 					await PublishMessage(properties, response, Bus.DataBus.EXCHANGE, Bus.DataBus.DATA_GET_RESPONSE);
 				}
 			}, cancellationToken);
+		}
+
+		public async Task<GetShopByVkResponse?> GetShopByVk(long vkGroupId, CancellationToken cancellationToken = default)
+		{
+			var messageId = Guid.NewGuid();
+			var resultTask = GetAnswerAsync<GetShopByVkResponse>(messageId);
+			var message = new GetShopByVk { VkGroupId = vkGroupId };
+			var properties = CreateProperties();
+			properties.CorrelationId = messageId.ToString();
+			properties.ReplyTo = GetShopByVkResponseQueue;
+			await PublishMessage(properties, message, Bus.DataBus.EXCHANGE, Bus.DataBus.GET_SHOP_BY_VK);
+			return await resultTask;
 		}
 	}
 }

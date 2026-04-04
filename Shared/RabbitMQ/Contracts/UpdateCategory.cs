@@ -8,6 +8,7 @@
 		public string? CategoryDescription { get; set; }
 		public Guid? ParentCategoryId { get; set; }
 		public bool? IsActive { get; set; }
+		public Guid? ImageId { get; set; }
 
 		public required Guid UpdatedById { get; set; }
 		public required Guid ShopId { get; set; }

@@ -15,6 +15,8 @@
 		/// </summary>
 		public string? Description { get; set; }
 
+		public long? VkGroupId { get; set; }
+
 		public List<ShopAdmin>? Admins { get; set; }
 	}
 }

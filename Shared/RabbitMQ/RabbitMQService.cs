@@ -54,11 +54,10 @@ namespace Shared.RabbitMQ
 				{
 					var routingKey = queueBind.Key;
 					var queue = queueBind.Value;
-					bindTasks.Add(_publisher.QueueBindAsync(queue, exchange, routingKey, cancellationToken));
+					await _publisher.QueueBindAsync(queue, exchange, routingKey, cancellationToken);
 				}
 			}
 
-			await Task.WhenAll(bindTasks);
 			await InitConsumers(cancellationToken);
 			IsInited = true;
 		}

@@ -1,0 +1,31 @@
+<div class="basket-wrap">
+    <div class="basket-content">
+        @for (item of basketItems(); track item.basketItemId) {
+            <div class="basket-item-wrap">
+                <div class="basket-item-img">
+                    <img [src]="getImageSrc(item)">
+                </div>
+                <div class="basket-item-title">
+                    <p>{{item.title}}</p>
+                </div>
+                <div class="basket-item-controls">
+                    <div class="basket-item-count">
+                        <input type="number"
+                            min="1" max="100" step="1"
+                            [(ngModel)]="item.count"
+                            (focusout)="onBasketItemCountChange(item.basketItemId)">
+                    </div>
+                    <div class="basket-item-delete-button"
+                        (click)="onDeleteBasketItemClick(item.basketItemId)">
+                        <img src="placeholder.svg">
+                    </div>
+                </div>
+            </div>
+        }
+        @if (basketItems().length === 0) {
+            <p>
+                Здесь ничего нет, за покупками!
+            </p>
+        }
+    </div>
+</div>

@@ -27,9 +27,12 @@ namespace ShopService.Database.Configurations
 			builder.Property(x => x.TelegramId)
 				.IsRequired(false);
 
+			builder.Property(x => x.VkId)
+				.IsRequired(false);
+
 			builder.HasMany(x => x.Baskets)
-				.WithOne(x => x.CreatedBy)
-				.HasForeignKey(x => x.CreatedById);
+				.WithOne(x => x.User)
+				.HasForeignKey(x => x.UserId);
 		}
 	}
 }

@@ -1,0 +1,41 @@
+.card-wrap {
+    background-color: var(--card-bg-color);
+    border-radius: 5px;
+}
+
+.card-content {
+    padding: 20px;
+}
+
+.card-header {
+    display: flex;
+    flex-direction: column;
+}
+
+@media (min-width: 768px) {
+    .card-header {
+        flex-direction: row;
+    }
+
+    .card-image-wrap {
+        min-width: 300px;
+        max-width: 50%;
+    }
+}
+
+.card-image-wrap img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    display: block;
+}
+
+.add-to-basket-button-wrap {
+    position: fixed;
+    bottom: 70px;
+    right: 20px;
+    background-color: var(--primary-accent-color);
+    width: fit-content;
+    padding: 10px 20px;
+    border-radius: 10px;
+}

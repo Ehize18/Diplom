@@ -62,6 +62,7 @@ namespace ShopService.Application.Services
 				category.Description = update.CategoryDescription;
 				category.ParentCategoryId = update.ParentCategoryId;
 				category.IsActive = (bool)update.IsActive;
+				category.ImageId = update.ImageId;
 				_categoryRepository.Update(category);
 				await _categoryRepository.SaveChangesAsync(cancellationToken);
 				return category;
@@ -72,6 +73,27 @@ namespace ShopService.Application.Services
 			}
 
 			return null;
+		}
+
+		public async Task<List<GoodCategory>> GetCategoriesByParent(Guid? parentCategoryId, CancellationToken cancellationToken = default)
+		{
+			return await _categoryRepository.GetAsync(x => x.ParentCategoryId == parentCategoryId, "Title", true, 0, 0);
+		}
+
+		public async Task<GoodCategory?> GetCategoryById(Guid categoryId, bool withChilds, CancellationToken cancellationToken = default)
+		{
+			var category = await _categoryRepository.GetByIdAsync(categoryId);
+
+			if (category == null)
+			{
+				return category;
+			}
+
+			var childs = await GetCategoriesByParent(category.Id, cancellationToken);
+
+			category.ChildCategories = childs;
+
+			return category;
 		}
 	}
 }

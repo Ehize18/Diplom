@@ -39,7 +39,7 @@ export class ShopLayoutComponent implements OnInit {
   }
 
   initNewShop(): Shop {
-    this.newShop = { id: '', title: '', description: '', admins: [] };
+    this.newShop = { id: '', title: '', description: '', vkGroupId: null, admins: [] };
     return this.newShop;
   }
 

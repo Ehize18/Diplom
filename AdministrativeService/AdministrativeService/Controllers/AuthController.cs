@@ -28,7 +28,9 @@ namespace AdministrativeService.Controllers
 			{
 				Response.Cookies.Append("AdminToken", response.Token, new CookieOptions
 				{
-					HttpOnly = true
+					HttpOnly = true,
+					SameSite = SameSiteMode.None,
+					Secure = true
 				});
 				return Ok(new AuthResponse(response));
 			}

@@ -10,6 +10,7 @@ namespace AdministrativeService.Application.DTO.ShopContent
 		public int Count { get; set; }
 		public decimal Price { get; set; }
 		public decimal OldPrice { get; set; }
+		public Guid? ImageId { get; set; }
 		public required User User { get; set; }
 		public required Guid ShopId { get; set; }
 	}

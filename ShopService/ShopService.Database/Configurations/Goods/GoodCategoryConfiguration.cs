@@ -15,16 +15,22 @@ namespace ShopService.Database.Configurations
 				.HasMaxLength(50)
 				.IsRequired();
 
+			builder.HasIndex(x => x.Title)
+				.HasMethod("GIN")
+				.HasOperators("gin_trgm_ops");
+
 			builder.Property(x => x.Description)
 				.HasColumnType("text")
 				.IsRequired(false);
+
+			builder.HasIndex(x => x.Description)
+				.HasMethod("GIN")
+				.HasOperators("gin_trgm_ops");
 
 			builder.Property(x => x.IsActive)
 				.HasColumnType("boolean")
 				.HasDefaultValue(false)
 				.IsRequired();
-
-			builder.Ignore(x => x.ChildsCount);
 
 			builder.HasOne(x => x.ParentCategory)
 				.WithMany(x => x.ChildCategories)

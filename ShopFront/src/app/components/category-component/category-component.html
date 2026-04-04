@@ -1,0 +1,30 @@
+<div class="category-wrap">
+    @if (model()) {
+        <div class="category-header-wrap">
+            <div class="category-title-wrap">
+                <p>{{model()?.title}}</p>
+            </div>
+            <div class="category-catalog-button" (click)="onShowCatalogClick(model()!.id)">
+                <img src="placeholder.svg">
+            </div>
+        </div>
+        
+        <div class="category-childs-list">
+            @if (model()?.childs!.length < 1) {
+                <div class="category-childs-not-found-wrap">
+                    <p>Дочерних категорий не найдено</p>
+                </div>
+            }
+            @for (child of model()?.childs; track child.id) {
+                <div class="category-child-wrap" (click)="onCategoryClick(child.id)">
+                    <div class="category-child-title-wrap">
+                        <p>{{child.title}}</p>
+                    </div>
+                    <div class="category-catalog-button" (click)="onShowCatalogClick(child.id)">
+                        <img src="placeholder.svg">
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

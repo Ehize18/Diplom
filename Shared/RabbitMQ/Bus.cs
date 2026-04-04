@@ -20,6 +20,10 @@
 			public const string CATEGORY_UPDATED = "category.updated";
 			public const string GOOD_UPDATE = "good.update";
 			public const string GOOD_UPDATED = "good.updated";
+			public const string PROPERTY_UPDATE = "property.update";
+			public const string PROPERTY_UPDATED = "property.updated";
+			public const string PROPERTY_VALUE_UPDATE = "property.value.update";
+			public const string PROPERTY_VALUE_UPDATED = "property.value.updated";
 		}
 
 		public static class DataBus
@@ -28,6 +32,9 @@
 
 			public const string DATA_GET = "data.get";
 			public const string DATA_GET_RESPONSE = "data.get.response";
+
+			public const string GET_SHOP_BY_VK = "shop.byvk";
+			public const string GET_SHOP_BY_VK_RESPONSE = "shop.byvk.response";
 		}
 	}
 }

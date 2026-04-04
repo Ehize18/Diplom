@@ -1,0 +1,25 @@
+<div class="main-header">
+    <div class="main-header-back" (click)="onBackClick()">back</div>
+    <div class="main-header-search">
+        <input type="text"
+            [(ngModel)]="searchData"
+            (ngModelChange)="onSearchDataChange()"
+            placeholder="Поиск"
+            >
+        @if (isSearch()) {
+            <div class="main-header-searched-data">
+                @for (searchResult of searchResults(); track searchResult.id) {
+                    <div class="main-header-search-result-wrap"
+                        (click)="onSearchResultClick(searchResult)">
+                        {{ searchResult.title }}
+                    </div>
+                }
+                @if (searchResults().length === 0) {
+                    <div class="main-header-search-result-wrap">
+                        Ничего не нашлось
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>

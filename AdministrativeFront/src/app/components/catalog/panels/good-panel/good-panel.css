@@ -44,3 +44,7 @@
 .good-table th:first-child {
     width: 84px;
 }
+
+.selected-good {
+    background-color: azure;
+}

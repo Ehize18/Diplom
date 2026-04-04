@@ -67,4 +67,14 @@ export class ShopService {
   public createShop(createShopRequest : CreateShopRequest): Observable<Shop> {
     return this.httpClient.post<Shop>(this.baseUrl, createShopRequest, this.HTTP_OPTIONS);
   }
+
+  public updateVkShop(vkId: number): void {
+    const body = {
+      vkGroupId: vkId
+    }
+    this.httpClient.post<Shop>(this.baseUrl + `/${this.currentShop?.id}/vk`, body, this.HTTP_OPTIONS)
+      .subscribe(
+        shop => this.currentShop = shop
+      );
+  }
 }

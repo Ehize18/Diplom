@@ -9,8 +9,10 @@ using AdministrativeService.HostedServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Minio;
 using Shared.Jwt;
 using Shared.RabbitMQ;
+using Shared.S3;
 
 namespace AdministrativeService
 {
@@ -23,7 +25,26 @@ namespace AdministrativeService
 				.AddDatabase(configuration)
 				.AddServices()
 				.AddJwtAuthentication(configuration.GetSection("Jwt"))
+				.AddS3Service(configuration)
 				.AddApplicationCors();
+			return services;
+		}
+
+		private static IServiceCollection AddS3Service(this IServiceCollection services, IConfiguration configuration)
+		{
+			services
+				.AddMinio(minio =>
+				{
+					minio.WithEndpoint(configuration["S3:Endpoint"])
+						.WithCredentials(
+							configuration["S3:AccessKey"],
+							configuration["S3:SecretKey"]
+						)
+						.WithSSL(false)
+						.Build();
+				})
+				.AddScoped<IMinioService, MinioService>();
+
 			return services;
 		}
 
@@ -100,7 +121,7 @@ namespace AdministrativeService
 			services.AddCors(
 				o => o.AddPolicy("DevPolicy",
 					builder => builder
-						.WithOrigins("http://localhost:4200", "http://localhost:8080")
+						.WithOrigins("http://localhost:4200", "http://localhost:8080", "https://admin.ehize.ru")
 						.AllowAnyHeader()
 						.AllowAnyMethod()
 						.AllowCredentials()));

@@ -1,0 +1,8 @@
+<div class="categories-slider-wrap">
+    @for (category of mainCategories(); track category.id) {
+        <div class="category-wrap" (click)="onCategoryClick(category.id)">
+            <img [src]="getCategorySrc(category)">
+            <p>{{ category.title }}</p>
+        </div>
+    }
+</div>

@@ -20,6 +20,8 @@ namespace ShopService.Database
 
 		public DbSet<Good> Good { get; set; }
 
+		public DbSet<GoodCategoriesAll> GoodCategoriesAll { get; set; }
+
 		public DbSet<GoodCategory> GoodCategory { get; set; }
 
 		public DbSet<GoodProperty> GoodProperty { get; set; }
@@ -29,6 +31,8 @@ namespace ShopService.Database
 		public DbSet<Basket> Basket { get; set; }
 
 		public DbSet<GoodInBasket> GoodInBasket { get; set; }
+
+		public DbSet<CategoryOrGoodSearch> CategoryOrGoodSearch { get; set; }
 
 		public ShopDbContext(ConnectionStringProvider connectionStringProvider, DbContextOptions options) : base(options)
 		{
@@ -51,6 +55,8 @@ namespace ShopService.Database
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
+			modelBuilder.HasPostgresExtension("pg_trgm");
+
 			ApplyConfigurations(modelBuilder);
 
 			base.OnModelCreating(modelBuilder);
@@ -66,6 +72,8 @@ namespace ShopService.Database
 			modelBuilder.ApplyConfiguration(new GoodPropertyCategoryConfiguration());
 			modelBuilder.ApplyConfiguration(new BasketConfiguration());
 			modelBuilder.ApplyConfiguration(new GoodInBasketConfiguration());
+			modelBuilder.ApplyConfiguration(new GoodCategoriesAllConfiguration());
+			modelBuilder.ApplyConfiguration(new CategoryOrGoodSearchConfiguration());
 		}
 
 		public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
