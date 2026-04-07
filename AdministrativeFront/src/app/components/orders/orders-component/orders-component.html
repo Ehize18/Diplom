@@ -31,7 +31,7 @@
                     @for (item of order.model.basket.goods; track item.id) {
                         <div class="order-item-wrap">
                             <div class="order-item-img">
-                                <img src="placeholder.svg">
+                                <img [src]="getImageSrc(order, item.id)" alt="{{item.good.title}}">
                             </div>
                             <div class="order-item-title">
                                 <p>

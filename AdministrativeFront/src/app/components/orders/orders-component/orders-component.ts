@@ -3,15 +3,24 @@ import { Button } from '../../controls/button/button';
 import { ShopService } from '../../../services/shop-service';
 import { CatalogService } from '../../../services/catalog-service';
 import { Order, OrderStatus } from '../../../contracts/order';
+import { environment } from '../../../../environments/environment';
 
 class OrderVM {
   model: Order
   isNeedExpand: boolean;
   isExpanded = signal<boolean>(false);
+  goodImageSrc = new Map<string, string>();
 
-  constructor(order: Order) {
+  constructor(order: Order, shopId: string) {
     this.model = order;
     this.isNeedExpand = order.basket.goods.length > 1;
+    order.basket.goods.forEach(item => {
+      if (item.good.imageId) {
+        this.goodImageSrc.set(item.id, `${environment.imageUrl}/${shopId}/${item.good.imageId}`);
+      } else {
+        this.goodImageSrc.set(item.id, 'placeholder.svg');
+      }
+    });
   }
 
   toggleExpand(): void {
@@ -41,7 +50,7 @@ export class OrdersComponent implements OnInit {
               const arr: OrderVM[] = []
               response.results.forEach(order => {
                 order.createdAt = new Date(order.createdAt);
-                arr.push(new OrderVM(order));
+                arr.push(new OrderVM(order, shop!.id));
               });
               this.orders.set(arr);
             }
@@ -74,5 +83,9 @@ export class OrdersComponent implements OnInit {
       case OrderStatus.Canceled:
         return 'Отменён';
     }
+  }
+
+  getImageSrc(order: OrderVM, itemId: string): string {
+    return order.goodImageSrc.get(itemId) || 'placeholder.svg';
   }
 }
