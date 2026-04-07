@@ -19,12 +19,13 @@ namespace AdministrativeService.Application.Services
 
 		protected override string[] Exchanges => new[] { Bus.AdminEvents.EXCHANGE, Bus.ShopEvents.EXCHANGE, Bus.DataBus.EXCHANGE };
 
-		protected override string[] Queues => new[] 
+		protected override string[] Queues => new[]
 		{
 			Bus.AdminEvents.SHOP_CREATED, Bus.AdminEvents.SHOP_UPDATED,
 			Bus.AdminEvents.METHOD_UPDATED,
 			Bus.ShopEvents.CATEGORY_UPDATED, Bus.ShopEvents.GOOD_UPDATED,
 			Bus.ShopEvents.PROPERTY_UPDATED, Bus.ShopEvents.PROPERTY_VALUE_UPDATED,
+			Bus.ShopEvents.ORDER_UPDATED,
 			Bus.DataBus.DATA_GET_RESPONSE, Bus.DataBus.GET_SHOP_BY_VK
 		};
 
@@ -46,7 +47,8 @@ namespace AdministrativeService.Application.Services
 					{ Bus.ShopEvents.CATEGORY_UPDATED, Bus.ShopEvents.CATEGORY_UPDATED },
 					{ Bus.ShopEvents.GOOD_UPDATED, Bus.ShopEvents.GOOD_UPDATED },
 					{ Bus.ShopEvents.PROPERTY_UPDATED, Bus.ShopEvents.PROPERTY_UPDATED },
-					{ Bus.ShopEvents.PROPERTY_VALUE_UPDATED, Bus.ShopEvents.PROPERTY_VALUE_UPDATED }
+					{ Bus.ShopEvents.PROPERTY_VALUE_UPDATED, Bus.ShopEvents.PROPERTY_VALUE_UPDATED },
+					{ Bus.ShopEvents.ORDER_UPDATED, Bus.ShopEvents.ORDER_UPDATED }
 				}
 			},
 			{
@@ -71,6 +73,7 @@ namespace AdministrativeService.Application.Services
 			await AddReadConsumer<GoodUpdated>(Bus.ShopEvents.GOOD_UPDATED, cancellationToken);
 			await AddReadConsumer<PropertyUpdated>(Bus.ShopEvents.PROPERTY_UPDATED, cancellationToken);
 			await AddReadConsumer<PropertyValueUpdated>(Bus.ShopEvents.PROPERTY_VALUE_UPDATED, cancellationToken);
+			await AddReadConsumer<OrderUpdated>(Bus.ShopEvents.ORDER_UPDATED, cancellationToken);
 			await InitGetShopByVkConsumer(cancellationToken);
 		}
 
@@ -109,6 +112,12 @@ namespace AdministrativeService.Application.Services
 			where TProperties : IReadOnlyBasicProperties, IAmqpHeader
 		{
 			return await PublishMessage(properties, body, Bus.ShopEvents.EXCHANGE, Bus.ShopEvents.GOOD_UPDATE, cancellationToken);
+		}
+
+		public async Task<bool> PublishUpdateOrderMessage<TProperties>(TProperties properties, UpdateOrder body, CancellationToken cancellationToken = default)
+			where TProperties : IReadOnlyBasicProperties, IAmqpHeader
+		{
+			return await PublishMessage(properties, body, Bus.ShopEvents.EXCHANGE, Bus.ShopEvents.ORDER_UPDATE, cancellationToken);
 		}
 
 		public async Task<bool> PublishDataGetMessage<TProperties>(TProperties properties, DataGet body, CancellationToken cancellationToken = default)

@@ -1,10 +1,10 @@
 import { Component, computed, OnInit, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { BasketItem } from '../../models/basket';
 import { BasketService } from '../../services/basket-service';
 import { ShopService } from '../../services/shop-service';
 import { environment } from '../../../environments/environment';
-import { Method } from '../../models/order';
+import { Method, OrderStatus } from '../../models/order';
 import { OrderService } from '../../services/order-service';
 import { FormsModule } from '@angular/forms';
 
@@ -17,6 +17,7 @@ import { FormsModule } from '@angular/forms';
 export class OrderComponent implements OnInit {
   isEditable = signal<boolean>(false);
   id = '';
+  orderStatus = signal<OrderStatus | null>(null);
   caption = computed(() => {
     if (this.isEditable()) {
       return 'Новый заказ';
@@ -55,6 +56,7 @@ export class OrderComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private basketService: BasketService,
     private shopService: ShopService,
     private orderService: OrderService
@@ -80,6 +82,7 @@ export class OrderComponent implements OnInit {
       this.orderService.getOrderById(this.id, true).subscribe(
         order => {
           console.log(order);
+          this.orderStatus.set(order.orderStatus);
           const paymentMethod = this.paymentMethods().find(x => x.id === order.paymentMethodId);
           const deliveryMethod = this.deliveryMethods().find(x => x.id === order.deliveryMethodId);
           if (paymentMethod) {
@@ -158,6 +161,21 @@ export class OrderComponent implements OnInit {
     return '';
   }
 
+  orderStatusLocale(orderStatus: OrderStatus): string {
+    switch (orderStatus) {
+      case OrderStatus.Created:
+        return 'Создан';
+      case OrderStatus.Payment:
+        return 'Ждёт оплаты';
+      case OrderStatus.Delivery:
+        return 'В доставке';
+      case OrderStatus.Completed:
+        return 'Завершён';
+      case OrderStatus.Canceled:
+        return 'Отменён';
+    }
+  }
+
   onConfirmOrderButtonClick(): void {
     console.log('order');
     const paymentMethod = this.selectedPaymentMethod();
@@ -172,7 +190,11 @@ export class OrderComponent implements OnInit {
       deliveryMethod.id,
       this.deliveryExtras()
     ).subscribe(
-      value => console.log(value)
+      async (value) => {
+        console.log(value);
+        await this.basketService.loadBasket(this.shopService.shopId());
+        this.router.navigate([this.shopService.shopId(), 'basket']);
+      }
     );
   }
 }

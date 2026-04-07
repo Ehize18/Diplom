@@ -2,6 +2,11 @@
     <div class="order-number accent-font">
         <p>{{caption()}}</p>
     </div>
+    @if (!isEditable() && orderStatus() !== null) {
+        <div class="order-status">
+            <p>Статус: <span class="accent-font">{{orderStatusLocale(orderStatus()!)}}</span></p>
+        </div>
+    }
     <div class="order-items">
         <p style="margin: 0; padding: 0;">Список товаров:</p>
         @for (item of basketItems(); track item.basketItemId) {

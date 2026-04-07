@@ -12,6 +12,11 @@
     padding: 0;
 }
 
+.order-status p {
+    margin: 0;
+    padding: 0;
+}
+
 .order-items {
     display: flex;
     flex-direction: column;

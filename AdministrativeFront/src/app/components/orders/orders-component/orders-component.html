@@ -24,7 +24,21 @@
                     <p class="order-number">
                         Заказ №<br>{{order.model.id}}
                     </p>
-                    <app-button [caption]="orderStatusLocale(order.model.orderStatus)"></app-button>
+                    <div class="status-dropdown" (click)="$event.stopPropagation()">
+                        <button class="status-button" (click)="order.toggleOrderStatusDropdown()">
+                            {{orderStatusLocale(order.model.orderStatus)}} ▼
+                        </button>
+                        @if (order.isOrderStatusDropdownOpen()) {
+                            <div class="status-dropdown-menu">
+                                @for (status of orderStatuses; track status) {
+                                    <div class="status-dropdown-item"
+                                         (click)="onStatusClick(order, 'OrderStatus', status)">
+                                        {{orderStatusLocale(status)}}
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
                 </div>
                 <div class="order-items"
                     [class.order-items-expanded]="order.isExpanded()">

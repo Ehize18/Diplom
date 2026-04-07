@@ -172,6 +172,25 @@ namespace AdministrativeService.Controllers
 			return BadRequest(error);
 		}
 
+		[HttpPut("order/{orderId:guid}")]
+		public async Task<ActionResult> PutOrder([FromBody]UpdateOrderRequest request, Guid shopId, Guid orderId, CancellationToken cancellationToken = default)
+		{
+			var (id, error) = await _shopContentService.PatchOrder(new()
+			{
+				ShopId = shopId,
+				OrderId = orderId,
+				EntityType = request.EntityType,
+				StatusValue = request.StatusValue,
+				User = CurrentUser
+			}, cancellationToken);
+
+			if (string.IsNullOrWhiteSpace(error))
+			{
+				return Ok(id);
+			}
+			return BadRequest(error);
+		}
+
 		[HttpGet("{entityType}")]
 		public async Task<ActionResult> GetData(string entityType,
 			Guid shopId, string? orderBy, bool? isAscending, int? page, int? pageSize,

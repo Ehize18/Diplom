@@ -106,5 +106,40 @@ namespace ShopService.Application.Services
 			}
 			return result;
 		}
+
+		public async Task<bool> UpdateOrderStatus(Guid orderId, string entityType, int statusValue, CancellationToken cancellationToken = default)
+		{
+			var order = await _orderRepository.GetByIdAsync(orderId);
+			if (order == null)
+			{
+				return false;
+			}
+
+			try
+			{
+				switch (entityType)
+				{
+					case "OrderStatus":
+						order.OrderStatus = (OrderStatus)statusValue;
+						break;
+					case "PaymentStatus":
+						order.PaymentStatus = (PaymentStatus)statusValue;
+						break;
+					case "DeliveryStatus":
+						order.DeliveryStatus = (DeliveryStatus)statusValue;
+						break;
+					default:
+						return false;
+				}
+
+				_orderRepository.Update(order);
+				await _orderRepository.SaveChangesAsync(cancellationToken);
+				return true;
+			}
+			catch
+			{
+				return false;
+			}
+		}
 	}
 }

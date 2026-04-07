@@ -2,14 +2,19 @@ import { Component, OnInit, signal } from '@angular/core';
 import { Button } from '../../controls/button/button';
 import { ShopService } from '../../../services/shop-service';
 import { CatalogService } from '../../../services/catalog-service';
+import { OrderService } from '../../../services/order-service';
 import { Order, OrderStatus } from '../../../contracts/order';
 import { environment } from '../../../../environments/environment';
+import { FormsModule } from '@angular/forms';
+import { NgIf, NgFor } from '@angular/common';
 
 class OrderVM {
   model: Order
   isNeedExpand: boolean;
   isExpanded = signal<boolean>(false);
   goodImageSrc = new Map<string, string>();
+
+  isOrderStatusDropdownOpen = signal<boolean>(false);
 
   constructor(order: Order, shopId: string) {
     this.model = order;
@@ -26,21 +31,31 @@ class OrderVM {
   toggleExpand(): void {
     this.isExpanded.set(!this.isExpanded());
   }
+
+  toggleOrderStatusDropdown(): void {
+    this.isOrderStatusDropdownOpen.set(!this.isOrderStatusDropdownOpen());
+  }
+
+  closeAllDropdowns(): void {
+    this.isOrderStatusDropdownOpen.set(false);
+  }
 }
 
 @Component({
   selector: 'app-orders-component',
-  imports: [Button],
+  imports: [Button, FormsModule, NgIf, NgFor],
   templateUrl: './orders-component.html',
   styleUrl: './orders-component.css',
 })
 export class OrdersComponent implements OnInit {
   orders = signal<OrderVM[]>([]);
 
+  orderStatuses = Object.values(OrderStatus).filter(v => typeof v === 'number') as OrderStatus[];
 
   constructor(
     private shopService: ShopService,
-    private catalogService: CatalogService
+    private catalogService: CatalogService,
+    private orderService: OrderService
   ) {
     this.shopService.getCurrentShopObservable().subscribe(
       shop => {
@@ -61,7 +76,7 @@ export class OrdersComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    
+
   }
 
   parseDateTime(datetime: Date): string {
@@ -87,5 +102,17 @@ export class OrdersComponent implements OnInit {
 
   getImageSrc(order: OrderVM, itemId: string): string {
     return order.goodImageSrc.get(itemId) || 'placeholder.svg';
+  }
+
+  onStatusClick(order: OrderVM, entityType: string, statusValue: number): void {
+    const shopId = this.shopService.currentShop?.id;
+    if (!shopId) return;
+
+    this.orderService.updateOrderStatus(shopId, order.model.id, entityType, statusValue).subscribe(
+      () => {
+        order.model.orderStatus = statusValue as OrderStatus;
+        order.closeAllDropdowns();
+      }
+    );
   }
 }

@@ -27,6 +27,8 @@
 			public const string PROPERTY_UPDATED = "property.updated";
 			public const string PROPERTY_VALUE_UPDATE = "property.value.update";
 			public const string PROPERTY_VALUE_UPDATED = "property.value.updated";
+			public const string ORDER_UPDATE = "order.update";
+			public const string ORDER_UPDATED = "order.updated";
 		}
 
 		public static class DataBus

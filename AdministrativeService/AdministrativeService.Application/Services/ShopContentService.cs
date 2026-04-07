@@ -290,5 +290,42 @@ namespace AdministrativeService.Application.Services
 
 			return GetResponse(response);
 		}
+
+		public async Task<(Guid, string)> PatchOrder(PatchOrderDTO dto, CancellationToken cancellationToken = default)
+		{
+			var updateOrder = new UpdateOrder
+			{
+				OrderId = dto.OrderId,
+				EntityType = dto.EntityType,
+				StatusValue = dto.StatusValue,
+				ShopId = dto.ShopId,
+				UpdatedById = dto.User.Id
+			};
+
+			var messageId = Guid.NewGuid();
+
+			var responseTask = _messageService.GetAnswerAsync<OrderUpdated>(messageId, cancellationToken);
+
+			var properties = _messageService.CreateProperties();
+			properties.CorrelationId = messageId.ToString();
+
+			var requestTask = _messageService.PublishUpdateOrderMessage(properties, updateOrder, cancellationToken);
+
+			await Task.WhenAll(responseTask, requestTask);
+
+			var response = responseTask.Result;
+
+			if (response == null)
+			{
+				return (Guid.Empty, "unexpected_error");
+			}
+			if (response.IsSuccess)
+			{
+				return (response.OrderId, string.Empty);
+			}
+			return (
+				response.OrderId != Guid.Empty ? response.OrderId : Guid.Empty,
+				response.Error != null ? response.Error : "unexpected_error");
+		}
 	}
 }

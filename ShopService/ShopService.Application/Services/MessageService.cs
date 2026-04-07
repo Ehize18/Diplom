@@ -28,6 +28,7 @@ namespace ShopService.Application.Services
 			Bus.AdminEvents.METHOD_UPDATE,
 			Bus.ShopEvents.CATEGORY_UPDATE, Bus.ShopEvents.GOOD_UPDATE,
 			Bus.ShopEvents.PROPERTY_UPDATE, Bus.ShopEvents.PROPERTY_VALUE_UPDATE,
+			Bus.ShopEvents.ORDER_UPDATE,
 			Bus.DataBus.DATA_GET, GetShopByVkResponseQueue
 		};
 
@@ -49,7 +50,8 @@ namespace ShopService.Application.Services
 					{ Bus.ShopEvents.CATEGORY_UPDATE, Bus.ShopEvents.CATEGORY_UPDATE },
 					{ Bus.ShopEvents.GOOD_UPDATE, Bus.ShopEvents.GOOD_UPDATE },
 					{ Bus.ShopEvents.PROPERTY_UPDATE, Bus.ShopEvents.PROPERTY_UPDATE },
-					{ Bus.ShopEvents.PROPERTY_VALUE_UPDATE, Bus.ShopEvents.PROPERTY_VALUE_UPDATE }
+					{ Bus.ShopEvents.PROPERTY_VALUE_UPDATE, Bus.ShopEvents.PROPERTY_VALUE_UPDATE },
+					{ Bus.ShopEvents.ORDER_UPDATE, Bus.ShopEvents.ORDER_UPDATE }
 				}
 			},
 			{
@@ -72,6 +74,7 @@ namespace ShopService.Application.Services
 			await InitGoodUpdateConsumer(cancellationToken);
 			await InitDataGetConsumer(cancellationToken);
 			await InitPropertyUpdateConsumer(cancellationToken);
+			await InitOrderUpdateConsumer(cancellationToken);
 			await AddReadConsumer<GetShopByVkResponse>(GetShopByVkResponseQueue, cancellationToken);
 		}
 
@@ -311,6 +314,31 @@ namespace ShopService.Application.Services
 					var properties = CreateProperties();
 					properties.CorrelationId = ea.BasicProperties.CorrelationId;
 					await PublishMessage(properties, goodUpdated, Bus.ShopEvents.EXCHANGE, Bus.ShopEvents.PROPERTY_VALUE_UPDATED);
+				}
+			}, cancellationToken);
+		}
+
+		private async Task InitOrderUpdateConsumer(CancellationToken cancellationToken = default)
+		{
+			await AddConsumer<UpdateOrder>(Bus.ShopEvents.ORDER_UPDATE, async (model, ea, message) =>
+			{
+				using (var scope = _serviceProvider.CreateScope())
+				{
+					var connectionStringProvider = scope.ServiceProvider.GetRequiredService<ConnectionStringProvider>();
+					connectionStringProvider.ShopId = message.ShopId;
+					var orderService = scope.ServiceProvider.GetRequiredService<OrderService>();
+					var success = await orderService.UpdateOrderStatus(message.OrderId, message.EntityType, message.StatusValue, cancellationToken);
+
+					var orderUpdated = new OrderUpdated
+					{
+						OrderId = message.OrderId,
+						IsSuccess = success,
+						Error = success ? null : "unexpected_error"
+					};
+
+					var properties = CreateProperties();
+					properties.CorrelationId = ea.BasicProperties.CorrelationId;
+					await PublishMessage(properties, orderUpdated, Bus.ShopEvents.EXCHANGE, Bus.ShopEvents.ORDER_UPDATED);
 				}
 			}, cancellationToken);
 		}
