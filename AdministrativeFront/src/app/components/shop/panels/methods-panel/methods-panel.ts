@@ -19,6 +19,10 @@ export class MethodsPanel {
 
   getImageSrc(): string {
     switch (this.type()) {
+      case MethodType.Payment: 
+        return "Payment.svg";
+      case MethodType.Delivery:
+        return "Delivery.svg";
       default:
         return "placeholder.svg";
     }
@@ -53,7 +57,7 @@ export class MethodsPanel {
         return {
           id: date.getTime().toString(),
           title: date.toLocaleTimeString(),
-          options: {}
+          metadata: {}
         }
     }
   }

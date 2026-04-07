@@ -1,4 +1,6 @@
-﻿namespace ShopService.Core.Entities
+﻿using System.Text.Json.Serialization;
+
+namespace ShopService.Core.Entities
 {
 	/// <summary>
 	/// Base entity.
@@ -13,6 +15,7 @@
 		/// <summary>
 		/// User who create.
 		/// </summary>
+		[JsonIgnore]
 		public User? CreatedBy { get; set; }
 
 		/// <summary>
@@ -23,6 +26,7 @@
 		/// <summary>
 		/// User who last update.
 		/// </summary>
+		[JsonIgnore]
 		public User? UpdatedBy { get; set; }
 
 		/// <summary>

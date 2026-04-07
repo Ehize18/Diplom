@@ -79,9 +79,17 @@ export class CatalogComponent {
         updatedById: '',
         imageId: ''
       }
+
+      let image: File | undefined;
+
+      if (controls.image && controls.image.file) {
+        image = controls.image.file;
+      }
+
       this.catalogService.createCategory(
         this.shopService.currentShop!.id,
-        category
+        category,
+        image
       ).subscribe(
         (value) => {
           if (value) {
@@ -117,16 +125,16 @@ export class CatalogComponent {
       id: 'category-create',
       controls: [
         {
-          type: ControlType.Input,
-          tag: 'title',
-          caption: 'Название категории',
+          type: ControlType.File,
+          tag: 'image',
+          caption: 'Изображение',
           value: '',
           lookupData: []
         },
         {
-          type: ControlType.Textarea,
-          tag: 'description',
-          caption: 'Описание категории',
+          type: ControlType.Input,
+          tag: 'title',
+          caption: 'Название категории',
           value: '',
           lookupData: []
         },

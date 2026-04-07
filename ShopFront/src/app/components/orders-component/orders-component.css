@@ -1,0 +1,11 @@
+.orders-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.order {
+    padding: 20px;
+    background-color: var(--card-bg-color);
+    border-radius: 5px;
+}

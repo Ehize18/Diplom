@@ -23,6 +23,8 @@ namespace ShopService.Application.Services
 					return await GetData<Good>(request, serviceScope);
 				case DataGetEntity.Property:
 					return await GetData<GoodPropertyCategory>(request, serviceScope);
+				case DataGetEntity.Order:
+					return await GetData<Order>(request, serviceScope);
 				default:
 					return new DataGetResponse
 					{

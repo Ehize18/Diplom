@@ -10,6 +10,9 @@
 			public const string SHOP_CREATED = "shop.created";
 			public const string SHOP_UPDATE = "shop.update";
 			public const string SHOP_UPDATED = "shop.updated";
+
+			public const string METHOD_UPDATE = "method.update";
+			public const string METHOD_UPDATED = "method.updated";
 		}
 
 		public static class ShopEvents

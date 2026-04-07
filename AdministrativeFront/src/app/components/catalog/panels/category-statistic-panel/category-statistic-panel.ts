@@ -19,6 +19,12 @@ export class CategoryStatisticPanel {
 
   getImageSrc(): string {
     switch (this.type()) {
+      case CategoryStaticsticType.GoodCount:
+        return 'GoodsIcon.svg';
+      case CategoryStaticsticType.GoodCountFull:
+        return 'GoodsIcon.svg';
+      case CategoryStaticsticType.OrderCountFull:
+        return 'OrdersIcon.svg';
       default:
         return 'placeholder.svg';
     }

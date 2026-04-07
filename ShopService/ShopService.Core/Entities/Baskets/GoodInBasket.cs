@@ -1,4 +1,6 @@
-﻿namespace ShopService.Core.Entities
+﻿using System.Text.Json.Serialization;
+
+namespace ShopService.Core.Entities
 {
 	/// <summary>
 	/// Good in basket.
@@ -28,6 +30,7 @@
 		/// <summary>
 		/// Basket.
 		/// </summary>
+		[JsonIgnore]
 		public Basket? Basket { get; set; }
 
 		/// <summary>

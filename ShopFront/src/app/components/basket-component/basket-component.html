@@ -11,13 +11,15 @@
                 <div class="basket-item-controls">
                     <div class="basket-item-count">
                         <input type="number"
-                            min="1" max="100" step="1"
+                            min="1" step="1"
+                            [max]="item.availableCount"
                             [(ngModel)]="item.count"
                             (focusout)="onBasketItemCountChange(item.basketItemId)">
+                        <p>Доступно: {{item.availableCount}}</p>
                     </div>
                     <div class="basket-item-delete-button"
                         (click)="onDeleteBasketItemClick(item.basketItemId)">
-                        <img src="placeholder.svg">
+                        <img src="trash.png">
                     </div>
                 </div>
             </div>
@@ -29,3 +31,8 @@
         }
     </div>
 </div>
+@if (basketItems().length > 0) {
+    <div class="confirm-order accent-font" (click)="onConfirmOrderButtonClick()">
+        <p>Оформить заказ</p>
+    </div>
+}

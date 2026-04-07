@@ -1,4 +1,6 @@
-﻿namespace ShopService.Core.Entities
+﻿using System.Text.Json.Serialization;
+
+namespace ShopService.Core.Entities
 {
 	/// <summary>
 	/// User.
@@ -15,6 +17,7 @@
 
 		public bool IsAdmin { get; set; } = false;
 
+		[JsonIgnore]
 		public List<Basket> Baskets { get; set; } = new List<Basket>();
 	}
 }

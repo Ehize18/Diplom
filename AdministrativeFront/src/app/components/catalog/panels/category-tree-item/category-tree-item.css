@@ -31,3 +31,11 @@
 .selected {
     background-color: var(--secondary-accent-color);
 }
+
+img {
+    transform: rotate(-90deg);
+}
+
+img.expanded {
+    transform: rotate(0);
+}

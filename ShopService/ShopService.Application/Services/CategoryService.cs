@@ -29,6 +29,7 @@ namespace ShopService.Application.Services
 					Description = update.CategoryDescription != null ? update.CategoryDescription : string.Empty,
 					ParentCategoryId = update.ParentCategoryId,
 					IsActive = update.IsActive != null ? update.IsActive.Value : false,
+					ImageId = update.ImageId
 				};
 				await _categoryRepository.SetUser(update.UpdatedById);
 				var result = _categoryRepository.Create(category);

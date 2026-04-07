@@ -25,6 +25,7 @@ namespace ShopService.Application.Services
 		protected override string[] Queues => new[]
 		{
 			Bus.AdminEvents.SHOP_CREATE, Bus.AdminEvents.SHOP_UPDATE,
+			Bus.AdminEvents.METHOD_UPDATE,
 			Bus.ShopEvents.CATEGORY_UPDATE, Bus.ShopEvents.GOOD_UPDATE,
 			Bus.ShopEvents.PROPERTY_UPDATE, Bus.ShopEvents.PROPERTY_VALUE_UPDATE,
 			Bus.DataBus.DATA_GET, GetShopByVkResponseQueue
@@ -37,7 +38,8 @@ namespace ShopService.Application.Services
 				new Dictionary<string, string>
 				{
 					{ Bus.AdminEvents.SHOP_CREATE, Bus.AdminEvents.SHOP_CREATE },
-					{ Bus.AdminEvents.SHOP_UPDATE, Bus.AdminEvents.SHOP_UPDATE }
+					{ Bus.AdminEvents.SHOP_UPDATE, Bus.AdminEvents.SHOP_UPDATE },
+					{ Bus.AdminEvents.METHOD_UPDATE, Bus.AdminEvents.METHOD_UPDATE }
 				}
 			},
 			{
@@ -65,11 +67,46 @@ namespace ShopService.Application.Services
 		protected override async Task InitConsumers(CancellationToken cancellationToken = default)
 		{
 			await InitShopCreateConsumer(cancellationToken);
+			await InitMethodUpdateConsumer(cancellationToken);
 			await InitCategoryUpdateConsumer(cancellationToken);
 			await InitGoodUpdateConsumer(cancellationToken);
 			await InitDataGetConsumer(cancellationToken);
 			await InitPropertyUpdateConsumer(cancellationToken);
 			await AddReadConsumer<GetShopByVkResponse>(GetShopByVkResponseQueue, cancellationToken);
+		}
+
+		private async Task InitMethodUpdateConsumer(CancellationToken cancellationToken = default)
+		{
+			await AddConsumer<UpdateMethod>(Bus.AdminEvents.METHOD_UPDATE, async (model, ea, message) =>
+			{
+				using (var scope = _serviceProvider.CreateScope())
+				{
+					var connectionStringProvider = scope.ServiceProvider.GetRequiredService<ConnectionStringProvider>();
+					connectionStringProvider.ShopId = message.ShopId;
+					var methodsService = scope.ServiceProvider.GetRequiredService<MethodsService>();
+					MethodUpdated? methodUpdated = null;
+					switch (message.UpdateType)
+					{
+						case UpdateType.Create:
+							methodUpdated = await methodsService.CreateMethod(message);
+							break;
+					}
+
+					if (methodUpdated == null)
+					{
+						methodUpdated = new MethodUpdated
+						{
+							MethodId = message.MethodId != null ? (Guid)message.MethodId : Guid.Empty,
+							IsSuccess = false,
+							Error = "unexpected_error"
+						};
+					}
+
+					var properties = CreateProperties();
+					properties.CorrelationId = ea.BasicProperties.CorrelationId;
+					await PublishMessage(properties, methodUpdated, Bus.AdminEvents.EXCHANGE, Bus.AdminEvents.METHOD_UPDATED);
+				}
+			}, cancellationToken);
 		}
 
 		private async Task InitShopCreateConsumer(CancellationToken cancellationToken = default)

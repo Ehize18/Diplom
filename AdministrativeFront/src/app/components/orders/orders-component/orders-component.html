@@ -1,0 +1,79 @@
+<div class="full-wrap">
+    <div class="panel panel-main-header">
+        <div class="panel-main-header-caption accent-font">
+            Заказы
+        </div>
+        <div class="panel-main-header-buttons">
+            <app-button caption="Добавить"></app-button>
+            <app-button caption="Экспорт"></app-button>
+        </div>
+        <div class="input-wrapper">
+            <input type="text" placeholder="Поиск">
+        </div>
+        <div class="input-date input-date-from">
+            <input type="date">
+        </div>
+        <div class="input-date input-date-to">
+            <input type="date">
+        </div>
+    </div>
+    <div class="orders-wrap">
+        @for (order of orders(); track order.model.id) {
+            <div class="order-wrap panel">
+                <div class="order-header">
+                    <p class="order-number">
+                        Заказ №<br>{{order.model.id}}
+                    </p>
+                    <app-button [caption]="orderStatusLocale(order.model.orderStatus)"></app-button>
+                </div>
+                <div class="order-items"
+                    [class.order-items-expanded]="order.isExpanded()">
+                    @for (item of order.model.basket.goods; track item.id) {
+                        <div class="order-item-wrap">
+                            <div class="order-item-img">
+                                <img src="placeholder.svg">
+                            </div>
+                            <div class="order-item-title">
+                                <p>
+                                    {{item.good.title}}
+                                </p>
+                            </div>
+                            <div class="order-item-price">
+                                <p>
+                                    ({{item.price}} Руб X {{item.count}} шт.)
+                                </p>
+                            </div>
+                        </div>
+                    }
+                    @if (order.isNeedExpand) {
+                        <div class="show-more-goods clickable"
+                            (click)="order.toggleExpand()"
+                            [class.hide-goods]="order.isExpanded()">
+                            <img src="Arrow.svg">
+                        </div>
+                    }
+                </div>
+                <div class="order-extra">
+                    <div class="order-payment-method">
+                        <p>Способ оплаты: {{order.model.paymentMethod.title}}</p>
+                    </div>
+                    <div class="order-delivery-method">
+                        <p>Способ доставки: {{order.model.deliveryMethod.title}}</p>
+                    </div>
+                    @if (order.model.deliveryExtras && order.model.deliveryExtras.length > 0) {
+                        <div class="order-delivery-extra">
+                            <p>{{order.model.deliveryExtras}}</p>
+                        </div>
+                    }
+                    <div class="order-client">
+                        <p>Клиент: {{order.model.basket.user.username}}</p>
+                    </div>
+                </div>
+                <div class="order-total">
+                    <p>Всего: {{order.model.fullPrice}} Руб.</p>
+                    <p>{{parseDateTime(order.model.createdAt)}}</p>
+                </div>
+            </div>
+        }
+    </div>
+</div>

@@ -17,7 +17,7 @@ export class MainComponent {
   constructor(private catalogService: CatalogService, private shopService: ShopService) {
     effect(() => {
       if (this.shopService.shopId()) {
-        this.catalogService.getGoods(this.shopService.shopId()!, '019d14ec-a990-7b2d-ae93-7935966479bc', false).subscribe(
+        this.catalogService.getGoods(this.shopService.shopId()!).subscribe(
           (value) => this.goods.set(value)
         );
       }

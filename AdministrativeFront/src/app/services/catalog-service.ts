@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
 import { Category, GetDataResponse, Good, Property } from '../contracts/catalog';
+import { Order } from '../contracts/order';
 
 @Injectable({
   providedIn: 'root',
@@ -17,8 +18,23 @@ export class CatalogService {
     this._baseUrl = environment.apiUrl + "/shopcontent"
   }
 
-  public createCategory(shopId: string, category: Category): Observable<any> {
-    return this.httpClient.post<any>(`${this._baseUrl}/${shopId}/category`, category, this.HTTP_OPTIONS);
+  public createCategory(shopId: string, category: Category, image?: File): Observable<any> {
+    const formData = new FormData();
+    formData.append("Title", category.title);
+    formData.append("Description", category.description || '');
+    if (category.isActive) {
+      formData.append("IsActive", 'true');
+    }
+    else {
+      formData.append("IsActive", 'false');
+    }
+    if (category.parentCategoryId) {
+      formData.append("ParentCategoryId", category.parentCategoryId);
+    }
+    if (image) {
+      formData.append("image", image, image.name);
+    }
+    return this.httpClient.post<any>(`${this._baseUrl}/${shopId}/category`, formData, this.HTTP_OPTIONS);
   }
 
   public createGood(shopId: string, good: Good, image?: File): Observable<any> {
@@ -39,7 +55,15 @@ export class CatalogService {
     return this.httpClient.get<GetDataResponse<T>>(`${this._baseUrl}/${shopId}/${dataType}`, {
       withCredentials: true,
       params: params
-    })
+    });
+  }
+
+  public getOrders(shopId: string): Observable<GetDataResponse<Order>> {
+    const params = {
+      'orderBy': 'UpdatedAt',
+      'isAscending': false
+    }
+    return this.getData<Order>(shopId, 'Order', params);
   }
 
   public getCategories(shopId: string): Observable<GetDataResponse<Category>> {

@@ -21,6 +21,15 @@ export class StatisticPanel {
   getImageSrc(): string {
     switch (this.type()) {
       case StatisticType.Clients:
+        return 'ClientsIcon.svg';
+      case StatisticType.Orders:
+        return 'OrdersIcon.svg';
+      case StatisticType.Categories:
+        return 'CategoriesIcon.svg';
+      case StatisticType.Goods:
+        return 'GoodsIcon.svg';
+      case StatisticType.Chats:
+        return 'ChatsIcon.svg';
       default: return "placeholder.svg"
     }
   }

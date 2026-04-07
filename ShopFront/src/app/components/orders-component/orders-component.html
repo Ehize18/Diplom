@@ -1,0 +1,8 @@
+<div class="orders-wrap">
+    @for (order of orders(); track order.id) {
+        <div class="order" [routerLink]="['../order', order.id]">
+            <p>Заказ от {{getOrderDate(order)}}</p>
+            <p>Сумма: {{order.fullPrice}} Р</p>
+        </div>
+    }
+</div>

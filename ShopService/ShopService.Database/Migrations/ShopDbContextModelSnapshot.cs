@@ -92,6 +92,42 @@ namespace ShopService.Database.Migrations
                     b.ToView("CategoryGoodSearch", (string)null);
                 });
 
+            modelBuilder.Entity("ShopService.Core.Entities.DeliveryMethod", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamptz");
+
+                    b.Property<Guid>("CreatedById")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Metadata")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamptz");
+
+                    b.Property<Guid?>("UpdatedById")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("UpdatedById");
+
+                    b.ToTable("DeliveryMethod");
+                });
+
             modelBuilder.Entity("ShopService.Core.Entities.Good", b =>
                 {
                     b.Property<Guid>("Id")
@@ -375,8 +411,27 @@ namespace ShopService.Database.Migrations
                     b.Property<Guid>("CreatedById")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("DeliveryExtras")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("DeliveryMethodId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("DeliveryStatus")
+                        .HasColumnType("integer");
+
                     b.Property<decimal>("FullPrice")
                         .HasColumnType("money");
+
+                    b.Property<int>("OrderStatus")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("PaymentMethodId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("PaymentStatus")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamptz");
@@ -390,9 +445,49 @@ namespace ShopService.Database.Migrations
 
                     b.HasIndex("CreatedById");
 
+                    b.HasIndex("DeliveryMethodId");
+
+                    b.HasIndex("PaymentMethodId");
+
                     b.HasIndex("UpdatedById");
 
                     b.ToTable("Order");
+                });
+
+            modelBuilder.Entity("ShopService.Core.Entities.PaymentMethod", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamptz");
+
+                    b.Property<Guid>("CreatedById")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Metadata")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamptz");
+
+                    b.Property<Guid?>("UpdatedById")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("UpdatedById");
+
+                    b.ToTable("PaymentMethod");
                 });
 
             modelBuilder.Entity("ShopService.Core.Entities.User", b =>
@@ -479,6 +574,23 @@ namespace ShopService.Database.Migrations
                     b.Navigation("UpdatedBy");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("ShopService.Core.Entities.DeliveryMethod", b =>
+                {
+                    b.HasOne("ShopService.Core.Entities.User", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ShopService.Core.Entities.User", "UpdatedBy")
+                        .WithMany()
+                        .HasForeignKey("UpdatedById");
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("UpdatedBy");
                 });
 
             modelBuilder.Entity("ShopService.Core.Entities.Good", b =>
@@ -645,11 +757,44 @@ namespace ShopService.Database.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("ShopService.Core.Entities.DeliveryMethod", "DeliveryMethod")
+                        .WithMany()
+                        .HasForeignKey("DeliveryMethodId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ShopService.Core.Entities.PaymentMethod", "PaymentMethod")
+                        .WithMany()
+                        .HasForeignKey("PaymentMethodId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("ShopService.Core.Entities.User", "UpdatedBy")
                         .WithMany()
                         .HasForeignKey("UpdatedById");
 
                     b.Navigation("Basket");
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("DeliveryMethod");
+
+                    b.Navigation("PaymentMethod");
+
+                    b.Navigation("UpdatedBy");
+                });
+
+            modelBuilder.Entity("ShopService.Core.Entities.PaymentMethod", b =>
+                {
+                    b.HasOne("ShopService.Core.Entities.User", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ShopService.Core.Entities.User", "UpdatedBy")
+                        .WithMany()
+                        .HasForeignKey("UpdatedById");
 
                     b.Navigation("CreatedBy");
 

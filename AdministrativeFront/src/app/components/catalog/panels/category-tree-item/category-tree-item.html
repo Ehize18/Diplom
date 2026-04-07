@@ -7,7 +7,8 @@
             @if (item()?.childs()!.length > 0) {
                 <div class="category-tree-item-expand clickable"
                     (click)="onExpandClick()">
-                    <img src="placeholder.svg" width="10px" height="10px">
+                    <img src="Arrow.svg" width="10px" height="10px"
+                        [class.expanded]="item()?.isExpanded">
                 </div>
             }
         </div>

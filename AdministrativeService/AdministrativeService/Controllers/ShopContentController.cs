@@ -23,17 +23,30 @@ namespace AdministrativeService.Controllers
 		}
 
 		[HttpPost("category")]
-		public async Task<ActionResult> CreateCategory(CreateCategoryRequest request, Guid shopId, CancellationToken cancellationToken = default)
+		public async Task<ActionResult> CreateCategory([FromForm]CreateCategoryRequest request, IFormFile? image, Guid shopId, CancellationToken cancellationToken = default)
 		{
-			var (id, error) = await _shopContentService.CreateCategory(new()
+			Guid? imageId = null;
+			var tasksToWait = new List<Task>();
+			if (image != null)
+			{
+				imageId = Guid.NewGuid();
+				tasksToWait.Add(UploadImage((Guid)imageId, shopId, image, cancellationToken));
+			}
+			var createCategoryTask = _shopContentService.CreateCategory(new()
 			{
 				ShopId = shopId,
 				Title = request.Title,
 				Description = request.Description,
 				ParentCategoryId = request.ParentCategoryId,
 				IsActive = request.IsActive,
-				User = CurrentUser
+				User = CurrentUser,
+				ImageId = imageId,
 			}, cancellationToken);
+			tasksToWait.Add(createCategoryTask);
+
+			await Task.WhenAll(tasksToWait);
+
+			var (id, error) = createCategoryTask.Result;
 
 			if (string.IsNullOrWhiteSpace(error))
 			{

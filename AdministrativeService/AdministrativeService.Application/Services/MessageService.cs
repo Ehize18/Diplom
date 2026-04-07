@@ -22,6 +22,7 @@ namespace AdministrativeService.Application.Services
 		protected override string[] Queues => new[] 
 		{
 			Bus.AdminEvents.SHOP_CREATED, Bus.AdminEvents.SHOP_UPDATED,
+			Bus.AdminEvents.METHOD_UPDATED,
 			Bus.ShopEvents.CATEGORY_UPDATED, Bus.ShopEvents.GOOD_UPDATED,
 			Bus.ShopEvents.PROPERTY_UPDATED, Bus.ShopEvents.PROPERTY_VALUE_UPDATED,
 			Bus.DataBus.DATA_GET_RESPONSE, Bus.DataBus.GET_SHOP_BY_VK
@@ -34,7 +35,8 @@ namespace AdministrativeService.Application.Services
 				new Dictionary<string, string>
 				{
 					{ Bus.AdminEvents.SHOP_CREATED, Bus.AdminEvents.SHOP_CREATED },
-					{ Bus.AdminEvents.SHOP_UPDATED, Bus.AdminEvents.SHOP_UPDATED }
+					{ Bus.AdminEvents.SHOP_UPDATED, Bus.AdminEvents.SHOP_UPDATED },
+					{ Bus.AdminEvents.METHOD_UPDATED, Bus.AdminEvents.METHOD_UPDATED }
 				}
 			},
 			{
@@ -63,6 +65,7 @@ namespace AdministrativeService.Application.Services
 		protected override async Task InitConsumers(CancellationToken cancellationToken = default)
 		{
 			await AddReadConsumer<ShopCreated>(Bus.AdminEvents.SHOP_CREATED, cancellationToken);
+			await AddReadConsumer<MethodUpdated>(Bus.AdminEvents.METHOD_UPDATED, cancellationToken);
 			await AddReadConsumer<CategoryUpdated>(Bus.ShopEvents.CATEGORY_UPDATED, cancellationToken);
 			await AddReadConsumer<DataGetResponse>(Bus.DataBus.DATA_GET_RESPONSE, cancellationToken);
 			await AddReadConsumer<GoodUpdated>(Bus.ShopEvents.GOOD_UPDATED, cancellationToken);
@@ -136,6 +139,19 @@ namespace AdministrativeService.Application.Services
 			properties.CorrelationId = messageId.ToString();
 
 			await PublishMessage(properties, body, Bus.ShopEvents.EXCHANGE, Bus.ShopEvents.PROPERTY_VALUE_UPDATE, cancellationToken);
+
+			return await resultTask;
+		}
+
+		public async Task<MethodUpdated?> UpdateMethod(UpdateMethod body, CancellationToken cancellationToken = default)
+		{
+			var messageId = Guid.NewGuid();
+			var resultTask = GetAnswerAsync<MethodUpdated>(messageId, cancellationToken);
+
+			var properties = CreateProperties();
+			properties.CorrelationId = messageId.ToString();
+
+			await PublishMessage(properties, body, Bus.AdminEvents.EXCHANGE, Bus.AdminEvents.METHOD_UPDATE, cancellationToken);
 
 			return await resultTask;
 		}

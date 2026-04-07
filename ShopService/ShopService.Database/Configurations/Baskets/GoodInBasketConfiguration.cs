@@ -31,6 +31,9 @@ namespace ShopService.Database.Configurations
 				.WithMany(x => x.Goods)
 				.HasForeignKey(x => x.BasketId)
 				.IsRequired();
+
+			builder.Navigation(x => x.Good)
+				.AutoInclude();
 		}
 	}
 }

@@ -1,4 +1,6 @@
-﻿namespace ShopService.Core.Entities
+﻿using Shared.Enums;
+
+namespace ShopService.Core.Entities
 {
 	/// <summary>
 	/// Order.
@@ -19,5 +21,21 @@
 		/// Basket id.
 		/// </summary>
 		public Guid BasketId { get; set; }
+
+		public DeliveryMethod? DeliveryMethod { get; set; }
+
+		public Guid DeliveryMethodId { get; set; }
+
+		public string DeliveryExtras { get; set; } = string.Empty;
+
+		public PaymentMethod? PaymentMethod { get; set; }
+
+		public Guid PaymentMethodId { get; set; }
+
+		public PaymentStatus PaymentStatus { get; set; }
+
+		public DeliveryStatus DeliveryStatus { get; set; }
+
+		public OrderStatus OrderStatus { get; set; }
 	}
 }

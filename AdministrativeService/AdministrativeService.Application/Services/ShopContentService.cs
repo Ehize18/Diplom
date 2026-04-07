@@ -82,7 +82,8 @@ namespace AdministrativeService.Application.Services
 				ParentCategoryId = dto.ParentCategoryId,
 				IsActive = dto.IsActive,
 				UpdatedById = dto.User.Id,
-				ShopId = dto.ShopId
+				ShopId = dto.ShopId,
+				ImageId = dto.ImageId
 			};
 
 			var messageId = Guid.NewGuid();

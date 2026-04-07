@@ -47,6 +47,12 @@ export class IntegrationPanel {
 
   getImageSrc(): string {
     switch (this.type()) {
+      case IntegrationType.VK:
+        return 'vk.png';
+      case IntegrationType.Telegram:
+        return 'telegram.svg';
+      case IntegrationType.Max:
+        return 'max.ico';
       default:
         return 'placeholder.svg';
     }

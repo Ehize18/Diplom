@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ShopService.Application.Services;
+using ShopService.Core.Entities;
 
 namespace ShopService.Controllers
 {
@@ -15,9 +16,18 @@ namespace ShopService.Controllers
 		}
 
 		[HttpGet]
-		public async Task<ActionResult> GetGoods(Guid categoryId, bool isActual, CancellationToken cancellationToken = default)
+		public async Task<ActionResult> GetGoods(Guid? categoryId, bool? isActual, CancellationToken cancellationToken = default)
 		{
-			var result = await _goodService.GetGoodsByCategory(categoryId, isActual, cancellationToken);
+			IEnumerable<Good?> result;
+			if (categoryId == null || isActual == null)
+			{
+				result = await _goodService.GetGoods(1, 20, cancellationToken);
+			}
+			else
+			{
+				result = await _goodService.GetGoodsByCategory((Guid)categoryId, (bool)isActual, cancellationToken);
+			}
+			
 			return Ok(result);
 		}
 

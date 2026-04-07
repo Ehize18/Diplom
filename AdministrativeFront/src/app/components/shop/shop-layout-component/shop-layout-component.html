@@ -1,6 +1,6 @@
 <div class="shop-container">
   <aside class="sidebar">
-    <img class="sidebar-logo" src="placeholder.svg">
+    <img class="sidebar-logo" src="placeholder.svg" style="opacity: 0; height: 55px;">
     <nav class="sidebar-nav">
       <ul class="sidebar-nav-ul">
         <li class="sidebar-nav-element">
@@ -18,10 +18,10 @@
         </a>
         </li>
         <li class="sidebar-nav-element">
-          <a routerLink="/shop/goods">Товары</a>
-        </li>
-        <li class="sidebar-nav-element">
-          <a>Заказы</a>
+          <a
+          (click)="onNavItemClick('/shop/orders')"
+          [class.active]="isNavItemActive('/shop/orders')">
+          Заказы</a>
         </li>
         <li class="sidebar-nav-element">
           <a>Клиенты</a>

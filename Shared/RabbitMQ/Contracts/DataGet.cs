@@ -22,7 +22,8 @@
 	{
 		Category,
 		Good,
-		Property
+		Property,
+		Order
 	}
 
 	public enum FilterType

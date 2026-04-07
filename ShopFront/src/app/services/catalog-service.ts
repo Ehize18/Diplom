@@ -13,16 +13,20 @@ export class CatalogService {
 
   }
 
-  getGoods(shopId: string, categoryId: string, isActual: boolean): Observable<Good[]> {
+  getGoods(shopId: string, categoryId?: string, isActual?: boolean): Observable<Good[]> {
+    let params;
+    if (categoryId && isActual !== undefined) {
+      params = {
+          'categoryId': categoryId,
+          'isActual': isActual
+        }
+    }
     return this.httpClient.get<Good[]>(environment.API_URL + '/good', {
-      headers: {
-        'X-Shop-Id': shopId
-      },
-      params: {
-        'categoryId': categoryId,
-        'isActual': isActual
-      }
-    });
+        headers: {
+          'X-Shop-Id': shopId
+        },
+        params: params
+      });
   }
 
   getGoodById(shopId: string, goodId: string): Observable<Good> {

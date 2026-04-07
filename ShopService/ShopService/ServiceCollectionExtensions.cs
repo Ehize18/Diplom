@@ -106,6 +106,9 @@ namespace ShopService
 			services.AddScoped<ISearchRepository, CategoryOrGoodSearchRepository>();
 			services.AddScoped<IGoodPropertyRepository, GoodPropertyRepository>();
 			services.AddScoped<IBaseRepository<GoodPropertyCategory>, GoodPropertyRepository>();
+			services.AddScoped<IBaseRepository<PaymentMethod>, PaymentMethodRepository>();
+			services.AddScoped<IBaseRepository<DeliveryMethod>, DeliveryMethodRepository>();
+			services.AddScoped<IBaseRepository<Order>,  OrderRepository>();
 
 			return services;
 		}
@@ -118,6 +121,8 @@ namespace ShopService
 			services.AddScoped<UserService>();
 			services.AddScoped<BasketService>();
 			services.AddScoped<PropertyService>();
+			services.AddScoped<MethodsService>();
+			services.AddScoped<OrderService>();
 
 			return services;
 		}

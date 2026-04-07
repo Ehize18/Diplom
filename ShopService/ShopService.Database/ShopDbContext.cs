@@ -34,6 +34,10 @@ namespace ShopService.Database
 
 		public DbSet<CategoryOrGoodSearch> CategoryOrGoodSearch { get; set; }
 
+		public DbSet<PaymentMethod> PaymentMethod { get; set; }
+
+		public DbSet<DeliveryMethod> DeliveryMethod { get; set; }
+
 		public ShopDbContext(ConnectionStringProvider connectionStringProvider, DbContextOptions options) : base(options)
 		{
 			_connectionString = connectionStringProvider.ConnectionString;
@@ -74,6 +78,8 @@ namespace ShopService.Database
 			modelBuilder.ApplyConfiguration(new GoodInBasketConfiguration());
 			modelBuilder.ApplyConfiguration(new GoodCategoriesAllConfiguration());
 			modelBuilder.ApplyConfiguration(new CategoryOrGoodSearchConfiguration());
+			modelBuilder.ApplyConfiguration(new DeliveryMethodConfiguration());
+			modelBuilder.ApplyConfiguration(new PaymentMethodConfiguration());
 		}
 
 		public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

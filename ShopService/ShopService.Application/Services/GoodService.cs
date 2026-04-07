@@ -85,6 +85,11 @@ namespace ShopService.Application.Services
 			return await _goodRepository.GetGoodsByCategory(categoryId, isActual, cancellationToken);
 		}
 
+		public async Task<IEnumerable<Good>> GetGoods(int page, int pageSize, CancellationToken cancellationToken = default)
+		{
+			return await _goodRepository.GetAsync(null, "CreatedAt", false, page, pageSize);
+		}
+
 		public async Task<Good?> GetGoodById(Guid id, CancellationToken cancellationToken = default)
 		{
 			return await _goodRepository.GetByIdAsync(id);

@@ -26,6 +26,7 @@ namespace ShopService.Contracts.Responses
 		public required string Title { get; set; }
 		public required decimal Price { get; set; }
 		public required	int Count { get; set; }
+		public required int AvailableCount { get; set; }
 		public Guid? ImageId { get; set; }
 
 		[SetsRequiredMembers]
@@ -37,6 +38,7 @@ namespace ShopService.Contracts.Responses
 			Price = goodInBasket.Good!.Price;
 			Count = goodInBasket.Count;
 			ImageId = goodInBasket.Good!.ImageId;
+			AvailableCount = goodInBasket.Good!.Count;
 		}
 	}
 }

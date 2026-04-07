@@ -2,6 +2,7 @@
 using AdministrativeService.Core.Entities;
 using AdministrativeService.Core.Enums;
 using AdministrativeService.Database.Interfaces;
+using Shared.Enums;
 using Shared.RabbitMQ.Contracts;
 
 namespace AdministrativeService.Application.Services
@@ -97,6 +98,40 @@ namespace AdministrativeService.Application.Services
 		public async Task<Shop?> GetShopById(Guid shopId)
 		{
 			return await _shopRepository.GetByIdAsync(shopId);
+		}
+
+		public async Task<MethodUpdated?> CreateDeliveryMethod(User user, Guid shopId, string title, Dictionary<string, string> metadata, CancellationToken cancellationToken = default)
+		{
+			var update = new UpdateMethod
+			{
+				MethodType = MethodType.Delivery,
+				UpdateType = UpdateType.Create,
+				Title = title,
+				MetadataBody = metadata,
+				ShopId = shopId,
+				UpdatedById = user.Id
+			};
+
+			var result = await _messageService.UpdateMethod(update, cancellationToken);
+
+			return result;
+		}
+
+		public async Task<MethodUpdated?> CreatePaymentMethod(User user, Guid shopId, string title, Dictionary<string, string> metadata, CancellationToken cancellationToken = default)
+		{
+			var update = new UpdateMethod
+			{
+				MethodType = MethodType.Payment,
+				UpdateType = UpdateType.Create,
+				Title = title,
+				MetadataBody = metadata,
+				ShopId = shopId,
+				UpdatedById = user.Id
+			};
+
+			var result = await _messageService.UpdateMethod(update, cancellationToken);
+
+			return result;
 		}
 	}
 }

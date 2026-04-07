@@ -1,0 +1,85 @@
+<div class="order-wrap">
+    <div class="order-number accent-font">
+        <p>{{caption()}}</p>
+    </div>
+    <div class="order-items">
+        <p style="margin: 0; padding: 0;">Список товаров:</p>
+        @for (item of basketItems(); track item.basketItemId) {
+            <div class="order-item">
+                <div class="order-item-img">
+                    <img [src]="getImageSrc(item)">
+                </div>
+                <div class="order-item-title">
+                    <p>{{item.title}}</p>
+                </div>
+                <div class="order-item-price">
+                    <p>{{item.count + ' X ' + item.price}} Р</p>
+                </div>
+            </div>
+        }
+    </div>
+    <div class="order-payment">
+        @for (method of paymentMethods(); track method.id) {
+            <label>
+                <input
+                    type="radio"
+                    name="payment"
+                    [value]="method"
+                    [(ngModel)]="selectedPaymentMethod"
+                    [disabled]="!isEditable()"
+                >
+                {{method.title}}
+            </label>
+        }
+    </div>
+    <div class="order-delivery">
+        @for (method of deliveryMethods(); track method.id) {
+            <label>
+                <input
+                    type="radio"
+                    name="delivery"
+                    [value]="method"
+                    [(ngModel)]="selectedDeliveryMethod"
+                    (ngModelChange)="onDeliveryMethodChanged()"
+                    [disabled]="!isEditable()"
+                >
+                {{method.title}}
+            </label>
+        }
+        @if (isDeliveryExtrasVisible()) {
+            <div class="delivery-extras">
+                @if (getDeliveryExtrasType() === 'address_input') {
+                    <p>Укажите адрес</p>
+                    <textarea
+                        [(ngModel)]="deliveryExtras"
+                        [disabled]="!isEditable()"
+                    >
+                    </textarea>
+                }
+                @else if (getDeliveryExtrasType() === 'addresses') {
+                    <p>Выберите адрес</p>
+                    @for (address of deliveryAddresses(); track address) {
+                        <label>
+                            <input
+                                type="radio"
+                                name="delivery-extras"
+                                [value]="address"
+                                [(ngModel)]="deliveryExtras"
+                                [disabled]="!isEditable()"
+                            >
+                            {{address}}
+                        </label>
+                    }
+                }
+            </div>
+        }
+    </div>
+    <div class="order-total">
+        <p>Всего: {{totalPrice()}} Р</p>
+    </div>
+</div>
+@if (isValid() && isEditable()) {
+    <div class="confirm-order accent-font" (click)="onConfirmOrderButtonClick()">
+        <p>Оформить заказ</p>
+    </div>
+}

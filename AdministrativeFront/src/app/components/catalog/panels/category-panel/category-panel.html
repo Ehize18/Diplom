@@ -1,12 +1,4 @@
 <div class="panel">
-    <div class="input-with-caption">
-        <p>
-            Название категории
-        </p>
-        <div class="input-wrapper">
-            <input type="text" [(ngModel)]="title">
-        </div>
-    </div>
     <div class="upload-container">
         <div class="preview">
                 <img class="preview-image" [src]="imageSrc()">
@@ -16,6 +8,14 @@
             (change)="onImageChanged($event)"
             accept="image/*"
             >
+    </div>
+    <div class="input-with-caption">
+        <p>
+            Название категории
+        </p>
+        <div class="input-wrapper">
+            <input type="text" [(ngModel)]="title">
+        </div>
     </div>
     <app-lookup
         caption="Родительская категория"

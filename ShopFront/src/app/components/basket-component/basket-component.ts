@@ -5,6 +5,7 @@ import { toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from "@angular/forms";
 import { ShopService } from '../../services/shop-service';
 import { environment } from '../../../environments/environment';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-basket-component',
@@ -17,7 +18,9 @@ export class BasketComponent {
 
   constructor(
     private shopService: ShopService,
-    private basketService: BasketService
+    private basketService: BasketService,
+    private router: Router,
+    private route: ActivatedRoute
   ) {
     toObservable(this.basketService.currentBasket).subscribe(
       basket => {
@@ -60,5 +63,14 @@ export class BasketComponent {
         item
       );
     }
+  }
+
+  onConfirmOrderButtonClick(): void {
+    this.router.navigate(['order'],  {
+      relativeTo: this.route.parent,
+      queryParams: {
+        isNew: true
+      }
+    });
   }
 }

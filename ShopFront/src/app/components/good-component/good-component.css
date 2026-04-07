@@ -27,6 +27,7 @@
     flex-direction: row;
     gap: 5px;
     align-items: end;
+    margin-top: auto;
 }
 
 .good-old-price {

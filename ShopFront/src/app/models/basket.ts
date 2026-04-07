@@ -13,5 +13,6 @@ export interface BasketItem {
     title: string;
     price: number;
     count: number;
+    availableCount: number;
     imageId: string | null;
 }

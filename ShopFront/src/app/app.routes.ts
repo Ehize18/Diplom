@@ -9,6 +9,8 @@ import { BasketComponent } from './components/basket-component/basket-component'
 import { VkComponent } from './components/vk-component/vk-component';
 import { ProfileComponent } from './components/profile-component/profile-component';
 import { CatalogComponent } from './components/catalog-component/catalog-component';
+import { OrderComponent } from './components/order-component/order-component';
+import { OrdersComponent } from './components/orders-component/orders-component';
 
 export const routes: Routes = [
     {
@@ -50,6 +52,18 @@ export const routes: Routes = [
             {
                 path: 'catalog',
                 component: CatalogComponent
+            },
+            {
+                path: 'orders',
+                component: OrdersComponent
+            },
+            {
+                path: 'order/:orderId',
+                component: OrderComponent
+            },
+            {
+                path: 'order',
+                component: OrderComponent
             }
         ]
     }

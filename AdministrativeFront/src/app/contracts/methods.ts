@@ -1,7 +1,7 @@
 export interface Method {
     id: string;
     title: string;
-    options: object;
+    metadata: Record<string, string>;
 }
 
 export interface PaymentMethod extends Method {
