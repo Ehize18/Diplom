@@ -2,9 +2,11 @@
 using System.Text;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Shared.Jwt;
 using ShopService.Application.Services;
 using ShopService.Contracts.Requests;
+using ShopService.Options;
 
 namespace ShopService.Controllers
 {
@@ -14,11 +16,13 @@ namespace ShopService.Controllers
 	{
 		private readonly UserService _userService;
 		private readonly IJwtProvider _jwtProvider;
+		private readonly VkOptions _vkOptions;
 
-		public AuthController(UserService userService, IJwtProvider jwtProvider)
+		public AuthController(UserService userService, IJwtProvider jwtProvider, IOptions<VkOptions> vkOptions)
 		{
 			_userService = userService;
 			_jwtProvider = jwtProvider;
+			_vkOptions = vkOptions.Value;
 		}
 
 		[HttpPost("base")]
@@ -92,15 +96,15 @@ namespace ShopService.Controllers
 		private bool CheckVk(VkAuthRequest request)
 		{
 			var sortedParams = new SortedDictionary<string, string>();
-			sortedParams.Add("app_id", (54487683).ToString());
+			sortedParams.Add("app_id", _vkOptions.AppId.ToString());
 			sortedParams.Add("request_id", $"{request.Id}");
-			sortedParams.Add("ts", (request.Ts).ToString());
-			sortedParams.Add("user_id", (request.Id).ToString());
+			sortedParams.Add("ts", request.Ts.ToString());
+			sortedParams.Add("user_id", request.Id.ToString());
 
 			string signParamsQuery = string.Join("&",
 				sortedParams.Select(kvp => $"{Uri.EscapeDataString(kvp.Key)}={Uri.EscapeDataString(kvp.Value)}"));
 
-			byte[] keyBytes = Encoding.UTF8.GetBytes("");
+			byte[] keyBytes = Encoding.UTF8.GetBytes(_vkOptions.SecretKey);
 			byte[] messageBytes = Encoding.UTF8.GetBytes(signParamsQuery);
 
 			string computedSign;

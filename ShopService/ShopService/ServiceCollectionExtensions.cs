@@ -11,6 +11,8 @@ using ShopService.Database.Interfaces;
 using ShopService.Database.Repositories;
 using ShopService.HostedServices;
 
+using ShopService.Options;
+
 namespace ShopService
 {
 	public static class ServiceCollectionExtensions
@@ -24,6 +26,9 @@ namespace ShopService
 				.AddDatabase(configuration)
 				.AddServices()
 				.AddApplicationCors();
+
+			services.Configure<VkOptions>(configuration.GetSection("Vk"));
+
 			return services;
 		}
 

@@ -6,7 +6,6 @@ import { OrderService } from '../../../services/order-service';
 import { Order, OrderStatus } from '../../../contracts/order';
 import { environment } from '../../../../environments/environment';
 import { FormsModule } from '@angular/forms';
-import { NgIf, NgFor } from '@angular/common';
 
 class OrderVM {
   model: Order
@@ -43,7 +42,7 @@ class OrderVM {
 
 @Component({
   selector: 'app-orders-component',
-  imports: [Button, FormsModule, NgIf, NgFor],
+  imports: [Button, FormsModule],
   templateUrl: './orders-component.html',
   styleUrl: './orders-component.css',
 })
