@@ -123,6 +123,22 @@ export class CatalogService {
     return this.httpClient.post<string>(`${this._baseUrl}/${shopId}/property/${propertyId}`, body, this.HTTP_OPTIONS);
   }
 
+  public updateGood(shopId: string, good: Good, image?: File): Observable<any> {
+    const formData = new FormData();
+    formData.append("Title", good.title);
+    formData.append("Description", good.description || '');
+    formData.append("CategoryId", good.categoryId);
+    formData.append("Count", good.count.toString());
+    formData.append("Price", good.price.toString());
+    if (good.imageId) {
+      formData.append("ImageId", good.imageId);
+    }
+    if (image) {
+      formData.append("image", image, image.name);
+    }
+    return this.httpClient.put<string>(`${this._baseUrl}/${shopId}/good/${good.id}`, formData, this.HTTP_OPTIONS);
+  }
+
   public updateCategory(shopId: string, category: Category, image?: File): Observable<string> {
     const formData = new FormData();
     formData.append("Title", category.title);

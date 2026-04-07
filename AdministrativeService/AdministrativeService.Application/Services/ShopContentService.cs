@@ -257,5 +257,38 @@ namespace AdministrativeService.Application.Services
 
 			return GetResponse(response);
 		}
+
+		public async Task<(Guid, string)> PatchGood(PatchGoodDTO dto, CancellationToken cancellationToken = default)
+		{
+			var updateGood = new UpdateGood
+			{
+				GoodId = dto.GoodId,
+				UpdateType = UpdateType.Update,
+				ShopId = dto.ShopId,
+				UpdatedById = dto.User.Id,
+				GoodTitle = dto.Title,
+				GoodDescription = dto.Description,
+				CategoryId = dto.CategoryId ?? Guid.Empty,
+				Count = dto.Count ?? 0,
+				Price = dto.Price ?? 0,
+				OldPrice = dto.OldPrice ?? 0,
+				ImageId = dto.ImageId
+			};
+
+			var messageId = Guid.NewGuid();
+
+			var responseTask = _messageService.GetAnswerAsync<GoodUpdated>(messageId, cancellationToken);
+
+			var properties = _messageService.CreateProperties();
+			properties.CorrelationId = messageId.ToString();
+
+			var requestTask = _messageService.PublishUpdateGoodMessage(properties, updateGood, cancellationToken);
+
+			await Task.WhenAll(responseTask, requestTask);
+
+			var response = responseTask.Result;
+
+			return GetResponse(response);
+		}
 	}
 }

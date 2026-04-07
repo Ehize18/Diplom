@@ -134,6 +134,9 @@ export class GoodPanel {
     console.log(tag);
     console.log(controls);
     this.isModalOpened.set(false);
+
+    const currentShopId = this.shopService.currentShop!.id;
+
     if (tag === 'save') {
       const good: Good = {
         title: controls.title,
@@ -156,11 +159,40 @@ export class GoodPanel {
         image = controls.image.file;
       }
 
-      const currentShopId = this.shopService.currentShop!.id;
-
       this.catalogService.createGood(
         currentShopId,
         good,
+        image
+      ).subscribe(
+        (value) => {
+          if (value) {
+            this.getGoods(currentShopId, this.selectedCategory()?.id);
+          }
+        }
+      );
+    }
+    else if (tag === 'edit') {
+      const selectedGood = this.selectedGood();
+      if (!selectedGood) {
+        return;
+      }
+
+      selectedGood.model.title = controls.title;
+      selectedGood.model.description = controls.description;
+      selectedGood.model.categoryId = controls.category.id;
+      selectedGood.model.price = Number.parseFloat(controls.price);
+      selectedGood.model.oldPrice = Number.parseFloat(controls.price);
+      selectedGood.model.count = Number(controls.count);
+
+      let image: File | undefined;
+
+      if (controls.image && controls.image.file) {
+        image = controls.image.file;
+      }
+
+      this.catalogService.updateGood(
+        currentShopId,
+        selectedGood.model,
         image
       ).subscribe(
         (value) => {

@@ -130,6 +130,48 @@ namespace AdministrativeService.Controllers
 			return BadRequest(error);
 		}
 
+		[HttpPut("good/{goodId:guid}")]
+		public async Task<ActionResult> PutGood([FromForm]UpdateGoodRequest request, IFormFile? image, Guid shopId, Guid goodId, CancellationToken cancellationToken = default)
+		{
+			Guid? imageId = request.ImageId;
+			var tasksToWait = new List<Task>();
+			if (image != null)
+			{
+				imageId = Guid.NewGuid();
+				tasksToWait.Add(UploadImage((Guid)imageId, shopId, image, cancellationToken));
+			}
+			Guid? categoryId = null;
+			if (Guid.TryParse(request.CategoryId, out var categoryIdParsed))
+			{
+				if (categoryIdParsed != Guid.Empty)
+				{
+					categoryId = categoryIdParsed;
+				}
+			}
+			var patchTask = _shopContentService.PatchGood(new()
+			{
+				ShopId = shopId,
+				GoodId = goodId,
+				Title = request.Title,
+				Description = request.Description,
+				CategoryId = categoryId,
+				Count = request.Count,
+				Price = request.Price,
+				OldPrice = request.OldPrice,
+				ImageId = imageId,
+				User = CurrentUser
+			});
+			tasksToWait.Add(patchTask);
+			await Task.WhenAll(tasksToWait);
+			var (id, error) = patchTask.Result;
+
+			if (string.IsNullOrWhiteSpace(error))
+			{
+				return Ok(id);
+			}
+			return BadRequest(error);
+		}
+
 		[HttpGet("{entityType}")]
 		public async Task<ActionResult> GetData(string entityType,
 			Guid shopId, string? orderBy, bool? isAscending, int? page, int? pageSize,

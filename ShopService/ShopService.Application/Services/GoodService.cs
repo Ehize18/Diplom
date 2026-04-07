@@ -56,7 +56,7 @@ namespace ShopService.Application.Services
 			try
 			{
 				await _goodRepository.SetUser(update.UpdatedById);
-				var good = await _goodRepository.GetByIdAsync((Guid)update.CategoryId!);
+				var good = await _goodRepository.GetByIdAsync((Guid)update.GoodId!);
 				if (good == null)
 				{
 					return null;
