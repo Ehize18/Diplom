@@ -2,7 +2,7 @@
     <div class="panel-main-header">
         <div class="accent-font">Товары в категории</div>
         <div class="input-wrapper">
-            <input type="text" placeholder="Поиск">
+            <input type="text" placeholder="Поиск" [(ngModel)]="searchQuery">
         </div>
     </div>
     <div class="table-wrap">
@@ -16,7 +16,7 @@
                 <th>Продано</th>
             </thead>
             <tbody>
-                @for (good of goodList(); track good.id) {
+                @for (good of filteredGoods(); track good.id) {
                     <tr [class.selected-good]="selectedGood()?.id === good.id" (click)="selectGood(good)">
                         <td>
                             <img [src]="getGoodImageSrc(good)">

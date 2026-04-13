@@ -1,4 +1,5 @@
-import { Component, effect, input, OnInit, output, signal } from '@angular/core';
+import { Component, effect, input, output, signal, computed } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Button } from "../../../controls/button/button";
 import { ControlType, Popup, PopupConfig } from '../../../controls/popup/popup';
 import { Category, Good } from '../../../../contracts/catalog';
@@ -33,12 +34,20 @@ export class GoodViewModel {
 
 @Component({
   selector: 'app-good-panel',
-  imports: [Button, Popup],
+  imports: [Button, Popup, FormsModule],
   templateUrl: './good-panel.html',
   styleUrl: './good-panel.css',
 })
 export class GoodPanel {
   goodList = signal<GoodViewModel[]>([]);
+  searchQuery = signal<string>('');
+  filteredGoods = computed(() => {
+    const query = this.searchQuery().toLowerCase();
+    if (!query) {
+      return this.goodList();
+    }
+    return this.goodList().filter(g => g.title.toLowerCase().includes(query));
+  });
   categories = input<Category[]>([]);
   selectedCategory = input<TreeItem | undefined>();
   goodsLoaded = output<GoodViewModel[]>();
