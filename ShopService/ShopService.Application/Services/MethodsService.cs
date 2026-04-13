@@ -122,6 +122,7 @@ namespace ShopService.Application.Services
 							return new MethodUpdated { MethodId = Guid.Empty, IsSuccess = false, Error = "not_found" };
 						}
 						deliveryMethod.Title = update.Title;
+						deliveryMethod.Metadata = update.Metadata;
 						await _deliveryMethodRepository.SetUser(update.UpdatedById);
 						_deliveryMethodRepository.Update(deliveryMethod);
 						await _deliveryMethodRepository.SaveChangesAsync(cancellationToken);
@@ -133,6 +134,7 @@ namespace ShopService.Application.Services
 							return new MethodUpdated { MethodId = Guid.Empty, IsSuccess = false, Error = "not_found" };
 						}
 						paymentMethod.Title = update.Title;
+						paymentMethod.Metadata = update.Metadata;
 						await _paymentMethodRepository.SetUser(update.UpdatedById);
 						_paymentMethodRepository.Update(paymentMethod);
 						await _paymentMethodRepository.SaveChangesAsync(cancellationToken);

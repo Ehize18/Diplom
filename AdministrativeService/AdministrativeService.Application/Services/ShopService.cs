@@ -134,7 +134,7 @@ namespace AdministrativeService.Application.Services
 			return result;
 		}
 
-		public async Task<MethodUpdated?> UpdateDeliveryMethod(User user, Guid shopId, Guid methodId, string title, CancellationToken cancellationToken = default)
+		public async Task<MethodUpdated?> UpdateDeliveryMethod(User user, Guid shopId, Guid methodId, string title, Dictionary<string, string>? metadata, CancellationToken cancellationToken = default)
 		{
 			var update = new UpdateMethod
 			{
@@ -142,6 +142,7 @@ namespace AdministrativeService.Application.Services
 				UpdateType = UpdateType.Update,
 				MethodId = methodId,
 				Title = title,
+				MetadataBody = metadata ?? new Dictionary<string, string>(),
 				ShopId = shopId,
 				UpdatedById = user.Id
 			};
@@ -151,7 +152,7 @@ namespace AdministrativeService.Application.Services
 			return result;
 		}
 
-		public async Task<MethodUpdated?> UpdatePaymentMethod(User user, Guid shopId, Guid methodId, string title, CancellationToken cancellationToken = default)
+		public async Task<MethodUpdated?> UpdatePaymentMethod(User user, Guid shopId, Guid methodId, string title, Dictionary<string, string>? metadata, CancellationToken cancellationToken = default)
 		{
 			var update = new UpdateMethod
 			{
@@ -159,6 +160,7 @@ namespace AdministrativeService.Application.Services
 				UpdateType = UpdateType.Update,
 				MethodId = methodId,
 				Title = title,
+				MetadataBody = metadata ?? new Dictionary<string, string>(),
 				ShopId = shopId,
 				UpdatedById = user.Id
 			};

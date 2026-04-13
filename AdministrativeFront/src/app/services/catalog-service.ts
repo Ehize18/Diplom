@@ -135,23 +135,23 @@ export class CatalogService {
     return this.getData<Method>(shopId, 'DeliveryMethod');
   }
 
-  public updatePaymentMethod(shopId: string, methodId: string, title: string): Observable<string> {
-    const body = { title: title };
+  public updatePaymentMethod(shopId: string, methodId: string, title: string, metadata?: Record<string, string>): Observable<string> {
+    const body = { title: title, metadata: metadata || {} };
     return this.httpClient.put<string>(`${environment.apiUrl}/shop/${shopId}/paymentmethod/${methodId}`, body, this.HTTP_OPTIONS);
   }
 
-  public updateDeliveryMethod(shopId: string, methodId: string, title: string): Observable<string> {
-    const body = { title: title };
+  public updateDeliveryMethod(shopId: string, methodId: string, title: string, metadata?: Record<string, string>): Observable<string> {
+    const body = { title: title, metadata: metadata || {} };
     return this.httpClient.put<string>(`${environment.apiUrl}/shop/${shopId}/deliverymethod/${methodId}`, body, this.HTTP_OPTIONS);
   }
 
-  public createPaymentMethod(shopId: string, paymentType: number, title: string): Observable<any> {
-    const body = { paymentType: paymentType, metadata: {}, title: title };
+  public createPaymentMethod(shopId: string, paymentType: number, title: string, metadata: Record<string, string>): Observable<any> {
+    const body = { paymentType: paymentType, metadata: metadata, title: title };
     return this.httpClient.post(`${environment.apiUrl}/shop/${shopId}/paymentmethod`, body, this.HTTP_OPTIONS);
   }
 
-  public createDeliveryMethod(shopId: string, deliveryType: number, title: string): Observable<any> {
-    const body = { deliveryType: deliveryType, metadata: {}, title: title };
+  public createDeliveryMethod(shopId: string, deliveryType: number, title: string, metadata: Record<string, string>): Observable<any> {
+    const body = { deliveryType: deliveryType, metadata: metadata, title: title };
     return this.httpClient.post(`${environment.apiUrl}/shop/${shopId}/deliverymethod`, body, this.HTTP_OPTIONS);
   }
 

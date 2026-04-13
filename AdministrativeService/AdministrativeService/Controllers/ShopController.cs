@@ -142,7 +142,7 @@ namespace AdministrativeService.Controllers
 		[HttpPut("{shopId:guid}/paymentmethod/{methodId:guid}")]
 		public async Task<ActionResult> UpdatePaymentMethod(UpdateMethodRequest request, Guid shopId, Guid methodId, CancellationToken cancellationToken)
 		{
-			var result = await _shopService.UpdatePaymentMethod(CurrentUser, shopId, methodId, request.Title, cancellationToken);
+			var result = await _shopService.UpdatePaymentMethod(CurrentUser, shopId, methodId, request.Title, request.Metadata, cancellationToken);
 
 			if (result == null)
 			{
@@ -158,7 +158,7 @@ namespace AdministrativeService.Controllers
 		[HttpPut("{shopId:guid}/deliverymethod/{methodId:guid}")]
 		public async Task<ActionResult> UpdateDeliveryMethod(UpdateMethodRequest request, Guid shopId, Guid methodId, CancellationToken cancellationToken)
 		{
-			var result = await _shopService.UpdateDeliveryMethod(CurrentUser, shopId, methodId, request.Title, cancellationToken);
+			var result = await _shopService.UpdateDeliveryMethod(CurrentUser, shopId, methodId, request.Title, request.Metadata, cancellationToken);
 
 			if (result == null)
 			{

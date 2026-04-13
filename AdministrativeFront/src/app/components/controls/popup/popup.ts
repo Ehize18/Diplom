@@ -18,6 +18,7 @@ export interface ControlConfig {
   caption: string
   value: any;
   lookupData: LookupData[]
+  isVisible?: (controlValues: { [id: string]: any }) => boolean;
 }
 
 export enum ControlType {
@@ -25,7 +26,8 @@ export enum ControlType {
   Textarea,
   Lookup,
   Boolean,
-  File
+  File,
+  List
 }
 
 export interface ButtonConfig {
@@ -54,10 +56,38 @@ export class Popup implements OnInit {
         this.controlValues[control.tag] = {
           previewUrl: signal<string>(this.getInitFileSrc(control.value))
         }
+      } else if (control.type === ControlType.List) {
+        this.controlValues[control.tag] = control.value ? [...control.value] : [];
+      } else if (control.type === ControlType.Boolean) {
+        this.controlValues[control.tag] = control.value === true || control.value === 'true';
       } else {
         this.controlValues[control.tag] = control.value;
       }
     }, this);
+  }
+
+  isControlVisible(control: ControlConfig): boolean {
+    if (control.isVisible) {
+      return control.isVisible(this.controlValues);
+    }
+    return true;
+  }
+
+  addListItem(tag: string): void {
+    const list = this.controlValues[tag] as string[];
+    list.push('');
+    this.controlValues[tag] = [...list];
+  }
+
+  removeListItem(tag: string, index: number): void {
+    const list = this.controlValues[tag] as string[];
+    list.splice(index, 1);
+    this.controlValues[tag] = [...list];
+  }
+
+  onListValueChanged(tag: string, index: number, value: string): void {
+    const list = this.controlValues[tag] as string[];
+    list[index] = value;
   }
 
   getInitFileSrc(imageId: string): string {

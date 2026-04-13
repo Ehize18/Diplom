@@ -46,3 +46,48 @@
     flex-direction: column;
     gap: 20px
 }
+
+.list-control {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.list-control > p {
+    margin: 0;
+}
+
+.list-item {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    align-items: center;
+}
+
+.list-item input {
+    flex: 1;
+}
+
+.list-item-remove {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: #999;
+}
+
+.list-item-remove:hover {
+    color: #333;
+}
+
+.list-add {
+    font-size: 14px;
+    color: var(--primary-accent-color);
+    margin-top: 4px;
+}
+
+.list-add:hover {
+    text-decoration: underline;
+}

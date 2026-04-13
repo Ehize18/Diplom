@@ -2,56 +2,71 @@
     <div class="popup-content">
         <div class="popup-controls">
             @for (control of config.controls; track control.tag) {
-                @switch (control.type) {
-                    @case (controlType.Input) {
-                        <div class="input-with-caption">
-                            <p>{{ control.caption }}</p>
-                            <div class="input-wrapper">
-                                <input type="text" [(ngModel)]="controlValues[control.tag]">
-                            </div>
-                        </div>
-                    }
-                    @case (controlType.Textarea) {
-                        <div class="input-with-caption">
-                            <p>{{ control.caption }}</p>
-                            <div class="input-wrapper big-input">
-                                <textarea type="text" [(ngModel)]="controlValues[control.tag]"></textarea>
-                            </div>
-                        </div>
-                    }
-                    @case (controlType.Lookup) {
-                        <app-lookup
-                            [caption]="control.caption"
-                            id={{`${config.id}-${control.tag}`}}
-                            [values]="control.lookupData"
-                            [defaultValue]="control.value"
-                            (itemSelected)="onLookupSelected($event, control.tag)"
-                            >
-                        </app-lookup>
-                    }
-                    @case (controlType.Boolean) {
-                        <div class="checkbox-with-caption">
-                        <p>
-                            {{ control.caption }}
-                        </p>
-                        <div class="checkbox-wrapper">
-                            <input type="checkbox" [(ngModel)]="controlValues[control.tag]">
-                        </div>
-                    </div>
-                    }
-                    @case (controlType.File) {
-                        <div class="upload-container">
-                            @if (controlValues[control.tag].previewUrl && controlValues[control.tag].previewUrl()) {
-                                <div class="preview">
-                                    <img class="preview-image" [src]="getFileSrc(control.tag)">
+                @if (!control.isVisible || control.isVisible(controlValues)) {
+                    @switch (control.type) {
+                        @case (controlType.Input) {
+                            <div class="input-with-caption">
+                                <p>{{ control.caption }}</p>
+                                <div class="input-wrapper">
+                                    <input type="text" [(ngModel)]="controlValues[control.tag]">
                                 </div>
-                            }
-                            <input
-                                type="file"
-                                (change)="onFileChanged($event, control.tag)"
-                                accept="image/*"
+                            </div>
+                        }
+                        @case (controlType.Textarea) {
+                            <div class="input-with-caption">
+                                <p>{{ control.caption }}</p>
+                                <div class="input-wrapper big-input">
+                                    <textarea type="text" [(ngModel)]="controlValues[control.tag]"></textarea>
+                                </div>
+                            </div>
+                        }
+                        @case (controlType.Lookup) {
+                            <app-lookup
+                                [caption]="control.caption"
+                                id={{`${config.id}-${control.tag}`}}
+                                [values]="control.lookupData"
+                                [defaultValue]="control.value"
+                                (itemSelected)="onLookupSelected($event, control.tag)"
                                 >
+                            </app-lookup>
+                        }
+                        @case (controlType.Boolean) {
+                            <div class="checkbox-with-caption">
+                            <p>
+                                {{ control.caption }}
+                            </p>
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" [(ngModel)]="controlValues[control.tag]">
+                            </div>
                         </div>
+                        }
+                        @case (controlType.File) {
+                            <div class="upload-container">
+                                @if (controlValues[control.tag].previewUrl && controlValues[control.tag].previewUrl()) {
+                                    <div class="preview">
+                                        <img class="preview-image" [src]="getFileSrc(control.tag)">
+                                    </div>
+                                }
+                                <input
+                                    type="file"
+                                    (change)="onFileChanged($event, control.tag)"
+                                    accept="image/*"
+                                    >
+                            </div>
+                        }
+                        @case (controlType.List) {
+                            <div class="list-control">
+                                <p>{{ control.caption }}</p>
+                                @for (item of controlValues[control.tag]; track $index) {
+                                    <div class="list-item">
+                                        <input type="text" [(ngModel)]="controlValues[control.tag][$index]"
+                                            (ngModelChange)="onListValueChanged(control.tag, $index, $event)">
+                                        <div class="list-item-remove clickable" (click)="removeListItem(control.tag, $index)">✕</div>
+                                    </div>
+                                }
+                                <div class="list-add clickable" (click)="addListItem(control.tag)">Добавить</div>
+                            </div>
+                        }
                     }
                 }
             }
