@@ -93,6 +93,9 @@ namespace ShopService.Application.Services
 						case UpdateType.Create:
 							methodUpdated = await methodsService.CreateMethod(message);
 							break;
+						case UpdateType.Update:
+							methodUpdated = await methodsService.UpdateMethod(message);
+							break;
 					}
 
 					if (methodUpdated == null)

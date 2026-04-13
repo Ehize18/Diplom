@@ -133,5 +133,39 @@ namespace AdministrativeService.Application.Services
 
 			return result;
 		}
+
+		public async Task<MethodUpdated?> UpdateDeliveryMethod(User user, Guid shopId, Guid methodId, string title, CancellationToken cancellationToken = default)
+		{
+			var update = new UpdateMethod
+			{
+				MethodType = MethodType.Delivery,
+				UpdateType = UpdateType.Update,
+				MethodId = methodId,
+				Title = title,
+				ShopId = shopId,
+				UpdatedById = user.Id
+			};
+
+			var result = await _messageService.UpdateMethod(update, cancellationToken);
+
+			return result;
+		}
+
+		public async Task<MethodUpdated?> UpdatePaymentMethod(User user, Guid shopId, Guid methodId, string title, CancellationToken cancellationToken = default)
+		{
+			var update = new UpdateMethod
+			{
+				MethodType = MethodType.Payment,
+				UpdateType = UpdateType.Update,
+				MethodId = methodId,
+				Title = title,
+				ShopId = shopId,
+				UpdatedById = user.Id
+			};
+
+			var result = await _messageService.UpdateMethod(update, cancellationToken);
+
+			return result;
+		}
 	}
 }

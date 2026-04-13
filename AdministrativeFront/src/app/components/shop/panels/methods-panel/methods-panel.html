@@ -9,10 +9,13 @@
         </div>
         <div class="methods-list">
             @for (method of methods(); track method.id) {
-                <div class="method-item clickable">
+                <div class="method-item clickable" (click)="selectMethod(method)">
                     {{ method.title }}
                 </div>
             }
         </div>
     </div>
 </div>
+@if (isModalOpened()) {
+    <app-popup [config]="getPopupConfig()"></app-popup>
+}

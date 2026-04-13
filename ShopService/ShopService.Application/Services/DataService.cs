@@ -30,6 +30,10 @@ namespace ShopService.Application.Services
 					return await GetUsersWithStats(request, serviceScope);
 				case DataGetEntity.ShopStatistics:
 					return await GetShopStatistics(request, serviceScope);
+				case DataGetEntity.PaymentMethod:
+					return await GetData<PaymentMethod>(request, serviceScope);
+				case DataGetEntity.DeliveryMethod:
+					return await GetData<DeliveryMethod>(request, serviceScope);
 				default:
 					return new DataGetResponse
 					{

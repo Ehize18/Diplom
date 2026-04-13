@@ -88,6 +88,71 @@ namespace ShopService.Application.Services
 			return result;
 		}
 
+		public async Task<MethodUpdated> UpdateMethod(UpdateMethod update, CancellationToken cancellationToken = default)
+		{
+			var isAdmin = await _deliveryMethodRepository.CheckOrCreateAdmin(update.UpdatedById);
+			if (!isAdmin)
+			{
+				return new MethodUpdated
+				{
+					MethodId = Guid.Empty,
+					IsSuccess = false,
+					Error = "not_admin"
+				};
+			}
+
+			try
+			{
+				if (update.MethodId == null)
+				{
+					return new MethodUpdated
+					{
+						MethodId = Guid.Empty,
+						IsSuccess = false,
+						Error = "no_method_id"
+					};
+				}
+
+				switch (update.MethodType)
+				{
+					case MethodType.Delivery:
+						var deliveryMethod = await _deliveryMethodRepository.GetByIdAsync(update.MethodId.Value);
+						if (deliveryMethod == null)
+						{
+							return new MethodUpdated { MethodId = Guid.Empty, IsSuccess = false, Error = "not_found" };
+						}
+						deliveryMethod.Title = update.Title;
+						await _deliveryMethodRepository.SetUser(update.UpdatedById);
+						_deliveryMethodRepository.Update(deliveryMethod);
+						await _deliveryMethodRepository.SaveChangesAsync(cancellationToken);
+						return new MethodUpdated { MethodId = deliveryMethod.Id, IsSuccess = true };
+					case MethodType.Payment:
+						var paymentMethod = await _paymentMethodRepository.GetByIdAsync(update.MethodId.Value);
+						if (paymentMethod == null)
+						{
+							return new MethodUpdated { MethodId = Guid.Empty, IsSuccess = false, Error = "not_found" };
+						}
+						paymentMethod.Title = update.Title;
+						await _paymentMethodRepository.SetUser(update.UpdatedById);
+						_paymentMethodRepository.Update(paymentMethod);
+						await _paymentMethodRepository.SaveChangesAsync(cancellationToken);
+						return new MethodUpdated { MethodId = paymentMethod.Id, IsSuccess = true };
+				}
+
+				return new MethodUpdated { MethodId = Guid.Empty, IsSuccess = false, Error = "unknown_type" };
+			}
+			catch (Exception)
+			{
+			}
+
+			return new MethodUpdated
+			{
+				MethodId = Guid.Empty,
+				IsSuccess = false,
+				Error = "unexpected_error"
+			};
+		}
+
 		public async Task<IList<PaymentMethod>> GetPaymentMethods(CancellationToken cancellationToken = default)
 		{
 			return await _paymentMethodRepository.GetByPage(1, 100);

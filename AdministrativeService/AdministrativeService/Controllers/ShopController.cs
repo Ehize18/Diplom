@@ -70,7 +70,7 @@ namespace AdministrativeService.Controllers
 			switch (request.DeliveryType)
 			{
 				case DeliveryType.Pickup:
-					result = await _shopService.CreateDeliveryMethod(CurrentUser, shopId, "Самовывоз", request.Metadata, cancellationToken);
+					result = await _shopService.CreateDeliveryMethod(CurrentUser, shopId, request.Title, request.Metadata, cancellationToken);
 					break;
 				case DeliveryType.Post:
 					var meta = request.Metadata;
@@ -82,7 +82,7 @@ namespace AdministrativeService.Controllers
 					{
 						meta.Add("address_needed", "true");
 					}
-					result = await _shopService.CreateDeliveryMethod(CurrentUser, shopId, "Почта", meta, cancellationToken);
+					result = await _shopService.CreateDeliveryMethod(CurrentUser, shopId, request.Title, meta, cancellationToken);
 					break;
 				default:
 					return BadRequest("method_not_found");
@@ -115,18 +115,50 @@ namespace AdministrativeService.Controllers
 					{
 						meta.Add("payment_info_needed", "false");
 					}
-					result = await _shopService.CreatePaymentMethod(CurrentUser, shopId, "При получении", meta, cancellationToken);
+					result = await _shopService.CreatePaymentMethod(CurrentUser, shopId, request.Title, meta, cancellationToken);
 					break;
 				case PaymentType.Transfer:
 					if (!meta.ContainsKey("payment_info_needed"))
 					{
 						meta.Add("payment_info_needed", "false");
 					}
-					result = await _shopService.CreatePaymentMethod(CurrentUser, shopId, "Перевод", meta, cancellationToken);
+					result = await _shopService.CreatePaymentMethod(CurrentUser, shopId, request.Title, meta, cancellationToken);
 					break;
 				default:
 					return BadRequest("method_not_found");
 			}
+
+			if (result == null)
+			{
+				return BadRequest();
+			}
+			if (!result.IsSuccess)
+			{
+				return BadRequest(result.Error);
+			}
+			return Ok(result.MethodId);
+		}
+
+		[HttpPut("{shopId:guid}/paymentmethod/{methodId:guid}")]
+		public async Task<ActionResult> UpdatePaymentMethod(UpdateMethodRequest request, Guid shopId, Guid methodId, CancellationToken cancellationToken)
+		{
+			var result = await _shopService.UpdatePaymentMethod(CurrentUser, shopId, methodId, request.Title, cancellationToken);
+
+			if (result == null)
+			{
+				return BadRequest();
+			}
+			if (!result.IsSuccess)
+			{
+				return BadRequest(result.Error);
+			}
+			return Ok(result.MethodId);
+		}
+
+		[HttpPut("{shopId:guid}/deliverymethod/{methodId:guid}")]
+		public async Task<ActionResult> UpdateDeliveryMethod(UpdateMethodRequest request, Guid shopId, Guid methodId, CancellationToken cancellationToken)
+		{
+			var result = await _shopService.UpdateDeliveryMethod(CurrentUser, shopId, methodId, request.Title, cancellationToken);
 
 			if (result == null)
 			{

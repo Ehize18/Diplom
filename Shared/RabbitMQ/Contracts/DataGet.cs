@@ -25,7 +25,9 @@
 		Property,
 		Order,
 		User,
-		ShopStatistics
+		ShopStatistics,
+		PaymentMethod,
+		DeliveryMethod
 	}
 
 	public enum FilterType

@@ -6,6 +6,7 @@ import { Category, GetDataResponse, Good, Property } from '../contracts/catalog'
 import { Order } from '../contracts/order';
 import { ShopUser } from '../contracts/user';
 import { ShopStatistics } from '../contracts/statistics';
+import { Method } from '../contracts/methods';
 
 @Injectable({
   providedIn: 'root',
@@ -124,6 +125,34 @@ export class CatalogService {
 
   public getStatistics(shopId: string): Observable<GetDataResponse<ShopStatistics>> {
     return this.getData<ShopStatistics>(shopId, 'ShopStatistics');
+  }
+
+  public getPaymentMethods(shopId: string): Observable<GetDataResponse<Method>> {
+    return this.getData<Method>(shopId, 'PaymentMethod');
+  }
+
+  public getDeliveryMethods(shopId: string): Observable<GetDataResponse<Method>> {
+    return this.getData<Method>(shopId, 'DeliveryMethod');
+  }
+
+  public updatePaymentMethod(shopId: string, methodId: string, title: string): Observable<string> {
+    const body = { title: title };
+    return this.httpClient.put<string>(`${environment.apiUrl}/shop/${shopId}/paymentmethod/${methodId}`, body, this.HTTP_OPTIONS);
+  }
+
+  public updateDeliveryMethod(shopId: string, methodId: string, title: string): Observable<string> {
+    const body = { title: title };
+    return this.httpClient.put<string>(`${environment.apiUrl}/shop/${shopId}/deliverymethod/${methodId}`, body, this.HTTP_OPTIONS);
+  }
+
+  public createPaymentMethod(shopId: string, paymentType: number, title: string): Observable<any> {
+    const body = { paymentType: paymentType, metadata: {}, title: title };
+    return this.httpClient.post(`${environment.apiUrl}/shop/${shopId}/paymentmethod`, body, this.HTTP_OPTIONS);
+  }
+
+  public createDeliveryMethod(shopId: string, deliveryType: number, title: string): Observable<any> {
+    const body = { deliveryType: deliveryType, metadata: {}, title: title };
+    return this.httpClient.post(`${environment.apiUrl}/shop/${shopId}/deliverymethod`, body, this.HTTP_OPTIONS);
   }
 
   public createProperty(shopId: string, title: string) {
