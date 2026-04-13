@@ -64,8 +64,13 @@
     align-items: center;
 }
 
-.list-item input {
+.list-item .input-wrapper {
     flex: 1;
+}
+
+.list-item input {
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .list-item-remove {
@@ -76,6 +81,7 @@
     justify-content: center;
     font-size: 14px;
     color: #999;
+    flex-shrink: 0;
 }
 
 .list-item-remove:hover {
@@ -84,10 +90,20 @@
 
 .list-add {
     font-size: 14px;
-    color: var(--primary-accent-color);
     margin-top: 4px;
 }
 
 .list-add:hover {
     text-decoration: underline;
+}
+
+.input-wrapper {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.input-wrapper input,
+.input-wrapper textarea {
+    width: 100%;
+    box-sizing: border-box;
 }

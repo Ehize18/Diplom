@@ -59,8 +59,10 @@
                                 <p>{{ control.caption }}</p>
                                 @for (item of controlValues[control.tag]; track $index) {
                                     <div class="list-item">
-                                        <input type="text" [(ngModel)]="controlValues[control.tag][$index]"
-                                            (ngModelChange)="onListValueChanged(control.tag, $index, $event)">
+                                        <div class="input-wrapper">
+                                            <input type="text" [(ngModel)]="controlValues[control.tag][$index]"
+                                                (ngModelChange)="onListValueChanged(control.tag, $index, $event)">
+                                        </div>
                                         <div class="list-item-remove clickable" (click)="removeListItem(control.tag, $index)">✕</div>
                                     </div>
                                 }
