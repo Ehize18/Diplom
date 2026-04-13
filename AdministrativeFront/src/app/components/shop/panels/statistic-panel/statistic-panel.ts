@@ -1,4 +1,5 @@
-import { Component, input, signal } from '@angular/core';
+import { Component, effect, input, signal } from '@angular/core';
+import { ShopStatistics } from '../../../../contracts/statistics';
 
 export enum StatisticType {
   Clients,
@@ -16,7 +17,34 @@ export enum StatisticType {
 })
 export class StatisticPanel {
   type = input<StatisticType>();
+  statistics = input<ShopStatistics | null>(null);
   statistic = signal(0);
+
+  constructor() {
+    effect(() => {
+      const stats = this.statistics();
+      if (!stats) {
+        return;
+      }
+      switch (this.type()) {
+        case StatisticType.Clients:
+          this.statistic.set(stats.clientsCount);
+          break;
+        case StatisticType.Orders:
+          this.statistic.set(stats.ordersCount);
+          break;
+        case StatisticType.Categories:
+          this.statistic.set(stats.categoriesCount);
+          break;
+        case StatisticType.Goods:
+          this.statistic.set(stats.goodsCount);
+          break;
+        case StatisticType.Chats:
+          this.statistic.set(0);
+          break;
+      }
+    });
+  }
 
   getImageSrc(): string {
     switch (this.type()) {

@@ -4,6 +4,8 @@ import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
 import { Category, GetDataResponse, Good, Property } from '../contracts/catalog';
 import { Order } from '../contracts/order';
+import { ShopUser } from '../contracts/user';
+import { ShopStatistics } from '../contracts/statistics';
 
 @Injectable({
   providedIn: 'root',
@@ -107,6 +109,21 @@ export class CatalogService {
       'isAscending': false
     };
     return this.getData<Property>(shopId, 'Property', params);
+  }
+
+  public getClients(shopId: string): Observable<GetDataResponse<ShopUser>> {
+    const params = {
+      'orderBy': 'UpdatedAt',
+      'isAscending': false,
+      'filterType': 0,
+      'column': 'IsAdmin',
+      'columnValue': 'false'
+    };
+    return this.getData<ShopUser>(shopId, 'User', params);
+  }
+
+  public getStatistics(shopId: string): Observable<GetDataResponse<ShopStatistics>> {
+    return this.getData<ShopStatistics>(shopId, 'ShopStatistics');
   }
 
   public createProperty(shopId: string, title: string) {

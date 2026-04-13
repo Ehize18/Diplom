@@ -1,9 +1,11 @@
 ﻿using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore;
 using ShopService.Core.Entities;
+using ShopService.Database.Interfaces;
 
 namespace ShopService.Database.Repositories
 {
-	public class OrderRepository : BaseRepository<Order>
+	public class OrderRepository : BaseRepository<Order>, IOrderRepository
 	{
 		public OrderRepository(ShopDbContext context) : base(context)
 		{
@@ -22,6 +24,40 @@ namespace ShopService.Database.Repositories
 				throw new ArgumentException($"Cant order by {orderBy}");
 			}
 			return result;
+		}
+
+		public async Task<(int Count, decimal TotalSum)> GetUserOrderStats(Guid userId, CancellationToken cancellationToken = default)
+		{
+			var result = await _context.Order
+				.Where(o => o.Basket.UserId == userId)
+				.GroupBy(o => 1)
+				.Select(g => new
+				{
+					Count = g.Count(),
+					TotalSum = g.Sum(o => o.FullPrice)
+				})
+				.FirstOrDefaultAsync(cancellationToken);
+
+			return result != null
+				? (result.Count, result.TotalSum)
+				: (0, 0);
+		}
+
+		public async Task<Dictionary<Guid, UserOrderStats>> GetUsersOrderStats(IEnumerable<Guid> userIds, CancellationToken cancellationToken = default)
+		{
+			var statsList = await _context.Order
+				.Where(o => userIds.Contains(o.Basket.UserId))
+				.GroupBy(o => o.Basket.UserId)
+				.Select(g => new UserOrderStats
+				{
+					UserId = g.Key,
+					OrdersCount = g.Count(),
+					TotalSum = g.Sum(o => o.FullPrice),
+					LastOrderDate = g.Max(o => o.CreatedAt)
+				})
+				.ToListAsync(cancellationToken);
+
+			return statsList.ToDictionary(s => s.UserId, s => s);
 		}
 	}
 }

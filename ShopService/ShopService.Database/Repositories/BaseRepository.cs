@@ -117,6 +117,16 @@ namespace ShopService.Database.Repositories
 			return await entities.ToListAsync();
 		}
 
+		public virtual async Task<int> CountAsync(Expression<Func<TEntity, bool>>? predicate, CancellationToken cancellationToken = default)
+		{
+			IQueryable<TEntity> query = _context.Set<TEntity>();
+			if (predicate != null)
+			{
+				query = query.Where(predicate);
+			}
+			return await query.CountAsync(cancellationToken);
+		}
+
 		protected abstract Expression<Func<TEntity, object>> GetOrderByExpression(string orderBy);
 
 		/// <summary>

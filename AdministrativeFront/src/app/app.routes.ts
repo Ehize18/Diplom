@@ -18,6 +18,10 @@ export const routes: Routes = [
             {
                 path: 'orders',
                 loadComponent:() => import('./components/orders/orders-component/orders-component').then(v => v.OrdersComponent)
+            },
+            {
+                path: 'clients',
+                loadComponent:() => import('./components/clients/clients-component').then(v => v.ClientsComponent)
             }
         ]
     },

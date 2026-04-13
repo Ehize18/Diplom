@@ -1,0 +1,54 @@
+<div class="full-wrap">
+    <div class="panel panel-main-header">
+        <div class="panel-main-header-caption accent-font">
+            Клиенты
+        </div>
+        <div class="panel-main-header-buttons">
+            <app-button caption="Добавить"></app-button>
+            <app-button caption="Экспорт"></app-button>
+        </div>
+        <div class="input-wrapper">
+            <input type="text" placeholder="Поиск">
+        </div>
+    </div>
+    <div class="table-wrap panel">
+        <table class="clients-table">
+            <thead>
+                <tr>
+                    <th>Имя</th>
+                    <th>Мессенджер</th>
+                    <th>Статус</th>
+                    <th>Заказы</th>
+                    <th>Сумма</th>
+                    <th>Диалог</th>
+                    <th>Активность</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (client of clients(); track client.id) {
+                    <tr>
+                        <td>{{ client.username }}</td>
+                        <td>
+                            @if (client.vkId) {
+                                <img class="vk-icon" src="vk.png" alt="VK"
+                                     (click)="openVkProfile(client.vkId)">
+                            } @else {
+                                Нет
+                            }
+                        </td>
+                        <td>{{ client.status }}</td>
+                        <td>{{ client.ordersCount }}</td>
+                        <td>{{ client.totalSum }} Руб.</td>
+                        <td>{{ client.dialogCount }}</td>
+                        <td>{{ client.lastActivityDate ? (client.lastActivityDate | date:'dd.MM.yyyy HH:mm') : '—' }}</td>
+                        <td class="actions-cell">
+                            <img src="placeholder.svg" class="action-btn">
+                            <img src="placeholder.svg" class="action-btn">
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -113,7 +113,8 @@ namespace ShopService
 			services.AddScoped<IBaseRepository<GoodPropertyCategory>, GoodPropertyRepository>();
 			services.AddScoped<IBaseRepository<PaymentMethod>, PaymentMethodRepository>();
 			services.AddScoped<IBaseRepository<DeliveryMethod>, DeliveryMethodRepository>();
-			services.AddScoped<IBaseRepository<Order>,  OrderRepository>();
+			services.AddScoped<IOrderRepository, OrderRepository>();
+			services.AddScoped<IBaseRepository<Order>, OrderRepository>();
 
 			return services;
 		}

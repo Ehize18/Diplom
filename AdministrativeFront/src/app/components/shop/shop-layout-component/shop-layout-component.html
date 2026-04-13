@@ -24,7 +24,10 @@
           Заказы</a>
         </li>
         <li class="sidebar-nav-element">
-          <a>Клиенты</a>
+          <a
+          (click)="onNavItemClick('/shop/clients')"
+          [class.active]="isNavItemActive('/shop/clients')">
+          Клиенты</a>
         </li>
         <li class="sidebar-nav-element">
           <a>Чаты</a>

@@ -23,7 +23,9 @@
 		Category,
 		Good,
 		Property,
-		Order
+		Order,
+		User,
+		ShopStatistics
 	}
 
 	public enum FilterType

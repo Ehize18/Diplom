@@ -5,4 +5,7 @@ export interface User {
 
 export interface ShopUser extends User {
     vkId: number;
+    ordersCount: number;
+    totalSum: number;
+    lastOrderDate: string | null;
 }

@@ -11,6 +11,7 @@ namespace ShopService.Database.Interfaces
 		TEntity Create(TEntity entity);
 		void Delete(TEntity entity);
 		Task<List<TEntity>> GetAsync(Expression<Func<TEntity, bool>>? predicate, string? orderBy, bool isAscending = false, int page = 1, int pageSize = 100);
+		Task<int> CountAsync(Expression<Func<TEntity, bool>>? predicate, CancellationToken cancellationToken = default);
 		Task<TEntity?> GetByIdAsync(Guid id);
 		Task<IList<TEntity>> GetByPage(int page = 1, int pageSize = 10);
 		Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
