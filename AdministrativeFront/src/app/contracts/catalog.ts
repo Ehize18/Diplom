@@ -28,6 +28,7 @@ export interface Good extends Base {
     price: number,
     oldPrice: number
     count: number
+    soldCount: number
 }
 
 export interface PropertyValue extends Base {

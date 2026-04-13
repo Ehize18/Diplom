@@ -21,7 +21,7 @@ namespace ShopService.Application.Services
 				case DataGetEntity.Category:
 					return await GetData<GoodCategory>(request, serviceScope);
 				case DataGetEntity.Good:
-					return await GetData<Good>(request, serviceScope);
+					return await GetGoodsWithSoldCount(request, serviceScope);
 				case DataGetEntity.Property:
 					return await GetData<GoodPropertyCategory>(request, serviceScope);
 				case DataGetEntity.Order:
@@ -114,6 +114,57 @@ namespace ShopService.Application.Services
 					return null;
 			}
 			return Expression.Lambda<Func<T, bool>>(body, parameter);
+		}
+
+		private async Task<DataGetResponse> GetGoodsWithSoldCount(DataGet request, IServiceScope serviceScope)
+		{
+			var filterExp = BuildFilterExpression<Good>(request.Filter);
+			var goodRepository = serviceScope.ServiceProvider.GetRequiredService<IBaseRepository<Good>>();
+			var orderRepository = serviceScope.ServiceProvider.GetRequiredService<IOrderRepository>();
+
+			try
+			{
+				var goods = await goodRepository.GetAsync(filterExp, request.OrderBy, request.IsAscending, request.Page, request.PageSize);
+
+				var goodsSoldCount = await orderRepository.GetGoodsSoldCount();
+
+				var goodsWithSold = goods.Select(good =>
+				{
+					var soldCount = goodsSoldCount.TryGetValue(good.Id, out var count) ? count : 0;
+					return new GoodWithSold
+					{
+						Id = good.Id,
+						Title = good.Title,
+						Description = good.Description,
+						Count = good.Count,
+						Price = good.Price,
+						OldPrice = good.OldPrice,
+						CategoryId = good.CategoryId,
+						ImageId = good.ImageId,
+						IsDeleted = good.IsDeleted,
+						CreatedAt = good.CreatedAt,
+						UpdatedAt = good.UpdatedAt,
+						CreatedById = good.CreatedById,
+						UpdatedById = good.UpdatedById,
+						SoldCount = soldCount
+					};
+				}).ToList();
+
+				return new DataGetResponse
+				{
+					Results = goodsWithSold.ToArray(),
+					IsSuccess = true,
+					Error = string.Empty
+				};
+			}
+			catch (Exception ex)
+			{
+				return new DataGetResponse
+				{
+					IsSuccess = false,
+					Error = ex.Message
+				};
+			}
 		}
 
 		private async Task<DataGetResponse> GetUsersWithStats(DataGet request, IServiceScope serviceScope)

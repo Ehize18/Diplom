@@ -14,5 +14,6 @@ namespace ShopService.Database.Interfaces
 	{
 		Task<(int Count, decimal TotalSum)> GetUserOrderStats(Guid userId, CancellationToken cancellationToken = default);
 		Task<Dictionary<Guid, UserOrderStats>> GetUsersOrderStats(IEnumerable<Guid> userIds, CancellationToken cancellationToken = default);
+		Task<Dictionary<Guid, int>> GetGoodsSoldCount(CancellationToken cancellationToken = default);
 	}
 }

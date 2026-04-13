@@ -59,5 +59,20 @@ namespace ShopService.Database.Repositories
 
 			return statsList.ToDictionary(s => s.UserId, s => s);
 		}
+
+		public async Task<Dictionary<Guid, int>> GetGoodsSoldCount(CancellationToken cancellationToken = default)
+		{
+			var goodsSold = await _context.Order
+				.SelectMany(o => o.Basket.Goods)
+				.GroupBy(bi => bi.GoodId)
+				.Select(g => new
+				{
+					GoodId = g.Key,
+					TotalSold = g.Sum(bi => bi.Count)
+				})
+				.ToDictionaryAsync(x => x.GoodId, x => x.TotalSold, cancellationToken);
+
+			return goodsSold;
+		}
 	}
 }

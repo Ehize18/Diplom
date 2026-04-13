@@ -27,7 +27,7 @@ export class GoodViewModel {
     this.category = category;
     this.price = model.price;
     this.count = model.count;
-    this.orderCount = 0;
+    this.orderCount = model.soldCount;
     this.iconUrl = 'placeholder.svg';
   }
 }
@@ -154,6 +154,7 @@ export class GoodPanel {
         price: Number.parseFloat(controls.price),
         oldPrice: Number.parseFloat(controls.price),
         count: Number(controls.count),
+        soldCount: 0,
         id: '',
         createdById: '',
         updatedById: '',
