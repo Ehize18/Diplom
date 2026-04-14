@@ -8,7 +8,7 @@
             <app-button caption="Экспорт"></app-button>
         </div>
         <div class="input-wrapper">
-            <input type="text" placeholder="Поиск">
+            <input type="text" placeholder="Поиск" [(ngModel)]="searchQuery">
         </div>
         <div class="input-date input-date-from">
             <input type="date">
@@ -18,7 +18,7 @@
         </div>
     </div>
     <div class="orders-wrap">
-        @for (order of orders(); track order.model.id) {
+        @for (order of filteredOrders(); track order.model.id) {
             <div class="order-wrap panel">
                 <div class="order-header">
                     <p class="order-number">

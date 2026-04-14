@@ -1,5 +1,6 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, computed } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Button } from '../controls/button/button';
 import { ShopService } from '../../services/shop-service';
 import { CatalogService } from '../../services/catalog-service';
@@ -10,7 +11,7 @@ import { GetDataResponse } from '../../contracts/catalog';
 interface ClientVM {
   id: string;
   username: string;
-  vkId: number;
+  vkId: number | null;
   status: string;
   ordersCount: number;
   totalSum: number;
@@ -20,12 +21,23 @@ interface ClientVM {
 
 @Component({
   selector: 'app-clients-component',
-  imports: [Button, DatePipe],
+  imports: [Button, DatePipe, FormsModule],
   templateUrl: './clients-component.html',
   styleUrl: './clients-component.css',
 })
 export class ClientsComponent {
   clients = signal<ClientVM[]>([]);
+  searchQuery = signal<string>('');
+  filteredClients = computed(() => {
+    const query = this.searchQuery().toLowerCase();
+    if (!query) {
+      return this.clients();
+    }
+    return this.clients().filter(c =>
+      c.username.toLowerCase().includes(query) ||
+      c.vkId?.toString().includes(query)
+    );
+  });
 
   constructor(
     private shopService: ShopService,

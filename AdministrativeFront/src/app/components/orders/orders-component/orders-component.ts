@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { Button } from '../../controls/button/button';
 import { ShopService } from '../../../services/shop-service';
 import { CatalogService } from '../../../services/catalog-service';
@@ -48,6 +48,17 @@ class OrderVM {
 })
 export class OrdersComponent implements OnInit {
   orders = signal<OrderVM[]>([]);
+  searchQuery = signal<string>('');
+  filteredOrders = computed(() => {
+    const query = this.searchQuery().toLowerCase();
+    if (!query) {
+      return this.orders();
+    }
+    return this.orders().filter(o =>
+      o.model.basket.user.username.toLowerCase().includes(query) ||
+      o.model.id.toLowerCase().includes(query)
+    );
+  });
 
   orderStatuses = Object.values(OrderStatus).filter(v => typeof v === 'number') as OrderStatus[];
 
