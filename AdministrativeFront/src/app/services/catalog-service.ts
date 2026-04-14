@@ -207,4 +207,13 @@ export class CatalogService {
     
     return this.httpClient.put<string>(`${this._baseUrl}/${shopId}/category/${category.id}`, formData, this.HTTP_OPTIONS);
   }
+
+  public deleteCategory(shopId: string, category: Category): Observable<string> {
+    return this.httpClient.delete<string>(`${this._baseUrl}/${shopId}/category/${category.id}`, {
+      ...this.HTTP_OPTIONS,
+      params: {
+        imageId: category.imageId || ''
+      }
+    });
+  }
 }

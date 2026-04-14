@@ -115,4 +115,15 @@ export class CategoryPanel {
       );
     }
   }
+
+  onDeleteButtonClick(): void {
+    const category = this.selectedCategory();
+    if (category && category.category) {
+      this.catalogService.deleteCategory(this.shopService.currentShop?.id!, category.category).subscribe(
+        () => {
+          this.categorySaved.emit(this.selectedCategory()?.category!);
+        }
+      );
+    }
+  }
 }

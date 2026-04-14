@@ -195,6 +195,32 @@ namespace AdministrativeService.Application.Services
 			return GetResponse(response);
 		}
 
+		public async Task<(Guid, string)> DeleteCategory(DeleteCategoryDTO dto, CancellationToken cancellationToken = default)
+		{
+			var updateCategory = new UpdateCategory
+			{
+				ShopId = dto.ShopId,
+				CategoryId = dto.CategoryId,
+				UpdateType = UpdateType.Delete,
+				UpdatedById = dto.User.Id
+			};
+
+			var messageId = Guid.NewGuid();
+
+			var responseTask = _messageService.GetAnswerAsync<CategoryUpdated>(messageId, cancellationToken);
+
+			var properties = _messageService.CreateProperties();
+			properties.CorrelationId = messageId.ToString();
+
+			var requestTask = _messageService.PublishUpdateCategoryMessage(properties, updateCategory, cancellationToken);
+
+			await Task.WhenAll(responseTask, requestTask);
+
+			var response = responseTask.Result;
+
+			return GetResponse(response);
+		}
+
 		public async Task<(Guid, string)> CreateProperty(CreatePropertyDTO dto, CancellationToken cancellationToken = default)
 		{
 			var updateProperty = new UpdateProperty

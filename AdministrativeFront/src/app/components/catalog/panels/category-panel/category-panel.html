@@ -32,5 +32,10 @@
             <input type="checkbox" [(ngModel)]="isActive">
         </div>
     </div>
-    <app-button caption="Сохранить" [onClickCallback]="onSaveButtonClick.bind(this)"></app-button>
+    <div class="buttons">
+        <app-button caption="Сохранить" [onClickCallback]="onSaveButtonClick.bind(this)"></app-button>
+        @if (selectedCategory()) {
+            <app-button caption="Удалить" [onClickCallback]="onDeleteButtonClick.bind(this)"></app-button>
+        }
+    </div>
 </div>

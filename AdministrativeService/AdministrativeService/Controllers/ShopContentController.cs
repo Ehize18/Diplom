@@ -95,6 +95,27 @@ namespace AdministrativeService.Controllers
 			return BadRequest(error);
 		}
 
+		[HttpDelete("category/{categoryId:guid}")]
+		public async Task<ActionResult> DeleteCategory(Guid shopId, Guid categoryId, string? imageId, CancellationToken cancellationToken = default)
+		{
+			var (id, error) = await _shopContentService.DeleteCategory(new()
+			{
+				ShopId = shopId,
+				CategoryId = categoryId,
+				User = CurrentUser
+			}, cancellationToken);
+
+			if (string.IsNullOrWhiteSpace(error))
+			{
+				if (!string.IsNullOrWhiteSpace(imageId) && Guid.TryParse(imageId, out var imageGuid))
+				{
+					await _minioService.DeleteObject(shopId.ToString(), imageId, cancellationToken);
+				}
+				return Ok(id);
+			}
+			return BadRequest(error);
+		}
+
 		[HttpPost("good")]
 		public async Task<ActionResult> CreateGood([FromForm]CreateGoodRequest request, IFormFile? image, Guid shopId, CancellationToken cancellationToken = default)
 		{
