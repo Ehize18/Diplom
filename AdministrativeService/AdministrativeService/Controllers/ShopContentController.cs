@@ -1,7 +1,9 @@
 ﻿using System.Text.Json;
+using System.Xml.Linq;
 using AdministrativeService.Application.DTO.ShopContent;
 using AdministrativeService.Application.Services;
 using AdministrativeService.Contracts.Content;
+using AdministrativeService.Core.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MiniExcelLibs;
@@ -322,65 +324,191 @@ namespace AdministrativeService.Controllers
 
 				};
 
-				var ms = new MemoryStream();
+				Stream ms;
 
-				var dictData = data.Results.Select(obj =>
+				switch (type)
 				{
-					if (obj is JsonElement element)
-					{
-						var dict = JsonElementToDict(element);
-						if (dict.ContainsKey("imageId"))
-						{
-							dict["imageUrl"] = $"{_domain}/{shopId}/{dict["imageId"]}";
-						}
-						return dict;
-					}
-					return new Dictionary<string, object>();
-				});
+					case DataGetEntity.Order:
+						ms = await GetOrderExcelStream(data, config, cancellationToken);
+						break;
+					default:
+						ms = await GetDefaultExcelStream(shopId, data, config, cancellationToken);
+						break;
+				}
 
-				await MiniExcel.SaveAsAsync(ms, dictData, configuration: config, cancellationToken: cancellationToken);
-				ms.Position = 0;
 				return File(ms, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
-
 			}
 			return BadRequest("unknown_type");
 		}
 
-		private static Dictionary<string, object> JsonElementToDict(JsonElement element)
+		private async Task<MemoryStream> GetOrderExcelStream(
+			DataGetResponse data,
+			OpenXmlConfiguration config,
+			CancellationToken cancellationToken)
 		{
-			var dict = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+			var ms = new MemoryStream();
+
+			var orders = new List<Dictionary<string, object>>();
+			var goodElements = new Dictionary<string, List<JsonElement>>();
+
+			foreach (var obj in data.Results)
+			{
+				if (obj is not JsonElement orderElement) continue;
+
+				JsonElement? basketElement = null;
+				if (orderElement.TryGetProperty("basket", out var be) && be.ValueKind == JsonValueKind.Object)
+					basketElement = be;
+
+				var orderDict = ConvertJsonElement(orderElement, exclude: new[] { "basket" });
+				var orderId = orderDict.GetValueOrDefault("id")?.ToString();
+				if (orderDict.ContainsKey("deliveryMethod") && orderDict["deliveryMethod"] is Dictionary<string, object> deliveryMethod)
+				{
+					orderDict["deliveryMethod"] = deliveryMethod["title"];
+				}
+				if (orderDict.ContainsKey("paymentMethod") && orderDict["paymentMethod"] is Dictionary<string, object> paymentMethod)
+				{
+					orderDict["paymentMethod"] = paymentMethod["title"];
+				}
+				orders.Add(orderDict);
+				goodElements[orderId] = new List<JsonElement>();
+
+				if (basketElement.HasValue)
+				{
+					var basketDict = ConvertJsonElement(basketElement.Value, exclude: new[] { "goods" });
+
+					if (basketElement.Value.TryGetProperty("goods", out var goodsArray)
+						&& goodsArray.ValueKind == JsonValueKind.Array)
+					{
+						goodElements[orderId].Add(goodsArray);
+					}
+				}
+			}
+
+			var goods = goodElements.SelectMany(SelectGoods);
+
+			// 5. Формируем словарь листов (явный тип!)
+			var sheets = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
+			{
+				["Order"] = orders,
+				["Goods"] = goods
+			};
+
+			await MiniExcel.SaveAsAsync(ms, sheets, configuration: config, cancellationToken: cancellationToken);
+			ms.Position = 0;
+			return ms;
+		}
+
+		private IEnumerable<IDictionary<string, object>> SelectGoods(KeyValuePair<string, List<JsonElement>> elements)
+		{
+			foreach (var goodsArray in elements.Value)
+			{
+				foreach (var good in goodsArray.EnumerateArray())
+				{
+					var goodDict = ConvertJsonElement(good);
+					if (goodDict["good"] == null)
+					{
+						goodDict["good"] = "Удалено";
+					}
+					else
+					{
+						goodDict["good"] = ((Dictionary<string, object>)goodDict["good"])["title"];
+					}
+					goodDict["OrderId"] = elements.Key;
+					goodDict.Remove("basketId");
+					yield return goodDict;
+				}
+			}
+		}
+
+		private async Task<MemoryStream> GetDefaultExcelStream(Guid shopId, DataGetResponse data, OpenXmlConfiguration config, CancellationToken cancellationToken)
+		{
+			var ms = new MemoryStream();
+
+			var dictData = data.Results.Select(obj =>
+			{
+				if (obj is JsonElement element)
+				{
+					var dict = ConvertJsonElement(element);
+					if (dict.ContainsKey("imageId"))
+					{
+						dict["imageUrl"] = $"{_domain}/{shopId}/{dict["imageId"]}";
+					}
+					return dict;
+				}
+				return new Dictionary<string, object>();
+			});
+
+			await MiniExcel.SaveAsAsync(ms, dictData, configuration: config, cancellationToken: cancellationToken);
+			ms.Position = 0;
+			return ms;
+		}
+
+		private static Dictionary<string, object> ConvertJsonElement(JsonElement element, string[]? exclude = null)
+		{
+			var result = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+			var excludeSet = exclude?.ToHashSet(StringComparer.OrdinalIgnoreCase);
 
 			if (element.ValueKind != JsonValueKind.Object)
-			{
-				return dict;
-			}
+				return result;
 
 			foreach (var prop in element.EnumerateObject())
 			{
-				dict[prop.Name] = FlattenJsonValue(prop.Value);
+				if (excludeSet?.Contains(prop.Name) == true) continue;
+
+				result[prop.Name] = ConvertValue(prop.Value);
 			}
-			return dict;
+			return result;
 		}
 
-		private static object FlattenJsonValue(JsonElement value)
+		private static object? ConvertValue(JsonElement value)
 		{
 			return value.ValueKind switch
 			{
 				JsonValueKind.Null => null,
 				JsonValueKind.String => value.GetString(),
-				JsonValueKind.Number => value.GetDecimal(),
+				JsonValueKind.Number => TryGetNumber(value),
 				JsonValueKind.True => true,
 				JsonValueKind.False => false,
 
-				JsonValueKind.Array => string.Join(", ",
-					value.EnumerateArray()
-						 .Select(FlattenJsonValue)
-						 .Where(x => x != null)),
+				// Массив простых значений → склеиваем
+				JsonValueKind.Array when IsSimpleArray(value)
+					=> string.Join(", ", value.EnumerateArray()
+						.Select(ConvertValue)
+						.Where(x => x != null)),
 
-				JsonValueKind.Object => value.GetRawText(),
+				// Массив объектов или вложенный объект → рекурсивная конвертация в Dictionary
+				JsonValueKind.Array => value.EnumerateArray()
+					.Select(ConvertValue)
+					.Where(x => x != null)
+					.ToList(), // List<object> MiniExcel обработает как строку "[...]"
 
-				_ => value.GetRawText()
+				JsonValueKind.Object => ConvertJsonElement(value), // Рекурсия
+
+				_ => value.GetRawText() // Fallback: строковое представление
 			};
+		}
+
+		// 🔹 Вспомогательные методы
+		private static object? TryGetNumber(JsonElement value)
+		{
+			try
+			{
+				return value.GetDecimal();
+			}
+			catch
+			{
+				return value.GetDouble();
+			}
+		}
+
+		private static bool IsSimpleArray(JsonElement array)
+		{
+			return array.EnumerateArray()
+				.All(e => e.ValueKind is JsonValueKind.String
+								 or JsonValueKind.Number
+								 or JsonValueKind.Null
+								 or JsonValueKind.True
+								 or JsonValueKind.False);
 		}
 
 		[HttpPost("property")]
