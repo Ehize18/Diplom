@@ -27,6 +27,7 @@ namespace ShopService.Application.Services
 			{
 				var category = new GoodCategory
 				{
+					Id = update.CategoryId == null ? Guid.NewGuid() : (Guid)update.CategoryId,
 					Title = update.CategoryTitle!,
 					Description = update.CategoryDescription != null ? update.CategoryDescription : string.Empty,
 					ParentCategoryId = update.ParentCategoryId,

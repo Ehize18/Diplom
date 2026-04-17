@@ -10,6 +10,7 @@ using MiniExcelLibs;
 using MiniExcelLibs.OpenXml;
 using Shared.RabbitMQ.Contracts;
 using Shared.S3;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace AdministrativeService.Controllers
 {
@@ -60,6 +61,48 @@ namespace AdministrativeService.Controllers
 				return Ok(id);
 			}
 			return BadRequest(error);
+		}
+
+		[HttpPost("category/import")]
+		public async Task<ActionResult> ImportCategories(Guid shopId, IFormFile file, CancellationToken cancellationToken = default)
+		{
+			using var ms = new MemoryStream();
+
+			await file.CopyToAsync(ms);
+
+			using var reader = MiniExcel.GetReader(ms, useHeaderRow: true);
+
+			var tasksToWait = new List<Task>();
+
+			while (reader.Read())
+			{
+				var dict = new Dictionary<string, object>();
+				for (var i = 0; i < reader.FieldCount; i++)
+				{
+					dict.Add(reader.GetName(i), reader.GetValue(i));
+				}
+				Console.WriteLine(dict);
+				if (!dict.ContainsKey("title"))
+				{
+					continue;
+				}
+				var dto = new CreateCategoryDTO()
+				{
+					User = CurrentUser,
+					ShopId = shopId,
+					Title = (string)dict["title"],
+					Description = dict.ContainsKey("description") ? (string)dict["description"] : null,
+					ParentCategoryId = dict.ContainsKey("parentCategoryId") && Guid.TryParse((string)dict["parentCategoryId"], out var parentCategoryId) ? parentCategoryId : null,
+					Id = dict.ContainsKey("id") && Guid.TryParse((string)dict["id"], out var id) ? id : null,
+					ImageId = dict.ContainsKey("imageId") && Guid.TryParse((string)dict["imageId"], out var imageId) ? imageId : null,
+					IsActive = dict.ContainsKey("isActive") ? (bool)dict["isActive"] : false
+				};
+				tasksToWait.Add(_shopContentService.CreateCategory(dto, cancellationToken));
+			}
+
+			await Task.WhenAll(tasksToWait);
+
+			return Ok();
 		}
 
 		[HttpPut("category/{categoryId:guid}")]
@@ -156,6 +199,52 @@ namespace AdministrativeService.Controllers
 				return Ok(id);
 			}
 			return BadRequest(error);
+		}
+
+		[HttpPost("good/import")]
+		public async Task<ActionResult> ImportGoods(Guid shopId, IFormFile file, CancellationToken cancellationToken = default)
+		{
+			using var ms = new MemoryStream();
+
+			await file.CopyToAsync(ms);
+
+			using var reader = MiniExcel.GetReader(ms, useHeaderRow: true);
+
+			var tasksToWait = new List<Task>();
+
+			while (reader.Read())
+			{
+				var dict = new Dictionary<string, object>();
+				for (var i = 0; i < reader.FieldCount; i++)
+				{
+					dict.Add(reader.GetName(i), reader.GetValue(i));
+				}
+				Console.WriteLine(dict);
+				if (!dict.ContainsKey("title") ||
+					!dict.ContainsKey("categoryId") ||
+					!Guid.TryParse((string)dict["categoryId"], out var categoryId))
+				{
+					continue;
+				}
+				var dto = new CreateGoodDTO()
+				{
+					User = CurrentUser,
+					ShopId = shopId,
+					Title = (string)dict["title"],
+					Description = dict.ContainsKey("description") ? (string)dict["description"] : null,
+					CategoryId = categoryId,
+					Id = dict.ContainsKey("id") && Guid.TryParse((string)dict["id"], out var id) ? id : null,
+					ImageId = dict.ContainsKey("imageId") ? Guid.Parse((string)dict["imageId"]) : null,
+					Count = dict.ContainsKey("count") ? Convert.ToInt32((double)dict["count"]) : 0,
+					Price = dict.ContainsKey("price") ? Convert.ToDecimal((double)dict["price"]) : 0,
+					OldPrice = dict.ContainsKey("oldPrice") ? Convert.ToDecimal((double)dict["oldPrice"]) : 0,
+				};
+				tasksToWait.Add(_shopContentService.CreateGood(dto, cancellationToken));
+			}
+
+			await Task.WhenAll(tasksToWait);
+
+			return Ok();
 		}
 
 		[HttpPut("good/{goodId:guid}")]

@@ -76,6 +76,7 @@ namespace AdministrativeService.Application.Services
 		{
 			var updateCategory = new UpdateCategory
 			{
+				CategoryId = dto.Id,
 				UpdateType = UpdateType.Create,
 				CategoryTitle = dto.Title,
 				CategoryDescription = dto.Description,
@@ -106,6 +107,7 @@ namespace AdministrativeService.Application.Services
 		{
 			var updateGood = new UpdateGood
 			{
+				GoodId = dto.Id,
 				UpdateType = UpdateType.Create,
 				GoodTitle = dto.Title,
 				GoodDescription = dto.Description,
