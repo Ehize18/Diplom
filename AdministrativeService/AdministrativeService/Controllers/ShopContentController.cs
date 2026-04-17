@@ -1,8 +1,11 @@
-﻿using AdministrativeService.Application.DTO.ShopContent;
+﻿using System.Text.Json;
+using AdministrativeService.Application.DTO.ShopContent;
 using AdministrativeService.Application.Services;
 using AdministrativeService.Contracts.Content;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MiniExcelLibs;
+using MiniExcelLibs.OpenXml;
 using Shared.RabbitMQ.Contracts;
 using Shared.S3;
 
@@ -15,11 +18,13 @@ namespace AdministrativeService.Controllers
 	{
 		private readonly ShopContentService _shopContentService;
 		private readonly IMinioService _minioService;
+		private readonly string? _domain;
 
-		public ShopContentController(ShopContentService shopContentService, IMinioService minioService)
+		public ShopContentController(ShopContentService shopContentService, IMinioService minioService, Microsoft.Extensions.Configuration.IConfiguration configuration)
 		{
 			_shopContentService = shopContentService;
 			_minioService = minioService;
+			_domain = configuration.GetValue<string>("ImageDomain");
 		}
 
 		[HttpPost("category")]
@@ -241,43 +246,141 @@ namespace AdministrativeService.Controllers
 		{
 			if (Enum.TryParse<DataGetEntity>(entityType, true, out var type))
 			{
-				var dto = new GetDataDTO
-				{
-					Entity = type,
-					ShopId = shopId
-				};
+				var data = await GetData(type, shopId, orderBy, isAscending,
+					page, pageSize, filterType, column, columnValue, cancellationToken);
 
-				if (orderBy != null)
-				{
-					dto.OrderBy = orderBy;
-					dto.IsAscending = isAscending != null ? (bool)isAscending : false;
-				}
-
-				if (page != null && page > 0 && pageSize != null && pageSize > 0)
-				{
-					dto.Page = (int)page;
-					dto.PageSize = (int)pageSize;
-				}
-
-				if (filterType != null && !string.IsNullOrWhiteSpace(column))
-				{
-					dto.Filter = new Filter
-					{
-						FilterType = (FilterType)filterType,
-						LeftExpression = column,
-						RightExpression = columnValue
-					};
-				}
-
-				var response = await _shopContentService.GetData(dto, cancellationToken);
-
-				if (response == null)
+				if (data == null)
 				{
 					return BadRequest();
 				}
-				return Ok(response);
+				return Ok(data);
 			}
 			return BadRequest("unknown_type");
+		}
+
+		private async Task<DataGetResponse?> GetData(DataGetEntity entityType,
+			Guid shopId, string? orderBy, bool? isAscending, int? page, int? pageSize,
+			FilterType? filterType, string? column, string? columnValue,
+			CancellationToken cancellationToken = default)
+		{
+			var dto = new GetDataDTO
+			{
+				Entity = entityType,
+				ShopId = shopId
+			};
+
+			if (orderBy != null)
+			{
+				dto.OrderBy = orderBy;
+				dto.IsAscending = isAscending != null ? (bool)isAscending : false;
+			}
+
+			if (page != null && page > 0 && pageSize != null && pageSize > 0)
+			{
+				dto.Page = (int)page;
+				dto.PageSize = (int)pageSize;
+			}
+
+			if (filterType != null && !string.IsNullOrWhiteSpace(column))
+			{
+				dto.Filter = new Filter
+				{
+					FilterType = (FilterType)filterType,
+					LeftExpression = column,
+					RightExpression = columnValue
+				};
+			}
+
+			var response = await _shopContentService.GetData(dto, cancellationToken);
+
+			return response;
+		}
+
+		[HttpGet("export/{entityType}")]
+		public async Task<ActionResult> ExportData(string entityType,
+			Guid shopId, string? orderBy, bool? isAscending, int? page, int? pageSize,
+			FilterType? filterType, string? column, string? columnValue,
+			CancellationToken cancellationToken = default)
+		{
+			if (Enum.TryParse<DataGetEntity>(entityType, true, out var type))
+			{
+				var data = await GetData(type, shopId, orderBy, isAscending,
+					page, pageSize, filterType, column, columnValue, cancellationToken);
+
+				if (data == null)
+				{
+					return BadRequest();
+				}
+
+				var fileName = $"export_{entityType}_{DateTime.UtcNow:yyyyMMdd_HHmmss}.xlsx";
+
+				var config = new OpenXmlConfiguration
+				{
+					AutoFilter = false,
+					EnableAutoWidth = false,
+					FastMode = true,
+
+				};
+
+				var ms = new MemoryStream();
+
+				var dictData = data.Results.Select(obj =>
+				{
+					if (obj is JsonElement element)
+					{
+						var dict = JsonElementToDict(element);
+						if (dict.ContainsKey("imageId"))
+						{
+							dict["imageUrl"] = $"{_domain}/{shopId}/{dict["imageId"]}";
+						}
+						return dict;
+					}
+					return new Dictionary<string, object>();
+				});
+
+				await MiniExcel.SaveAsAsync(ms, dictData, configuration: config, cancellationToken: cancellationToken);
+				ms.Position = 0;
+				return File(ms, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+
+			}
+			return BadRequest("unknown_type");
+		}
+
+		private static Dictionary<string, object> JsonElementToDict(JsonElement element)
+		{
+			var dict = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+
+			if (element.ValueKind != JsonValueKind.Object)
+			{
+				return dict;
+			}
+
+			foreach (var prop in element.EnumerateObject())
+			{
+				dict[prop.Name] = FlattenJsonValue(prop.Value);
+			}
+			return dict;
+		}
+
+		private static object FlattenJsonValue(JsonElement value)
+		{
+			return value.ValueKind switch
+			{
+				JsonValueKind.Null => null,
+				JsonValueKind.String => value.GetString(),
+				JsonValueKind.Number => value.GetDecimal(),
+				JsonValueKind.True => true,
+				JsonValueKind.False => false,
+
+				JsonValueKind.Array => string.Join(", ",
+					value.EnumerateArray()
+						 .Select(FlattenJsonValue)
+						 .Where(x => x != null)),
+
+				JsonValueKind.Object => value.GetRawText(),
+
+				_ => value.GetRawText()
+			};
 		}
 
 		[HttpPost("property")]
