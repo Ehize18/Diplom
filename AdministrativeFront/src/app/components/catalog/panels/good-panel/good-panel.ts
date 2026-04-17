@@ -1,4 +1,4 @@
-import { Component, effect, input, output, signal, computed } from '@angular/core';
+import { Component, effect, input, output, signal, computed, ViewChild, ElementRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Button } from "../../../controls/button/button";
 import { ControlType, Popup, PopupConfig } from '../../../controls/popup/popup';
@@ -403,6 +403,36 @@ export class GoodPanel {
       ],
       callback: this.onCloseModal.bind(this)
     }
+  }
+
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
+
+  onImportClick(): void {
+    this.fileInput?.nativeElement.click();
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    const shopId = this.shopService.currentShop?.id;
+    if (!shopId) {
+      return;
+    }
+
+    this.catalogService.importGoods(shopId, file).subscribe({
+      next: () => {
+        this.getGoods(shopId, this.selectedCategory()?.id);
+      },
+      error: (err) => {
+        console.error('Ошибка при импорте товаров:', err);
+      }
+    });
+
+    input.value = '';
   }
 
   onExportGoods(): void {

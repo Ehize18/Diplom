@@ -7,14 +7,16 @@
         </div>
         <div class="panel-main-header-buttons">
             <app-button caption="Добавить" [onClickCallback]="shopModal.bind(this)"></app-button>
-            <app-button caption="Импорт"></app-button>
+            <app-button caption="Импорт" [onClickCallback]="onImportClick.bind(this)"></app-button>
             <app-button caption="Экспорт" [onClickCallback]="onExportCategories.bind(this)"></app-button>
         </div>
     </div>
+    <input type="file" #fileInput accept=".xlsx,.xls" style="display:none" (change)="onFileSelected($event)">
     <div class="panels-wrap">
         <div class="panel-list panel-list-full"> 
             <div class="panel-list panel-list-vertical panel-list-left">
                 <app-category-tree-panel
+                    [reloadTrigger]="reloadCategoryTrigger()"
                     (itemSelected)="onSelectedCategoryChange($event)"
                     (itemsLoaded)="onCategoriesLoaded($event)"
                     [categorySaved]="savedCategory()"></app-category-tree-panel>

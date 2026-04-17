@@ -49,9 +49,10 @@
         @else {
             <app-button caption="Добавить" [onClickCallback]="showModal.bind(this)"></app-button>
         }
-        <app-button caption="Импорт"></app-button>
+        <app-button caption="Импорт" [onClickCallback]="onImportClick.bind(this)"></app-button>
         <app-button caption="Экспорт" [onClickCallback]="onExportGoods.bind(this)"></app-button>
     </div>
+    <input type="file" #fileInput accept=".xlsx,.xls" style="display:none" (change)="onFileSelected($event)">
 </div>
 <div class="popup-add-good">
     @if (isModalOpened()) {

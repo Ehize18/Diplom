@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ViewChild, ElementRef } from '@angular/core';
 import { Button } from "../../controls/button/button";
 import { CategoryTreePanel } from '../panels/category-tree-panel/category-tree-panel';
 import { CategoryPanel } from '../panels/category-panel/category-panel';
@@ -23,6 +23,7 @@ export class CatalogComponent {
   statisticType = CategoryStaticsticType;
   isModalOpened = signal(false);
   loadedCategories: Category[] = [];
+  reloadCategoryTrigger = signal(0);
 
   constructor(private shopService: ShopService, private catalogService:CatalogService) {
   }
@@ -165,6 +166,36 @@ export class CatalogComponent {
       ],
       callback: this.onCloseModal.bind(this)
     };
+  }
+
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
+
+  onImportClick(): void {
+    this.fileInput?.nativeElement.click();
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    const shopId = this.shopService.currentShop?.id;
+    if (!shopId) {
+      return;
+    }
+
+    this.catalogService.importCategories(shopId, file).subscribe({
+      next: () => {
+        this.reloadCategoryTrigger.update(v => v + 1);
+      },
+      error: (err) => {
+        console.error('Ошибка при импорте категорий:', err);
+      }
+    });
+
+    input.value = '';
   }
 
   onExportCategories(): void {

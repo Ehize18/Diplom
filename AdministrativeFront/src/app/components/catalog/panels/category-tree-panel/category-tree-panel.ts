@@ -15,6 +15,7 @@ import { toObservable } from '@angular/core/rxjs-interop';
 export class CategoryTreePanel {
   tree = signal<TreeItem[]>([]);
   categorySaved = input<Category>();
+  reloadTrigger = input(0);
   selectedItem: TreeItem | undefined;
   selectedItemId: string | undefined;
   itemSelected = output<TreeItem | undefined>();
@@ -50,7 +51,17 @@ export class CategoryTreePanel {
         }
         isAlreadyLoaded = false;
       }
-    )
+    );
+    effect(() => {
+      const trigger = this.reloadTrigger();
+      if (currentShopV && trigger > 0) {
+        this.catalogService.getCategories(currentShopV.id).subscribe((value) => {
+          if (value && value.isSuccess) {
+            this.loadCategories(value.results);
+          }
+        });
+      }
+    });
   }
 
   private loadCategories(categories: Category[]): void {

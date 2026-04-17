@@ -194,6 +194,18 @@ export class CatalogService {
     });
   }
 
+  public importGoods(shopId: string, file: File): Observable<string> {
+    const formData = new FormData();
+    formData.append('file', file, file.name);
+    return this.httpClient.post<string>(`${this._baseUrl}/${shopId}/good/import`, formData, this.HTTP_OPTIONS);
+  }
+
+  public importCategories(shopId: string, file: File): Observable<string> {
+    const formData = new FormData();
+    formData.append('file', file, file.name);
+    return this.httpClient.post<string>(`${this._baseUrl}/${shopId}/category/import`, formData, this.HTTP_OPTIONS);
+  }
+
   public updateCategory(shopId: string, category: Category, image?: File): Observable<string> {
     const formData = new FormData();
     formData.append("Title", category.title);
