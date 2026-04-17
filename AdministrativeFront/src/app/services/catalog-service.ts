@@ -225,4 +225,40 @@ export class CatalogService {
       }
     });
   }
+
+  exportGoods(shopId: string, categoryId?: string): Observable<Blob> {
+    let params: Record<string, string | number | boolean | readonly (string | number | boolean)[]> = {
+      'orderBy': 'Title',
+      'isAscending': true,
+    };
+    if (categoryId) {
+      params['filterType'] = 0;
+      params['column'] = 'CategoryId';
+      params['columnValue'] = categoryId;
+    }
+    return this.httpClient.get(`${this._baseUrl}/${shopId}/export/Good`, {
+      ...this.HTTP_OPTIONS,
+      params: params,
+      responseType: 'blob'
+    });
+  }
+
+  exportCategories(shopId: string): Observable<Blob> {
+    return this.httpClient.get(`${this._baseUrl}/${shopId}/export/Category`, {
+      ...this.HTTP_OPTIONS,
+      responseType: 'blob'
+    });
+  }
+
+  exportOrders(shopId: string): Observable<Blob> {
+    const params = {
+      'orderBy': 'CreatedAt',
+      'isAscending': false
+    };
+    return this.httpClient.get(`${this._baseUrl}/${shopId}/export/Order`, {
+      ...this.HTTP_OPTIONS,
+      params: params,
+      responseType: 'blob'
+    });
+  }
 }

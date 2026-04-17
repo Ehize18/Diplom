@@ -5,7 +5,7 @@
         </div>
         <div class="panel-main-header-buttons">
             <app-button caption="Добавить"></app-button>
-            <app-button caption="Экспорт"></app-button>
+            <app-button caption="Экспорт" [onClickCallback]="onExportOrders.bind(this)"></app-button>
         </div>
         <div class="input-wrapper">
             <input type="text" placeholder="Поиск" [(ngModel)]="searchQuery">

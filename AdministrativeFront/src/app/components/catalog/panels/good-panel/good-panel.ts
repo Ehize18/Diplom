@@ -404,4 +404,27 @@ export class GoodPanel {
       callback: this.onCloseModal.bind(this)
     }
   }
+
+  onExportGoods(): void {
+    const shopId = this.shopService.currentShop?.id;
+    if (!shopId) {
+      return;
+    }
+    const categoryId = this.selectedCategory()?.category.id;
+    this.catalogService.exportGoods(shopId, categoryId).subscribe({
+      next: (blob: Blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `export_goods_${Date.now()}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err) => {
+        console.error('Ошибка при экспорте товаров:', err);
+      }
+    });
+  }
 }

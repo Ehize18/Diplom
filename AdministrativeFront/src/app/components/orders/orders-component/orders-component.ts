@@ -125,4 +125,26 @@ export class OrdersComponent implements OnInit {
       }
     );
   }
+
+  onExportOrders(): void {
+    const shopId = this.shopService.currentShop?.id;
+    if (!shopId) {
+      return;
+    }
+    this.catalogService.exportOrders(shopId).subscribe({
+      next: (blob: Blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `export_orders_${Date.now()}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err) => {
+        console.error('Ошибка при экспорте заказов:', err);
+      }
+    });
+  }
 }

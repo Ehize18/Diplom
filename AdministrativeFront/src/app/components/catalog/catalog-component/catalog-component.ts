@@ -166,4 +166,26 @@ export class CatalogComponent {
       callback: this.onCloseModal.bind(this)
     };
   }
+
+  onExportCategories(): void {
+    const shopId = this.shopService.currentShop?.id;
+    if (!shopId) {
+      return;
+    }
+    this.catalogService.exportCategories(shopId).subscribe({
+      next: (blob: Blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `export_categories_${Date.now()}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err) => {
+        console.error('Ошибка при экспорте категорий:', err);
+      }
+    });
+  }
 }
