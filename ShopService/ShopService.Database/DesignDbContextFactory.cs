@@ -6,7 +6,7 @@ namespace ShopService.Database
 	{
 		public ShopDbContext CreateDbContext(string[] args)
 		{
-			return new ShopDbContext("Server=db;Port=5432;Database=test;User Id=postgres;password=123");
+			return new ShopDbContext("Server=localhost;Port=5432;Database=test;User Id=postgres;password=123");
 		}
 	}
 }

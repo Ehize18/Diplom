@@ -45,5 +45,29 @@ namespace ShopService.Database.Repositories
 			var entities = await query.ToListAsync();
 			return entities.Select(x => x.Good);
 		}
+
+		public async Task RemoveGoodFromBaskets(Guid goodId, CancellationToken cancellationToken = default)
+		{
+			var items = await _context.GoodInBasket
+				.Include(x => x.Basket)
+				.Where(x => x.GoodId == goodId)
+				.ToListAsync(cancellationToken);
+
+			foreach (var item in items)
+			{
+				if (item.Basket.IsCurrent)
+				{
+					// Удаляем GoodInBasket полностью
+					_context.GoodInBasket.Remove(item);
+				}
+				else
+				{
+					// Оставляем запись, но обнуляем GoodId
+					item.GoodId = null;
+					item.Good = null;
+					_context.GoodInBasket.Update(item);
+				}
+			}
+		}
 	}
 }

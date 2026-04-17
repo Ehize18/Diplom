@@ -28,7 +28,7 @@ export interface BasketItem {
     price: number;
     count: number;
     goodId: string;
-    good: Good
+    good: Good | null
 }
 
 export enum DeliveryStatus {

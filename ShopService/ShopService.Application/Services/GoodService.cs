@@ -94,5 +94,37 @@ namespace ShopService.Application.Services
 		{
 			return await _goodRepository.GetByIdAsync(id);
 		}
+
+		public async Task<Good?> DeleteGoodAsync(UpdateGood update, CancellationToken cancellationToken = default)
+		{
+			var isAdmin = await _goodRepository.CheckOrCreateAdmin(update.UpdatedById);
+			if (!isAdmin)
+			{
+				return null;
+			}
+
+			try
+			{
+				await _goodRepository.SetUser(update.UpdatedById);
+				var good = await _goodRepository.GetByIdAsync((Guid)update.GoodId!);
+				if (good == null)
+				{
+					return null;
+				}
+
+				// Удаляем товар из корзин
+				await _goodRepository.RemoveGoodFromBaskets(good.Id, cancellationToken);
+
+				// Удаляем сам товар
+				_goodRepository.Delete(good);
+				await _goodRepository.SaveChangesAsync(cancellationToken);
+				return good;
+			}
+			catch (Exception)
+			{
+			}
+
+			return null;
+		}
 	}
 }

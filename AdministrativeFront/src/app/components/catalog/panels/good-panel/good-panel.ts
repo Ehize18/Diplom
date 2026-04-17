@@ -214,6 +214,21 @@ export class GoodPanel {
     }
   }
 
+  onDeleteGoodClick(): void {
+    const selectedGood = this.selectedGood();
+    if (!selectedGood) {
+      return;
+    }
+
+    const currentShopId = this.shopService.currentShop!.id;
+    this.catalogService.deleteGood(currentShopId, selectedGood.model).subscribe(
+      () => {
+        this.getGoods(currentShopId, this.selectedCategory()?.id);
+        this.selectedGood.set(null);
+      }
+    );
+  }
+
   getGoodImageSrc(good: GoodViewModel): string {
     if (good.model.imageId) {
       return `${environment.imageUrl}/${this.shopService.currentShop?.id}/${good.model.imageId}`

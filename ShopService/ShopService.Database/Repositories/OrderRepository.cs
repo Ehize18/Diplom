@@ -64,7 +64,8 @@ namespace ShopService.Database.Repositories
 		{
 			var goodsSold = await _context.Order
 				.SelectMany(o => o.Basket.Goods)
-				.GroupBy(bi => bi.GoodId)
+				.Where(bi => bi.GoodId.HasValue)
+				.GroupBy(bi => bi.GoodId!.Value)
 				.Select(g => new
 				{
 					GoodId = g.Key,

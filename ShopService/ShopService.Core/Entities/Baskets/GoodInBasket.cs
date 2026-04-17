@@ -15,7 +15,7 @@ namespace ShopService.Core.Entities
 		/// <summary>
 		/// Good id.
 		/// </summary>
-		public Guid GoodId { get; set; }
+		public Guid? GoodId { get; set; }
 
 		/// <summary>
 		/// Good price.

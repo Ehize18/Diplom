@@ -193,6 +193,27 @@ namespace AdministrativeService.Controllers
 			return BadRequest(error);
 		}
 
+		[HttpDelete("good/{goodId:guid}")]
+		public async Task<ActionResult> DeleteGood(Guid shopId, Guid goodId, string? imageId, CancellationToken cancellationToken = default)
+		{
+			var (id, error) = await _shopContentService.DeleteGood(new()
+			{
+				ShopId = shopId,
+				GoodId = goodId,
+				User = CurrentUser
+			}, cancellationToken);
+
+			if (string.IsNullOrWhiteSpace(error))
+			{
+				if (!string.IsNullOrWhiteSpace(imageId) && Guid.TryParse(imageId, out var imageGuid))
+				{
+					await _minioService.DeleteObject(shopId.ToString(), imageId, cancellationToken);
+				}
+				return Ok(id);
+			}
+			return BadRequest(error);
+		}
+
 		[HttpPut("order/{orderId:guid}")]
 		public async Task<ActionResult> PutOrder([FromBody]UpdateOrderRequest request, Guid shopId, Guid orderId, CancellationToken cancellationToken = default)
 		{

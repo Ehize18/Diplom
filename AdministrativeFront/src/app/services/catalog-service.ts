@@ -185,6 +185,15 @@ export class CatalogService {
     return this.httpClient.put<string>(`${this._baseUrl}/${shopId}/good/${good.id}`, formData, this.HTTP_OPTIONS);
   }
 
+  public deleteGood(shopId: string, good: Good): Observable<string> {
+    return this.httpClient.delete<string>(`${this._baseUrl}/${shopId}/good/${good.id}`, {
+      ...this.HTTP_OPTIONS,
+      params: {
+        imageId: good.imageId || ''
+      }
+    });
+  }
+
   public updateCategory(shopId: string, category: Category, image?: File): Observable<string> {
     const formData = new FormData();
     formData.append("Title", category.title);

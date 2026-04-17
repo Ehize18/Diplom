@@ -45,11 +45,15 @@
                     @for (item of order.model.basket.goods; track item.id) {
                         <div class="order-item-wrap">
                             <div class="order-item-img">
-                                <img [src]="getImageSrc(order, item.id)" alt="{{item.good.title}}">
+                                <img [src]="getImageSrc(order, item.id)" alt="{{item.good?.title || 'Удалено'}}">
                             </div>
                             <div class="order-item-title">
                                 <p>
-                                    {{item.good.title}}
+                                    @if (item.good) {
+                                        {{item.good.title}}
+                                    } @else {
+                                        Удалено
+                                    }
                                 </p>
                             </div>
                             <div class="order-item-price">

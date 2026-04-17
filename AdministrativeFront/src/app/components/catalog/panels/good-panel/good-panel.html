@@ -44,6 +44,7 @@
     <div class="panel-main-header-buttons">
         @if (selectedGood()) {
             <app-button caption="Изменить" [onClickCallback]="showModal.bind(this)"></app-button>
+            <app-button caption="Удалить" [onClickCallback]="onDeleteGoodClick.bind(this)"></app-button>
         }
         @else {
             <app-button caption="Добавить" [onClickCallback]="showModal.bind(this)"></app-button>

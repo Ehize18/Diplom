@@ -19,7 +19,7 @@ class OrderVM {
     this.model = order;
     this.isNeedExpand = order.basket.goods.length > 1;
     order.basket.goods.forEach(item => {
-      if (item.good.imageId) {
+      if (item.good && item.good.imageId) {
         this.goodImageSrc.set(item.id, `${environment.imageUrl}/${shopId}/${item.good.imageId}`);
       } else {
         this.goodImageSrc.set(item.id, 'placeholder.svg');

@@ -317,6 +317,39 @@ namespace AdministrativeService.Application.Services
 			return GetResponse(response);
 		}
 
+		public async Task<(Guid, string)> DeleteGood(DeleteGoodDTO dto, CancellationToken cancellationToken = default)
+		{
+			var updateGood = new UpdateGood
+			{
+				GoodId = dto.GoodId,
+				UpdateType = UpdateType.Delete,
+				ShopId = dto.ShopId,
+				UpdatedById = dto.User.Id,
+				GoodTitle = string.Empty,
+				GoodDescription = string.Empty,
+				CategoryId = Guid.Empty,
+				Count = 0,
+				Price = 0,
+				OldPrice = 0,
+				ImageId = null
+			};
+
+			var messageId = Guid.NewGuid();
+
+			var responseTask = _messageService.GetAnswerAsync<GoodUpdated>(messageId, cancellationToken);
+
+			var properties = _messageService.CreateProperties();
+			properties.CorrelationId = messageId.ToString();
+
+			var requestTask = _messageService.PublishUpdateGoodMessage(properties, updateGood, cancellationToken);
+
+			await Task.WhenAll(responseTask, requestTask);
+
+			var response = responseTask.Result;
+
+			return GetResponse(response);
+		}
+
 		public async Task<(Guid, string)> PatchOrder(PatchOrderDTO dto, CancellationToken cancellationToken = default)
 		{
 			var updateOrder = new UpdateOrder

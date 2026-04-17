@@ -15,8 +15,7 @@ namespace ShopService.Database.Configurations
 
 			builder.HasOne(x => x.Good)
 				.WithMany()
-				.HasForeignKey(x => x.GoodId)
-				.IsRequired();
+				.HasForeignKey(x => x.GoodId);
 
 			builder.Property(x => x.Price)
 				.HasColumnType("money")

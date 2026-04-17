@@ -204,6 +204,9 @@ namespace ShopService.Application.Services
 						case UpdateType.Update:
 							good = await categoryService.UpdateGoodAsync(message);
 							break;
+						case UpdateType.Delete:
+							good = await categoryService.DeleteGoodAsync(message);
+							break;
 						default:
 							break;
 					}
