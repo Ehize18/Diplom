@@ -408,7 +408,7 @@ namespace AdministrativeService.Controllers
 				var config = new OpenXmlConfiguration
 				{
 					AutoFilter = false,
-					EnableAutoWidth = false,
+					EnableAutoWidth = true,
 					FastMode = true,
 
 				};
@@ -420,6 +420,9 @@ namespace AdministrativeService.Controllers
 					case DataGetEntity.Order:
 						ms = await GetOrderExcelStream(data, config, cancellationToken);
 						break;
+					case DataGetEntity.User:
+						ms = await GetClientExcelStream(data, config, cancellationToken);
+						break;
 					default:
 						ms = await GetDefaultExcelStream(shopId, data, config, cancellationToken);
 						break;
@@ -428,6 +431,40 @@ namespace AdministrativeService.Controllers
 				return File(ms, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
 			}
 			return BadRequest("unknown_type");
+		}
+
+		private async Task<MemoryStream> GetClientExcelStream(
+			DataGetResponse data,
+			OpenXmlConfiguration config,
+			CancellationToken cancellationToken)
+		{
+			var ms = new MemoryStream();
+
+			var columnsToDelete = new string[]
+			{
+				"passwordHash"
+			};
+
+			var dictData = data.Results.Select(obj =>
+			{
+				if (obj is JsonElement element)
+				{
+					var dict = ConvertJsonElement(element);
+					foreach(var column in columnsToDelete)
+					{
+						if (dict.ContainsKey(column))
+						{
+							dict.Remove(column);
+						}
+					}
+					return dict;
+				}
+				return new Dictionary<string, object>();
+			});
+
+			await MiniExcel.SaveAsAsync(ms, dictData, configuration: config, cancellationToken: cancellationToken);
+			ms.Position = 0;
+			return ms;
 		}
 
 		private async Task<MemoryStream> GetOrderExcelStream(

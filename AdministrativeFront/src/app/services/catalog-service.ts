@@ -273,4 +273,19 @@ export class CatalogService {
       responseType: 'blob'
     });
   }
+
+  exportClients(shopId: string): Observable<Blob> {
+    const params = {
+      'orderBy': 'UpdatedAt',
+      'isAscending': false,
+      'filterType': 0,
+      'column': 'IsAdmin',
+      'columnValue': 'false'
+    };
+    return this.httpClient.get(`${this._baseUrl}/${shopId}/export/User`, {
+      ...this.HTTP_OPTIONS,
+      params: params,
+      responseType: 'blob'
+    });
+  }
 }
