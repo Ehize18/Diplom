@@ -33,7 +33,9 @@
           <a>Чаты</a>
         </li>
         <li class="sidebar-nav-element">
-          <a>Настройки магазина</a>
+          <a
+          (click)="onNavItemClick('/shop/settings')"
+          [class.active]="isNavItemActive('/shop/settings')">Настройки магазина</a>
         </li>
       </ul>
     </nav>

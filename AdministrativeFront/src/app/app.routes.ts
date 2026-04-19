@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { HomeComponent } from './components/home-component/home-component';
+import { ShopSettingsComponent } from './components/shop-settings/shop-settings-component/shop-settings-component';
 
 export const routes: Routes = [
     { path: '', component: HomeComponent },
@@ -22,6 +23,10 @@ export const routes: Routes = [
             {
                 path: 'clients',
                 loadComponent:() => import('./components/clients/clients-component').then(v => v.ClientsComponent)
+            },
+            {
+                path: 'settings',
+                loadComponent:() => import('./components/shop-settings/shop-settings-component/shop-settings-component').then(v => v.ShopSettingsComponent)
             }
         ]
     },
