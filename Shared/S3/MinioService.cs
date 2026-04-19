@@ -56,5 +56,20 @@ namespace Shared.S3
 				.WithObject(objectName);
 			await _minioClient.RemoveObjectAsync(roa, cancellationToken);
 		}
+
+		public async Task<Stream> GetObject(string bucketName, string objectName, CancellationToken cancellationToken = default)
+		{
+			var ms = new MemoryStream();
+			var goa = new GetObjectArgs()
+				.WithBucket(bucketName)
+				.WithObject(objectName)
+				.WithCallbackStream(async cb =>
+				{
+					await cb.CopyToAsync(ms);
+				});
+			await _minioClient.GetObjectAsync(goa, cancellationToken);
+			ms.Position = 0;
+			return ms;
+		}
 	}
 }

@@ -5,6 +5,12 @@ import { environment } from '../../environments/environment';
 import { CreateShopRequest, Shop } from '../contracts/shop';
 import { toObservable } from '@angular/core/rxjs-interop';
 
+export interface ColorSetting {
+  variable: string;
+  label: string;
+  value: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -76,5 +82,13 @@ export class ShopService {
       .subscribe(
         shop => this.currentShop = shop
       );
+  }
+
+  public saveColors(shopId: string, colors: ColorSetting[]): Observable<void> {
+    return this.httpClient.post<void>(this.baseUrl + `/${shopId}/colors`, colors, this.HTTP_OPTIONS);
+  }
+
+  public loadColors(shopId: string): Observable<ColorSetting[]> {
+    return this.httpClient.get<ColorSetting[]>(this.baseUrl + `/${shopId}/colors`, this.HTTP_OPTIONS);
   }
 }

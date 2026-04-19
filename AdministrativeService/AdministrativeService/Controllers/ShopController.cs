@@ -1,10 +1,12 @@
 ﻿using AdministrativeService.Application.DTO.Shop;
 using AdministrativeService.Application.Services;
 using AdministrativeService.Contracts.Shop;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Enums;
 using Shared.RabbitMQ.Contracts;
+using Shared.S3;
+using System.IO;
+using System.Text.Json;
 
 namespace AdministrativeService.Controllers
 {
@@ -13,10 +15,14 @@ namespace AdministrativeService.Controllers
 	public class ShopController : ControllerWithUser
 	{
 		private readonly ShopService _shopService;
+		private readonly IMinioService _minioService;
+		private readonly string? _domain;
 
-		public ShopController(ShopService shopService)
+		public ShopController(ShopService shopService, IMinioService minioService, Microsoft.Extensions.Configuration.IConfiguration configuration)
 		{
 			_shopService = shopService;
+			_minioService = minioService;
+			_domain = configuration.GetValue<string>("ImageDomain");
 		}
 
 		[HttpPost]
@@ -169,6 +175,58 @@ namespace AdministrativeService.Controllers
 				return BadRequest(result.Error);
 			}
 			return Ok(result.MethodId);
+		}
+
+		[HttpPost("{shopId:guid}/colors")]
+		public async Task<ActionResult> SaveColors(List<ColorSetting> colors, Guid shopId, CancellationToken cancellationToken)
+		{
+			var policyJson = @"{
+				""Version"": ""2012-10-17"",
+				""Statement"": [{
+					""Effect"": ""Allow"",
+					""Principal"": { ""AWS"": ""*"" },
+					""Action"": [""s3:GetObject""],
+					""Resource"": [""arn:aws:s3:::" + shopId.ToString() + @"/*""]
+				}]
+			}";
+			await _minioService.Init(shopId.ToString(), policyJson, cancellationToken);
+
+			var colorsJson = JsonSerializer.Serialize(colors);
+			var bytes = System.Text.Encoding.UTF8.GetBytes(colorsJson);
+
+			using var stream = new MemoryStream(bytes);
+			await _minioService.PutObject(shopId.ToString(), "colors.json", stream, "application/json", cancellationToken);
+
+			return Ok();
+		}
+
+		[HttpGet("{shopId:guid}/colors")]
+		public async Task<ActionResult<List<ColorSetting>>> GetColors(Guid shopId, CancellationToken cancellationToken)
+		{
+			var policyJson = @"{
+				""Version"": ""2012-10-17"",
+				""Statement"": [{
+					""Effect"": ""Allow"",
+					""Principal"": { ""AWS"": ""*"" },
+					""Action"": [""s3:GetObject""],
+					""Resource"": [""arn:aws:s3:::" + shopId.ToString() + @"/*""]
+				}]
+			}";
+			await _minioService.Init(shopId.ToString(), policyJson, cancellationToken);
+
+			try
+			{
+				var minioObject = await _minioService.GetObject(shopId.ToString(), "colors.json", cancellationToken);
+				using var reader = new StreamReader(minioObject);
+				var content = await reader.ReadToEndAsync();
+				var colors = JsonSerializer.Deserialize<List<ColorSetting>>(content);
+
+				return Ok(colors);
+			}
+			catch
+			{
+				return NotFound("colors_not_found");
+			}
 		}
 	}
 }

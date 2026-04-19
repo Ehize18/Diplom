@@ -11,7 +11,8 @@
             </div>
         </div>
         <div class="settings-controls panel">
-            <app-shop-color-settings (colorChange)="onColorsChange($event)" />
+            <app-shop-color-settings (colorChange)="onColorsChange($event)"
+            [loadedColors]="loadedColors()" />
         </div>
     </div>
 </div>

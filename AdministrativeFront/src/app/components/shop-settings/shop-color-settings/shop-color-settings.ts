@@ -1,4 +1,4 @@
-import { Component, signal, output, AfterViewInit } from '@angular/core';
+import { Component, signal, output, AfterViewInit, input, effect } from '@angular/core';
 
 export interface ColorSetting {
   variable: string;
@@ -13,6 +13,7 @@ export interface ColorSetting {
   styleUrl: './shop-color-settings.css',
 })
 export class ShopColorSettings implements AfterViewInit {
+  loadedColors = input<ColorSetting[]>([]);
   colors = signal<ColorSetting[]>([
     {
       variable: '--primary-bg-color',
@@ -45,6 +46,16 @@ export class ShopColorSettings implements AfterViewInit {
       value: '#000',
     }
   ]);
+
+  constructor() {
+    effect(() => {
+      const loaded = this.loadedColors();
+      if (loaded && loaded.length > 0) {
+        this.colors.set(loaded);
+        this.colorChange.emit(this.colors());
+      }
+    });
+  }
 
   ngAfterViewInit(): void {
     this.colorChange.emit(this.colors());
