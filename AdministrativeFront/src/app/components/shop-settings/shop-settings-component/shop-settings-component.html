@@ -1,1 +1,17 @@
-<p>shop-settings-component works!</p>
+<div class="full-wrap">
+    <div class="panel panel-main-header">
+        <div class="panel-main-header-caption accent-font">
+            Настройки
+        </div>
+    </div>
+    <div class="settings-layout">
+        <div class="settings-preview">
+            <div class="preview-frame">
+                <app-shop-card-preview (viewInit)="onPreviewInit()" />
+            </div>
+        </div>
+        <div class="settings-controls panel">
+            <app-shop-color-settings (colorChange)="onColorsChange($event)" />
+        </div>
+    </div>
+</div>

@@ -1,0 +1,16 @@
+<div class="color-settings-panel">
+    @for (setting of colors(); track setting.variable) {
+        <div class="color-setting-row">
+            <div class="color-setting-info">
+                <div class="color-setting-label">{{ setting.label }}</div>
+                <div class="color-setting-variable">{{ setting.variable }}</div>
+            </div>
+            <div class="color-setting-input">
+                <input type="color" [value]="setting.value"
+                    (input)="onColorChange(setting, $event)"
+                    class="color-picker">
+                <span class="color-hex">{{ setting.value }}</span>
+            </div>
+        </div>
+    }
+</div>
