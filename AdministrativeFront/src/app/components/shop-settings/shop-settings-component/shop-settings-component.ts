@@ -2,10 +2,11 @@ import { Component, ElementRef, OnInit, signal } from '@angular/core';
 import { ShopCardPreview } from '../shop-card-preview/shop-card-preview';
 import { ShopColorSettings, ColorSetting } from '../shop-color-settings/shop-color-settings';
 import { ShopService } from '../../../services/shop-service';
+import { Button } from '../../controls/button/button';
 
 @Component({
   selector: 'app-shop-settings-component',
-  imports: [ShopCardPreview, ShopColorSettings],
+  imports: [ShopCardPreview, ShopColorSettings, Button],
   templateUrl: './shop-settings-component.html',
   styleUrl: './shop-settings-component.css',
 })
@@ -27,7 +28,6 @@ export class ShopSettingsComponent implements OnInit {
   onColorsChange(colors: ColorSetting[]): void {
     this.currentColors.set(colors);
     this.applyColors();
-    this.saveColors(colors);
   }
 
   onPreviewInit(): void {
@@ -51,7 +51,7 @@ export class ShopSettingsComponent implements OnInit {
     });
   }
 
-  private saveColors(colors: ColorSetting[]): void {
+  saveColors(): void {
     if (this.isSaving || !this.isColorsLoaded) return;
     this.isSaving = true;
 
@@ -61,7 +61,7 @@ export class ShopSettingsComponent implements OnInit {
       return;
     }
 
-    this.shopService.saveColors(shopId, colors).subscribe({
+    this.shopService.saveColors(shopId, this.currentColors()).subscribe({
       next: () => {
         this.isSaving = false;
       },
@@ -69,6 +69,17 @@ export class ShopSettingsComponent implements OnInit {
         this.isSaving = false;
       }
     });
+  }
+
+  cancelColors(): void {
+    this.loadedColors.update(values => {
+      const copy = [...values];
+      return copy;
+    });
+  }
+
+  defaultColors(): void {
+    this.loadedColors.set([]);
   }
 
   private applyColors(): void {

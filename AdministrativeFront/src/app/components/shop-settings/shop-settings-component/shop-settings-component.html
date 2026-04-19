@@ -3,6 +3,11 @@
         <div class="panel-main-header-caption accent-font">
             Настройки
         </div>
+        <div class="panel-main-header-buttons">
+            <app-button caption="Сохранить" [onClickCallback]="saveColors.bind(this)"></app-button>
+            <app-button caption="Отменить" [onClickCallback]="cancelColors.bind(this)"></app-button>
+            <app-button caption="По умолчанию" [onClickCallback]="defaultColors.bind(this)"></app-button>
+        </div>
     </div>
     <div class="settings-layout">
         <div class="settings-preview">

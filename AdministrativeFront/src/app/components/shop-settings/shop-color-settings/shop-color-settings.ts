@@ -1,4 +1,4 @@
-import { Component, signal, output, AfterViewInit, input, effect } from '@angular/core';
+import { Component, signal, output, AfterViewInit, input, effect, OnInit } from '@angular/core';
 
 export interface ColorSetting {
   variable: string;
@@ -14,7 +14,7 @@ export interface ColorSetting {
 })
 export class ShopColorSettings implements AfterViewInit {
   loadedColors = input<ColorSetting[]>([]);
-  colors = signal<ColorSetting[]>([
+  defaultColors: ColorSetting[] = [
     {
       variable: '--primary-bg-color',
       label: 'Основной фон',
@@ -45,13 +45,20 @@ export class ShopColorSettings implements AfterViewInit {
       label: 'Цвет акцентного текста',
       value: '#000',
     }
-  ]);
+  ];
+  
+  restoreDefault = input<boolean>();
+
+  colors = signal<ColorSetting[]>([]);
 
   constructor() {
     effect(() => {
-      const loaded = this.loadedColors();
+      const loaded = structuredClone(this.loadedColors());
       if (loaded && loaded.length > 0) {
         this.colors.set(loaded);
+        this.colorChange.emit(this.colors());
+      } else {
+        this.colors.set(structuredClone(this.defaultColors));
         this.colorChange.emit(this.colors());
       }
     });

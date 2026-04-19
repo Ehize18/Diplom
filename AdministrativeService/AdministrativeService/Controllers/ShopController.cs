@@ -180,7 +180,7 @@ namespace AdministrativeService.Controllers
 		[HttpPost("{shopId:guid}/colors")]
 		public async Task<ActionResult> SaveColors(List<ColorSetting> colors, Guid shopId, CancellationToken cancellationToken)
 		{
-			var policyJson = @"{
+            var policyJson = @"{
 				""Version"": ""2012-10-17"",
 				""Statement"": [{
 					""Effect"": ""Allow"",
@@ -189,9 +189,9 @@ namespace AdministrativeService.Controllers
 					""Resource"": [""arn:aws:s3:::" + shopId.ToString() + @"/*""]
 				}]
 			}";
-			await _minioService.Init(shopId.ToString(), policyJson, cancellationToken);
+            await _minioService.Init(shopId.ToString(), policyJson, cancellationToken);
 
-			var colorsJson = JsonSerializer.Serialize(colors);
+            var colorsJson = JsonSerializer.Serialize(colors);
 			var bytes = System.Text.Encoding.UTF8.GetBytes(colorsJson);
 
 			using var stream = new MemoryStream(bytes);
